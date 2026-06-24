@@ -1,0 +1,19 @@
+<div *ngIf="isVisible">
+  <button 
+    class="btn btn-warning" 
+    [disabled]="isLoading || isCancelledRequest"
+    (click)="showCancelConfirmation()">
+    <span *ngIf="isLoading">Cancelling...</span>
+    <span *ngIf="!isLoading && !isCancelledRequest">Cancel Request</span>
+    <span *ngIf="!isLoading && isCancelledRequest">Already Cancelled</span>
+  </button>
+
+  <!-- Confirmation Dialog -->
+  <app-confirmation-dialog
+    [show]="showConfirmDialog"
+    [config]="confirmDialogConfig"
+    (confirmed)="onCancelConfirmed()"
+    (cancelled)="onCancelDialogClosed()"
+    (closed)="onCancelDialogClosed()">
+  </app-confirmation-dialog>
+</div>

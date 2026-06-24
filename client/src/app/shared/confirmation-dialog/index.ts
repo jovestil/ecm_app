@@ -1,0 +1,1 @@
+export { ConfirmationDialogComponent, ConfirmationDialogConfig } from './confirmation-dialog.component';

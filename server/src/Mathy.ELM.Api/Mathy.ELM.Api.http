@@ -1,0 +1,51 @@
+@Mathy.ELM.Api_HostAddress = https://localhost:7001
+@BearerToken = your-jwt-token-here
+
+# Swagger UI is available at: {{Mathy.ELM.Api_HostAddress}}/swagger
+# Update the host address above based on your launchSettings.json configuration
+
+### Health Check
+GET {{Mathy.ELM.Api_HostAddress}}/api/v1/auth/health
+Accept: application/json
+
+### Get Current User (requires authentication)
+GET {{Mathy.ELM.Api_HostAddress}}/api/v1/auth/me
+Accept: application/json
+Authorization: Bearer {{BearerToken}}
+
+### Validate Token
+GET {{Mathy.ELM.Api_HostAddress}}/api/v1/auth/validate
+Accept: application/json
+Authorization: Bearer {{BearerToken}}
+
+### Get User Companies
+GET {{Mathy.ELM.Api_HostAddress}}/api/v1/auth/companies
+Accept: application/json
+Authorization: Bearer {{BearerToken}}
+
+### Search Employees
+GET {{Mathy.ELM.Api_HostAddress}}/api/v1/employees/search?searchTerm=john
+Accept: application/json
+Authorization: Bearer {{BearerToken}}
+
+### Get Employee by Number
+GET {{Mathy.ELM.Api_HostAddress}}/api/v1/employees/EMP001
+Accept: application/json
+Authorization: Bearer {{BearerToken}}
+
+### Get Employees by Company
+GET {{Mathy.ELM.Api_HostAddress}}/api/v1/employees/company/001?page=1&pageSize=10
+Accept: application/json
+Authorization: Bearer {{BearerToken}}
+
+### Get Layoff Requests
+GET {{Mathy.ELM.Api_HostAddress}}/api/v1/layoffrequests?page=1&pageSize=10
+Accept: application/json
+Authorization: Bearer {{BearerToken}}
+
+### Get Layoff Request by ID
+GET {{Mathy.ELM.Api_HostAddress}}/api/v1/layoffrequests/1
+Accept: application/json
+Authorization: Bearer {{BearerToken}}
+
+###

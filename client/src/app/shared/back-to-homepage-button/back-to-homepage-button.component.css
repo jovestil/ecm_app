@@ -1,0 +1,66 @@
+.back-to-homepage-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+  position: relative;
+  overflow: hidden;
+}
+
+.back-to-homepage-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(102, 126, 234, 0.4);
+  background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+}
+
+.back-to-homepage-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+}
+
+.back-to-homepage-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s;
+}
+
+.back-to-homepage-btn:hover::before {
+  left: 100%;
+}
+
+.home-icon {
+  flex-shrink: 0;
+  transition: transform 0.3s ease;
+}
+
+.arrow-icon {
+  flex-shrink: 0;
+  transition: transform 0.3s ease;
+}
+
+.back-to-homepage-btn:hover .arrow-icon {
+  transform: translateX(2px);
+}
+
+.back-to-homepage-btn:hover .home-icon {
+  transform: scale(1.1);
+}
+
+.back-to-homepage-btn span {
+  white-space: nowrap;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}

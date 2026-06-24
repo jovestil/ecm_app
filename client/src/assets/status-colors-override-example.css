@@ -1,0 +1,30 @@
+/* 
+ * Example: How to override status colors after deployment
+ * 
+ * Method 1: Create this CSS file and include it after the main application styles
+ * Method 2: Add these CSS custom property overrides to any existing CSS file
+ * Method 3: Inject via JavaScript (see status-colors-runtime-example.js)
+ */
+
+/* Override status colors - these will take precedence over the defaults */
+:root {
+  /* Change Pending to blue theme */
+  --status-pending-bg: #dbeafe;
+  --status-pending-text: #1e40af;
+  
+  /* Change Processing to purple theme */
+  --status-processing-bg: #e9d5ff;
+  --status-processing-text: #7c2d12;
+  
+  /* Change Completed to darker green */
+  --status-completed-bg: #bbf7d0;
+  --status-completed-text: #14532d;
+  
+  /* Change Failed to darker red */
+  --status-failed-bg: #fecaca;
+  --status-failed-text: #7f1d1d;
+  
+  /* Change Cancelled to different orange */
+  --status-cancelled-bg: #ffedd5;
+  --status-cancelled-text: #ea580c;
+}

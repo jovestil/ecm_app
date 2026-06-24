@@ -1,0 +1,181 @@
+<app-header></app-header>
+
+<div class="container">
+  <div class="header">
+    <button class="back-btn" (click)="goBack()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M19 12H5M12 19l-7-7 7-7"/>
+      </svg>
+      Back
+    </button>
+    <h1>Layoff Request</h1>
+  </div>
+
+  <div class="warning-banner" *ngIf="!canUpdateDate">
+    <svg class="warning-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+      <line x1="12" y1="9" x2="12" y2="13"/>
+      <line x1="12" y1="17" x2="12.01" y2="17"/>
+    </svg>
+    <div>
+      <strong *ngIf="!isCancelledRequest">Important:</strong>
+      <strong *ngIf="isCancelledRequest">Important:</strong>
+      <span *ngIf="!isCancelledRequest">This action will initiate layoff procedures for the selected employees. Please ensure all information is accurate before submitting.</span>
+      <span *ngIf="isCancelledRequest">This Layoff Request has been canceled.</span>
+    </div>
+  </div>
+
+  <div class="info-banner edit-banner" *ngIf="canUpdateDate">
+    <svg class="info-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/>
+    </svg>
+    <div>
+      <strong>Edit:</strong> You may update the Last Day of Employment date.
+    </div>
+  </div>
+
+  <div class="form-card">
+    <div class="form-section">
+      <div class="section-title">Select Employees</div>
+      
+      <div class="batch-indicator">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+          <circle cx="9" cy="7" r="4"/>
+          <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+          <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+        </svg>
+        <span *ngIf="!isEditMode">Multiple employees can be selected for batch layoff processing</span>
+        <span *ngIf="isEditMode">Viewing employees from existing request</span>
+      </div>
+
+      <!-- Employee Search Component -->
+      <app-employee-search
+        *ngIf="!isEditMode"
+        [config]="searchConfig"
+        [disabled]="isLoading"
+        [selectedEmployees]="selectedEmployees"
+        [searchService]="layoffSearchService"
+        (searchResultsChanged)="onSearchResultsChanged($event)"
+        (searchModeChanged)="onSearchModeChanged($event)"
+        (showGridChanged)="onShowGridChanged($event)"
+        (divisionSearchChanged)="onDivisionSearchChanged($event)"
+        (employeeToggled)="onEmployeeToggle($event)">
+      </app-employee-search>
+
+      <!-- Selected Employees -->
+      <div class="selected-employees" *ngIf="selectedEmployees.length > 0">
+        <h4 style="margin-bottom: 12px;">Selected for Layoff ({{ selectedEmployees.length }}):</h4>
+        <div
+          class="selected-employee"
+          *ngFor="let employee of selectedEmployees">
+          <div class="selected-employee-info">
+            <strong>{{ employee.name }}</strong>
+            <span style="color: #64748b; margin-left: 8px;">{{ employee.positionCode }} • {{ employee.division }}</span>
+          </div>
+          <button class="remove-btn" *ngIf="!isEditMode" (click)="removeEmployee(employee.employeeNumber)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Employee Grid Component -->
+      <app-employee-grid
+        *ngIf="!isEditMode && showEmployeeGrid"
+        [employees]="filteredEmployees"
+        [selectedEmployees]="selectedEmployees"
+        [isLoading]="isLoading"
+        [totalCount]="totalCount"
+        [currentPage]="currentPage"
+        [pageSize]="pageSize"
+        [totalPages]="totalPages"
+        [sortConfig]="currentSort"
+        [config]="{
+          showSearch: false,
+          showPagination: true,
+          showPageSize: true,
+          allowMultiSelect: true,
+          searchModes: ['employee', 'division'],
+          defaultPageSize: 25,
+          pageSizeOptions: [10, 25, 50, 100],
+          emptyMessage: 'No employees found',
+          employeeType: 'employees'
+        }"
+        (employeeToggled)="onEmployeeToggle($event)"
+        (pageChanged)="onPageChange($event)"
+        (pageSizeChanged)="onPageSizeChange($event)"
+        (sortChanged)="onSortChange($event)">
+      </app-employee-grid>
+    </div>
+
+    <div class="form-section">
+      <div class="section-title">
+        <span *ngIf="!isEditMode">Layoff Details</span>
+        <span *ngIf="isEditMode">Layoff Details from Request</span>
+      </div>
+      
+      <div class="form-row">
+        <div class="form-group" style="max-width: 250px;">
+          <label for="effectiveDate" class="required">Last Day of Employment</label>
+          <input type="date"
+                 id="effectiveDate"
+                 [(ngModel)]="effectiveDate"
+                 [disabled]="isEditMode && !canUpdateDate"
+                 required>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group full-width">
+          <label for="notes">Notes</label>
+          <textarea id="notes" 
+                    [(ngModel)]="notes" 
+                    [disabled]="isEditMode"
+                    placeholder="Additional details about the layoff..."></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- Show back to homepage button when in edit mode (parentId present) -->
+    <div class="form-actions" *ngIf="isEditMode" style="justify-content: flex-end; gap: 12px;">
+      <button
+        *ngIf="canUpdateDate"
+        type="button"
+        class="btn btn-primary"
+        (click)="updateEffectiveDate()"
+        [disabled]="isUpdatingDate || effectiveDate === originalEffectiveDate">
+        <span *ngIf="isUpdatingDate">Updating...</span>
+        <span *ngIf="!isUpdatingDate">Update Date</span>
+      </button>
+      <app-cancel-request-button
+        [parentId]="parentId"
+        [isEditMode]="isEditMode"
+        [isCancelledRequest]="isCancelledRequest"
+        [requestStatusId]="requestStatusId"
+        [requestType]="'layoff request'"
+        (cancelled)="onRequestCancelled()">
+      </app-cancel-request-button>
+      <app-back-to-homepage-button
+        *ngIf="!canUpdateDate"
+        [showButton]="isEditMode"
+        [parentId]="parentId">
+      </app-back-to-homepage-button>
+    </div>
+      
+    <!-- Normal action buttons when not in edit mode -->
+    <div class="form-actions" *ngIf="!isEditMode">
+      <button class="btn btn-secondary" (click)="goBack()">Cancel</button>
+      <button
+        class="btn btn-primary"
+        [disabled]="!isFormValid() || isLoading"
+        (click)="submitLayoff()">
+        {{ isLoading ? 'Submitting...' : 'Submit Layoff Request' }}
+        <span *ngIf="!isLoading && selectedEmployees.length > 0" class="submit-count">({{ selectedEmployees.length }})</span>
+      </button>
+    </div>
+  </div>
+</div>
+

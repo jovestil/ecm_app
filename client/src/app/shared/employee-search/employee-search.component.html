@@ -1,0 +1,72 @@
+<!-- Search Container -->
+<div class="search-container" *ngIf="!disabled">
+  <div class="search-type-toggle" *ngIf="hasMultipleSearchModes">
+    <button 
+      class="toggle-btn" 
+      [class.active]="searchType === 'employee'"
+      (click)="onSearchModeToggle('employee')"
+      *ngIf="canShowSearchMode('employee')">
+      Individual
+    </button>
+    <button 
+      class="toggle-btn" 
+      [class.active]="searchType === 'division'"
+      (click)="onSearchModeToggle('division')"
+      *ngIf="canShowSearchMode('division')">
+      By Company/Division
+    </button>
+  </div>
+  <div class="search-box">
+    <svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <circle cx="11" cy="11" r="8"></circle>
+      <path d="m21 21-4.35-4.35"></path>
+    </svg>
+    <input
+      type="text"
+      class="search-input"
+      #searchInput
+      (input)="onSearchInputChange($event)"
+      (keyup)="onSearchInputChange($event)"
+      (focus)="console.log('Input focused in', searchType, 'mode')"
+      (blur)="console.log('Input blurred in', searchType, 'mode')"
+      (click)="console.log('Input clicked in', searchType, 'mode')"
+      [placeholder]="currentPlaceholder">
+  </div>
+</div>
+
+<!-- Search Results (for individual employee search) -->
+<div class="search-results" *ngIf="showSearchResults && showEmployeeSearch">
+  <div class="no-results" *ngIf="isLoading">
+    <div style="margin-bottom: 8px;">🔍 Searching...</div>
+    Loading employees...
+  </div>
+  <div class="no-results" *ngIf="!isLoading && searchResults.length === 0">
+    <div style="margin-bottom: 8px;"><strong>💡 Tip:</strong> Use checkboxes to select multiple employees</div>
+    Start typing to search for employees
+  </div>
+  <div *ngIf="!isLoading">
+    <div 
+      class="search-item"
+      [class.disabled]="isEmployeeDisabled(employee)"
+      *ngFor="let employee of searchResults"
+      (click)="onEmployeeToggle(employee.employeeNumber)">
+    <input 
+      type="checkbox" 
+      [checked]="isEmployeeSelected(employee.employeeNumber)"
+      [disabled]="isEmployeeDisabled(employee)"
+      (click)="$event.stopPropagation()"
+      (change)="onEmployeeToggle(employee.employeeNumber)">
+    <div class="employee-info">
+      <div class="employee-name">
+        {{ employee.name }}
+        <span *ngIf="isEmployeeDisabled(employee)" 
+              class="pending-request-icon tooltip">
+          ⚠️
+          <span class="tooltiptext">Has pending HR request</span>
+        </span>
+      </div>
+      <div class="employee-details">{{ employee.title }} • {{ employee.division }}</div>
+    </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,940 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HR Employee Change Management - Entity Relationship Diagram</title>
+    <style>
+        body {
+            font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 40px;
+            background: #f8f9fa;
+            font-size: 16px;
+            line-height: 1.5;
+            color: #2c3e50;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 60px 40px;
+            text-align: center;
+        }
+        
+        h1 {
+            margin: 0;
+            font-size: 3rem;
+            font-weight: 700;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .content {
+            padding: 40px;
+        }
+        
+        .table-group {
+            margin-bottom: 60px;
+            border: 2px solid #e9ecef;
+            border-radius: 15px;
+            overflow: hidden;
+        }
+        
+        .group-header {
+            padding: 20px 30px;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: white;
+            text-align: center;
+        }
+        
+        .core-request { background: linear-gradient(135deg, #007bff, #0056b3); }
+        .request-specific { background: linear-gradient(135deg, #28a745, #1e7e34); }
+        .access-features { background: linear-gradient(135deg, #17a2b8, #117a8b); }
+        .reference-data { background: linear-gradient(135deg, #6f42c1, #5a32a3); }
+        .user-mgmt { background: linear-gradient(135deg, #fd7e14, #e55100); }
+        .notifications { background: linear-gradient(135deg, #dc3545, #bd2130); }
+        
+        .tables-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 30px;
+            padding: 30px;
+            background: #f8f9fa;
+        }
+        
+        .table-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .table-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.12);
+        }
+        
+        .table-header {
+            background: #2c3e50;
+            color: white;
+            padding: 20px 25px;
+            font-size: 1.3rem;
+            font-weight: 600;
+            border-bottom: 3px solid #34495e;
+        }
+        
+        .table-content {
+            padding: 25px;
+        }
+        
+        .field {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #e9ecef;
+            font-size: 1rem;
+        }
+        
+        .field:last-child {
+            border-bottom: none;
+        }
+        
+        .field-name {
+            font-weight: 600;
+            color: #495057;
+            flex: 1;
+        }
+        
+        .field-type {
+            background: #e9ecef;
+            color: #6c757d;
+            padding: 4px 10px;
+            border-radius: 15px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            margin-left: 10px;
+        }
+        
+        .pk { background: #d4edda; color: #155724; }
+        .fk { background: #fff3cd; color: #856404; }
+        .uk { background: #cce5ff; color: #004085; }
+        
+        .relationships {
+            margin-top: 60px;
+            padding: 40px;
+            background: linear-gradient(145deg, #f8f9fa, #e9ecef);
+            border-radius: 20px;
+        }
+        
+        .relationships h2 {
+            color: #2c3e50;
+            font-size: 2.2rem;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        .relationship-section {
+            margin-bottom: 40px;
+        }
+        
+        .relationship-section h3 {
+            color: #495057;
+            font-size: 1.6rem;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #007bff;
+        }
+        
+        .relationship-list {
+            display: grid;
+            gap: 15px;
+        }
+        
+        .relationship-item {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 5px solid #007bff;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            font-size: 1.1rem;
+            transition: transform 0.2s ease;
+        }
+        
+        .relationship-item:hover {
+            transform: translateX(5px);
+        }
+        
+        .table-name {
+            font-weight: 700;
+            color: #2c3e50;
+        }
+        
+        @media (max-width: 768px) {
+            .tables-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            body {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .header {
+                padding: 40px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>HR Employee Change Management</h1>
+            <p style="font-size: 1.2rem; margin: 10px 0 0 0; opacity: 0.9;">Entity Relationship Diagram</p>
+        </div>
+        
+        <div class="content">
+            <!-- Core Request Tables -->
+            <div class="table-group">
+                <div class="group-header core-request">🏗️ Core Request Tables</div>
+                <div class="tables-grid">
+                    <div class="table-card">
+                        <div class="table-header">HRRequests</div>
+                        <div class="table-content">
+                            <div class="field">
+                                <span class="field-name">Id</span>
+                                <span class="field-type pk">PK - INT</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-name">SubmittedBy</span>
+                                <span class="field-type">INT</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-name">SubmittedDate</span>
+                                <span class="field-type">DATETIME2</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-name">Notes</span>
+                                <span class="field-type">VARCHAR(MAX)</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-name">CreatedBy</span>
+                                <span class="field-type">INT</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-name">CreatedDate</span>
+                                <span class="field-type">DATETIME2</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-name">ModifiedBy</span>
+                                <span class="field-type">INT</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-name">ModifiedDate</span>
+                                <span class="field-type">DATETIME2</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-name">IsDeleted</span>
+                                <span class="field-type">BIT</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="table-card">
+                        <div class="table-header">HRRequestDetails</div>
+                        <div class="table-content">
+                            <div class="field">
+                                <span class="field-name">Id</span>
+                                <span class="field-type pk">PK - INT</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-name">ParentRequestId</span>
+                                <span class="field-type fk">FK - INT</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-name">RequestTypeId</span>
+                                <span class="field-type fk">FK - INT</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-name">RequestStatusId</span>
+                                <span class="field-type fk">FK - INT</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-name">EmployeeId</span>
+                                <span class="field-type">INT</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-name">EmployeeNetworkId</span>
+                                <span class="field-type">VARCHAR(255)</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-name">EffectiveDate</span>
+                                <span class="field-type">DATE</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-name">ViewpointProcessed</span>
+                                <span class="field-type">BIT</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-name">IsDeleted</span>
+                                <span class="field-type">BIT</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="table-card">
+                        <div class="table-header">RequestTypes</div>
+                        <div class="table-content">
+                            <div class="field">
+                                <span class="field-name">Id</span>
+                                <span class="field-type pk">PK - INT</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-name">RequestTypeName</span>
+                                <span class="field-type uk">UK - VARCHAR(50)</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-name">RequestTypeDescription</span>
+                                <span class="field-type">VARCHAR(255)</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-name">IsActive</span>
+                                <span class="field-type">BIT</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-name">IsDeleted</span>
+                                <span class="field-type">BIT</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="table-card">
+                        <div class="table-header">RequestStatuses</div>
+                        <div class="table-content">
+                            <div class="field">
+                                <span class="field-name">Id</span>
+                                <span class="field-type pk">PK - INT</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-name">RequestStatusName</span>
+                                <span class="field-type uk">UK - VARCHAR(50)</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-name">RequestStatusDescription</span>
+                                <span class="field-type">VARCHAR(255)</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-name">IsActive</span>
+                                <span class="field-type">BIT</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-name">IsDeleted</span>
+                                <span class="field-type">BIT</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Request Type Specific Tables -->
+            <div class="table-group">
+                <div class="group-header request-specific">📝 Request Type Specific Tables</div>
+                <div class="tables-grid">
+                    <div class="table-card">
+                        <div class="table-header">PromotionRequestDetails</div>
+                        <div class="table-content">
+                            <div class="field">
+                                <span class="field-name">Id</span>
+                                <span class="field-type pk">PK - INT</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-name">RequestDetailId</span>
+                                <span class="field-type fk">FK - INT</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-name">NewPayrollCompanyCode</span>
+                                <span class="field-type">INT</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-name">NewPayrollGroupCode</span>
+                                <span class="field-type">INT</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-name">NewPositionCode</span>
+                                <span class="field-type">VARCHAR(10)</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-name">PayrollType</span>
+                                <span class="field-type">VARCHAR(25)</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-name">RequiresAccess</span>
+                                <span class="field-type">BIT</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-name">IsDeleted</span>
+                                <span class="field-type">BIT</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="table-card">
+                        <div class="table-header">LayoffRequestDetails</div>
+                        <div class="table-content">
+                            <div class="field">
+                                <span class="field-name">Id</span>
+                                <span class="field-type pk">PK - INT</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-name">RequestDetailId</span>
+                                <span class="field-type fk">FK - INT</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-name">LastDayWorked</span>
+                                <span class="field-type">DATE</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-name">IsDeleted</span>
+                                <span class="field-type">BIT</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="table-card">
+                        <div class="table-header">TerminationRequestDetails</div>
+                        <div class="table-content">
+                            <div class="field">
+                                <span class="field-name">Id</span>
+                                <span class="field-type pk">PK - INT</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-name">RequestDetailId</span>
+                                <span class="field-type fk">FK - INT</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-name">ReasonCode</span>
+                                <span class="field-type">VARCHAR(20)</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-name">ContestUnemployment</span>
+                                <span class="field-type">BIT</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-name">ForwardEmail</span>
+                                <span class="field-type">VARCHAR(255)</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-name">AutoReply</span>
+                                <span class="field-type">VARCHAR(MAX)</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-name">IsDeleted</span>
+                                <span class="field-type">BIT</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="table-card">
+                        <div class="table-header">ReturnToWorkRequestDetails</div>
+                        <div class="table-content">
+                            <div class="field">
+                                <span class="field-name">Id</span>
+                                <span class="field-type pk">PK - INT</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-name">RequestDetailId</span>
+                                <span class="field-type fk">FK - INT</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-name">IsDeleted</span>
+                                <span class="field-type">BIT</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Access Features Tables -->
+            <div class="table-group">
+                <div class="group-header access-features">⚙️ Access Features Tables</div>
+                <div class="tables-grid">
+                    <div class="table-card">
+                        <div class="table-header">ITDetails</div>
+                        <div class="table-content">
+                            <div class="field">
+                                <span class="field-name">Id</span>
+                                <span class="field-type pk">PK - INT</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-name">RequestDetailId</span>
+                                <span class="field-type fk">FK - INT</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-name">EmailRequired</span>
+                                <span class="field-type">BIT</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-name">AlternateDeliveryLocation</span>
+                                <span class="field-type">VARCHAR(500)</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-name">IsDeleted</span>
+                                <span class="field-type">BIT</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="table-card">
+                        <div class="table-header">CreditCardDetails</div>
+                        <div class="table-content">
+                            <div class="field">
+                                <span class="field-name">Id</span>
+                                <span class="field-type pk">PK - INT</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-name">RequestDetailId</span>
+                                <span class="field-type fk">FK - INT</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-name">KwikTripCard</span>
+                                <span class="field-type">BIT</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-name">ExpenseCard</span>
+                                <span class="field-type">VARCHAR(50)</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-name">WeeklyLimit</span>
+                                <span class="field-type">DECIMAL(10,2)</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-name">IsDeleted</span>
+                                <span class="field-type">BIT</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="table-card">
+                        <div class="table-header">VehicleDetails</div>
+                        <div class="table-content">
+                            <div class="field">
+                                <span class="field-name">Id</span>
+                                <span class="field-type pk">PK - INT</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-name">RequestDetailId</span>
+                                <span class="field-type fk">FK - INT</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-name">CompanyVehicleApproved</span>
+                                <span class="field-type">BIT</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-name">DriverClassification</span>
+                                <span class="field-type">VARCHAR(100)</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-name">DrugProfile</span>
+                                <span class="field-type">VARCHAR(100)</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-name">IsDeleted</span>
+                                <span class="field-type">BIT</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="table-card">
+                        <div class="table-header">ApplicationRequests</div>
+                        <div class="table-content">
+                            <div class="field">
+                                <span class="field-name">Id</span>
+                                <span class="field-type pk">PK - INT</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-name">ITDetailId</span>
+                                <span class="field-type fk">FK - INT</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-name">ApplicationId</span>
+                                <span class="field-type fk">FK - INT</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-name">AccessNotes</span>
+                                <span class="field-type">VARCHAR(500)</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-name">IsDeleted</span>
+                                <span class="field-type">BIT</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reference Data Tables -->
+            <div class="table-group">
+                <div class="group-header reference-data">📊 Reference Data Tables</div>
+                <div class="tables-grid">
+                    <div class="table-card">
+                        <div class="table-header">Companies</div>
+                        <div class="table-content">
+                            <div class="field">
+                                <span class="field-name">Id</span>
+                                <span class="field-type pk">PK - INT</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-name">CompanyCode</span>
+                                <span class="field-type uk">UK - INT</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-name">CompanyName</span>
+                                <span class="field-type">VARCHAR(100)</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-name">IsActive</span>
+                                <span class="field-type">BIT</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-name">ViewpointSyncDate</span>
+                                <span class="field-type">DATETIME2</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-name">IsDeleted</span>
+                                <span class="field-type">BIT</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="table-card">
+                        <div class="table-header">Employees</div>
+                        <div class="table-content">
+                            <div class="field">
+                                <span class="field-name">Id</span>
+                                <span class="field-type pk">PK - INT</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-name">CompanyCode</span>
+                                <span class="field-type">INT</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-name">EmployeeNumber</span>
+                                <span class="field-type uk">UK - INT</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-name">FirstName</span>
+                                <span class="field-type">VARCHAR(30)</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-name">LastName</span>
+                                <span class="field-type">VARCHAR(30)</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-name">WorkEmail</span>
+                                <span class="field-type">VARCHAR(255)</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-name">NetworkId</span>
+                                <span class="field-type">VARCHAR(255)</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-name">EmploymentStatus</span>
+                                <span class="field-type">VARCHAR(10)</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-name">IsDeleted</span>
+                                <span class="field-type">BIT</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="table-card">
+                        <div class="table-header">Applications</div>
+                        <div class="table-content">
+                            <div class="field">
+                                <span class="field-name">Id</span>
+                                <span class="field-type pk">PK - INT</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-name">ApplicationName</span>
+                                <span class="field-type">VARCHAR(255)</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-name">ApplicationDescription</span>
+                                <span class="field-type">VARCHAR(500)</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-name">IsActive</span>
+                                <span class="field-type">BIT</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-name">IsDeleted</span>
+                                <span class="field-type">BIT</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="table-card">
+                        <div class="table-header">Positions</div>
+                        <div class="table-content">
+                            <div class="field">
+                                <span class="field-name">Id</span>
+                                <span class="field-type pk">PK - INT</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-name">CompanyCode</span>
+                                <span class="field-type">INT</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-name">PositionCode</span>
+                                <span class="field-type uk">UK - VARCHAR(10)</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-name">PositionName</span>
+                                <span class="field-type">VARCHAR(50)</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-name">IsActive</span>
+                                <span class="field-type">BIT</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-name">IsDeleted</span>
+                                <span class="field-type">BIT</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- User Management Tables -->
+            <div class="table-group">
+                <div class="group-header user-mgmt">👥 User Management Tables</div>
+                <div class="tables-grid">
+                    <div class="table-card">
+                        <div class="table-header">UserCompanyAccess</div>
+                        <div class="table-content">
+                            <div class="field">
+                                <span class="field-name">Id</span>
+                                <span class="field-type pk">PK - INT</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-name">UserId</span>
+                                <span class="field-type uk">UK - VARCHAR(255)</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-name">UserName</span>
+                                <span class="field-type">VARCHAR(255)</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-name">CompanyCode</span>
+                                <span class="field-type uk">UK - INT</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-name">CanSubmitRequests</span>
+                                <span class="field-type">BIT</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-name">Source</span>
+                                <span class="field-type">VARCHAR(50)</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-name">IsDeleted</span>
+                                <span class="field-type">BIT</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="table-card">
+                        <div class="table-header">TerminationReasons</div>
+                        <div class="table-content">
+                            <div class="field">
+                                <span class="field-name">Id</span>
+                                <span class="field-type pk">PK - INT</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-name">ReasonCode</span>
+                                <span class="field-type uk">UK - VARCHAR(20)</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-name">ReasonDescription</span>
+                                <span class="field-type">VARCHAR(255)</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-name">IsActive</span>
+                                <span class="field-type">BIT</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-name">IsDeleted</span>
+                                <span class="field-type">BIT</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Notification Tables -->
+            <div class="table-group">
+                <div class="group-header notifications">📧 Notification Tables</div>
+                <div class="tables-grid">
+                    <div class="table-card">
+                        <div class="table-header">EmailTemplates</div>
+                        <div class="table-content">
+                            <div class="field">
+                                <span class="field-name">Id</span>
+                                <span class="field-type pk">PK - INT</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-name">TemplateName</span>
+                                <span class="field-type">VARCHAR(255)</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-name">RequestType</span>
+                                <span class="field-type">VARCHAR(50)</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-name">EmailType</span>
+                                <span class="field-type">VARCHAR(100)</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-name">Subject</span>
+                                <span class="field-type">VARCHAR(500)</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-name">Body</span>
+                                <span class="field-type">VARCHAR(MAX)</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-name">IsDeleted</span>
+                                <span class="field-type">BIT</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="table-card">
+                        <div class="table-header">NotificationQueue</div>
+                        <div class="table-content">
+                            <div class="field">
+                                <span class="field-name">Id</span>
+                                <span class="field-type pk">PK - INT</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-name">RequestId</span>
+                                <span class="field-type fk">FK - INT</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-name">TemplateId</span>
+                                <span class="field-type fk">FK - INT</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-name">ToEmail</span>
+                                <span class="field-type">VARCHAR(255)</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-name">Subject</span>
+                                <span class="field-type">VARCHAR(500)</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-name">Status</span>
+                                <span class="field-type">VARCHAR(50)</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-name">SentDate</span>
+                                <span class="field-type">DATETIME2</span>
+                            </div>
+                            <div class="field">
+                                <span class="field-name">IsDeleted</span>
+                                <span class="field-type">BIT</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Relationships -->
+            <div class="relationships">
+                <h2>📋 Key Relationships</h2>
+                
+                <div class="relationship-section">
+                    <h3>🏗️ Core Request Structure</h3>
+                    <div class="relationship-list">
+                        <div class="relationship-item">
+                            <span class="table-name">HRRequests</span> (1) → <span class="table-name">HRRequestDetails</span> (Many): Parent-child relationship for batch requests
+                        </div>
+                        <div class="relationship-item">
+                            <span class="table-name">HRRequestDetails</span> (Many) → <span class="table-name">RequestTypes</span> (1): Defines request type
+                        </div>
+                        <div class="relationship-item">
+                            <span class="table-name">HRRequestDetails</span> (Many) → <span class="table-name">RequestStatuses</span> (1): Tracks request status
+                        </div>
+                    </div>
+                </div>
+
+                <div class="relationship-section">
+                    <h3>📝 Request Type Extensions</h3>
+                    <div class="relationship-list">
+                        <div class="relationship-item">
+                            <span class="table-name">HRRequestDetails</span> (1) → <span class="table-name">PromotionRequestDetails</span> (0..1): Position changes
+                        </div>
+                        <div class="relationship-item">
+                            <span class="table-name">HRRequestDetails</span> (1) → <span class="table-name">LayoffRequestDetails</span> (0..1): Layoff information
+                        </div>
+                        <div class="relationship-item">
+                            <span class="table-name">HRRequestDetails</span> (1) → <span class="table-name">TerminationRequestDetails</span> (0..1): Termination details
+                        </div>
+                        <div class="relationship-item">
+                            <span class="table-name">HRRequestDetails</span> (1) → <span class="table-name">ReturnToWorkRequestDetails</span> (0..1): Return to work
+                        </div>
+                    </div>
+                </div>
+
+                <div class="relationship-section">
+                    <h3>⚙️ Access Features</h3>
+                    <div class="relationship-list">
+                        <div class="relationship-item">
+                            <span class="table-name">HRRequestDetails</span> (1) → <span class="table-name">ITDetails</span> (0..1): IT access requirements
+                        </div>
+                        <div class="relationship-item">
+                            <span class="table-name">ITDetails</span> (1) → <span class="table-name">ApplicationRequests</span> (Many): Application access requests
+                        </div>
+                        <div class="relationship-item">
+                            <span class="table-name">ApplicationRequests</span> (Many) → <span class="table-name">Applications</span> (1): Application catalog
+                        </div>
+                        <div class="relationship-item">
+                            <span class="table-name">HRRequestDetails</span> (1) → <span class="table-name">CreditCardDetails</span> (0..1): Credit card requirements
+                        </div>
+                        <div class="relationship-item">
+                            <span class="table-name">HRRequestDetails</span> (1) → <span class="table-name">VehicleDetails</span> (0..1): Vehicle requirements
+                        </div>
+                    </div>
+                </div>
+
+                <div class="relationship-section">
+                    <h3>📧 Notifications</h3>
+                    <div class="relationship-list">
+                        <div class="relationship-item">
+                            <span class="table-name">HRRequests</span> (1) → <span class="table-name">NotificationQueue</span> (Many): Generates notifications
+                        </div>
+                        <div class="relationship-item">
+                            <span class="table-name">EmailTemplates</span> (1) → <span class="table-name">NotificationQueue</span> (Many): Template-based emails
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

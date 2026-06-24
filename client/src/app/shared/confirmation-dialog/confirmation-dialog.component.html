@@ -1,0 +1,31 @@
+<div class="modal-overlay" [class.show]="show" (click)="onOverlayClick()">
+  <div class="confirmation-dialog" (click)="onDialogClick($event)">
+    <button class="modal-close" (click)="close()">&times;</button>
+    
+    <div class="dialog-content">
+      <div class="dialog-icon" *ngIf="config.showIcon" [ngClass]="'icon-' + config.iconType">
+        <div [innerHTML]="getIconSvg()"></div>
+      </div>
+      
+      <div class="dialog-text">
+        <h3 class="dialog-title" *ngIf="config.title">{{ config.title }}</h3>
+        <p class="dialog-message">{{ config.message }}</p>
+      </div>
+    </div>
+    
+    <div class="dialog-actions">
+      <button 
+        class="btn" 
+        [ngClass]="config.cancelButtonClass || 'btn-secondary'"
+        (click)="onCancel()">
+        {{ config.cancelButtonText || 'Cancel' }}
+      </button>
+      <button 
+        class="btn" 
+        [ngClass]="config.confirmButtonClass || 'btn-primary'"
+        (click)="onConfirm()">
+        {{ config.confirmButtonText || 'Confirm' }}
+      </button>
+    </div>
+  </div>
+</div>

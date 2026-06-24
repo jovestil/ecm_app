@@ -1,0 +1,130 @@
+/* Common styles shared across components */
+
+.header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 32px;
+}
+
+.header h1 {
+  font-size: 28px;
+  font-weight: 600;
+  color: #1e293b;
+  text-align: left;
+  margin-left: 16px;
+}
+
+.back-btn {
+  background: none;
+  border: 1px solid #d1d5db;
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  color: #6b7280;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s;
+}
+
+.back-btn:hover {
+  background: #f3f4f6;
+  border-color: #9ca3af;
+}
+
+/* HR Request Status Colors - CSS Custom Properties */
+:root {
+  /* Status color variables - can be overridden after deployment */
+  --status-pending-bg: #f3f4f6;
+  --status-pending-text: #374151;
+  
+  --status-processing-bg: #fef3c7;
+  --status-processing-text: #92400e;
+  
+  --status-completed-bg: #d1fae5;
+  --status-completed-text: #065f46;
+  
+  --status-failed-bg: #fee2e2;
+  --status-failed-text: #991b1b;
+  
+  --status-cancelled-bg: #fed7aa;
+  --status-cancelled-text: #9a3412;
+  
+  --status-default-bg: #e5e7eb;
+  --status-default-text: #374151;
+
+  /* Custom display status colors */
+  --status-submitted-success-bg: #d1fae5;
+  --status-submitted-success-text: #065f46;
+
+  --status-submitted-failed-bg: #fee2e2;
+  --status-submitted-failed-text: #991b1b;
+
+  --status-submitted-cancelled-bg: #fed7aa;
+  --status-submitted-cancelled-text: #9a3412;
+
+  --status-draft-bg: #f3f4f6;
+  --status-draft-text: #6b7280;
+}
+
+.status {
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+  text-align: center;
+  display: inline-block;
+  min-width: 80px;
+}
+
+/* Static colors with CSS custom property fallbacks */
+.status-pending {
+  background-color: var(--status-pending-bg, #f3f4f6) !important;
+  color: var(--status-pending-text, #374151) !important;
+}
+
+.status-processing {
+  background-color: var(--status-processing-bg, #fef3c7) !important;
+  color: var(--status-processing-text, #92400e) !important;
+}
+
+.status-completed {
+  background-color: var(--status-completed-bg, #d1fae5) !important;
+  color: var(--status-completed-text, #065f46) !important;
+}
+
+.status-failed {
+  background-color: var(--status-failed-bg, #fee2e2) !important;
+  color: var(--status-failed-text, #991b1b) !important;
+}
+
+.status-cancelled {
+  background-color: var(--status-cancelled-bg, #fed7aa) !important;
+  color: var(--status-cancelled-text, #9a3412) !important;
+}
+
+.status-default {
+  background-color: var(--status-default-bg, #e5e7eb) !important;
+  color: var(--status-default-text, #374151) !important;
+}
+
+/* Custom display status classes */
+.status-submitted-success {
+  background-color: var(--status-submitted-success-bg, #d1fae5) !important;
+  color: var(--status-submitted-success-text, #065f46) !important;
+}
+
+.status-submitted-failed {
+  background-color: var(--status-submitted-failed-bg, #fee2e2) !important;
+  color: var(--status-submitted-failed-text, #991b1b) !important;
+}
+
+.status-submitted-cancelled {
+  background-color: var(--status-submitted-cancelled-bg, #fed7aa) !important;
+  color: var(--status-submitted-cancelled-text, #9a3412) !important;
+}
+
+.status-draft {
+  background-color: var(--status-draft-bg, #f3f4f6) !important;
+  color: var(--status-draft-text, #6b7280) !important;
+}

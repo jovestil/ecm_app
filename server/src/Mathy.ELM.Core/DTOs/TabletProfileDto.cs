@@ -1,0 +1,13 @@
+namespace Mathy.ELM.Core.DTOs;
+
+public class TabletProfileDto
+{
+    public int Id { get; set; }
+    public string LocationType { get; set; } = string.Empty;
+    public string ProfileName { get; set; } = string.Empty;
+    public bool IsActive { get; set; }
+    public int CreatedBy { get; set; }
+    public DateTime CreatedDate { get; set; }
+    public int? ModifiedBy { get; set; }
+    public DateTime? ModifiedDate { get; set; }
+}

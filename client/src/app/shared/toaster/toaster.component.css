@@ -1,0 +1,4 @@
+/* Custom toaster styles if needed */
+:host {
+  z-index: 9999;
+}

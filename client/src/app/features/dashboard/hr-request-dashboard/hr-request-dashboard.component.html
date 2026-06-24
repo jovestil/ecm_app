@@ -1,0 +1,257 @@
+<app-header [userName]="userName"></app-header>
+
+<div class="container">
+  <div class="header">
+    <h1>HR Requests</h1>
+    <button class="new-request-btn" (click)="openModal()">+ New Request</button>
+  </div>
+
+  <div class="controls">
+    <div class="search-box">
+      <svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="11" cy="11" r="8"></circle>
+        <path d="m21 21-4.35-4.35"></path>
+      </svg>
+      <input 
+        type="text" 
+        placeholder="Search requests..." 
+        [(ngModel)]="searchTerm"
+        (input)="onSearch($event)">
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-container">
+    <div class="loading-spinner"></div>
+    <p>Loading HR requests...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="errorMessage && !isLoading" class="error-container">
+    <div class="error-message">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="10"></circle>
+        <line x1="15" y1="9" x2="9" y2="15"></line>
+        <line x1="9" y1="9" x2="15" y2="15"></line>
+      </svg>
+      <span>{{ errorMessage }}</span>
+      <button (click)="loadHRRequests()" class="retry-btn">Retry</button>
+    </div>
+  </div>
+
+  <div class="table-container" *ngIf="!isLoading && !errorMessage">
+    <table>
+      <thead>
+        <tr>
+          <th class="sortable" 
+              [ngClass]="{ 'sort-active': isSortActive('requestTypeName') }"
+              (click)="sortColumn('requestTypeName')">
+            Request Type
+            <span class="sort-indicator">{{ getSortIndicator('requestTypeName') }}</span>
+          </th>
+          <th class="sortable"
+              [ngClass]="{ 'sort-active': isSortActive('employeeName') }"
+              (click)="sortColumn('employeeName')">
+            Employee Name
+            <span class="sort-indicator">{{ getSortIndicator('employeeName') }}</span>
+          </th>
+          <th class="sortable"
+              [ngClass]="{ 'sort-active': isSortActive('companyName') }"
+              (click)="sortColumn('companyName')">
+            Company
+            <span class="sort-indicator">{{ getSortIndicator('companyName') }}</span>
+          </th>
+          <th class="sortable"
+              [ngClass]="{ 'sort-active': isSortActive('departmentName') }"
+              (click)="sortColumn('departmentName')">
+            Division
+            <span class="sort-indicator">{{ getSortIndicator('departmentName') }}</span>
+          </th>
+          <th class="sortable"
+              [ngClass]="{ 'sort-active': isSortActive('effectiveDate') }"
+              (click)="sortColumn('effectiveDate')">
+            Effective Date
+            <span class="sort-indicator">{{ getSortIndicator('effectiveDate') }}</span>
+          </th>
+          <th class="sortable" 
+              [ngClass]="{ 'sort-active': isSortActive('requestStatusName') }"
+              (click)="sortColumn('requestStatusName')">
+            Status
+            <span class="sort-indicator">{{ getSortIndicator('requestStatusName') }}</span>
+          </th>
+          <th class="sortable" 
+              [ngClass]="{ 'sort-active': isSortActive('submittedByName') }"
+              (click)="sortColumn('submittedByName')">
+            Submitted By
+            <span class="sort-indicator">{{ getSortIndicator('submittedByName') }}</span>
+          </th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let request of paginatedRequests" (click)="handleViewAction(request)">
+          <td title="Click to view or edit request">
+            <span class="request-type" [ngClass]="getRequestTypeClass(request.requestTypeName)">
+              {{ formatRequestType(request.requestTypeName) }}
+            </span>
+          </td>
+          <td title="Click to view or edit request">{{ request.employeeName || 'Unknown Employee' }}</td>
+          <td title="Click to view or edit request">{{ formatCompanyDisplay(request) }}</td>
+          <td title="Click to view or edit request">{{ formatDivisionDisplay(request) }}</td>
+          <td title="Click to view or edit request">{{ formatDate(request.effectiveDate) }}</td>
+          <td [title]="formatDisplayStatus(request.requestStatusName) || 'Unknown'">
+            <span class="status" [ngClass]="getDisplayStatusClass(request.requestDisplayStatusName, request.requestStatusName)">
+              {{ formatDisplayStatus(request.requestDisplayStatusName, request.requestStatusName) }}
+            </span>
+          </td>
+          <td title="Click to view or edit request">{{ request.submittedByName || 'Unknown User' }}</td>
+          <td>
+            <div class="action-buttons">
+              <!-- Edit Draft icon (pencil) -->
+              <span
+                *ngIf="request.requestStatusName?.toLowerCase() === 'draft'"
+                title="Edit">
+                <svg
+                  class="action-icon draft-icon"
+                  [ngClass]="getRequestTypeClass(request.requestTypeName)"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  (click)="handleViewAction(request); $event.stopPropagation()">
+                  <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>
+                </svg>
+              </span>
+              <!-- Edit icon (pencil) for Pending requests where effective date is in the future -->
+              <span
+                *ngIf="request.requestStatusName?.toLowerCase() === 'pending' && !isEffectiveDateTodayOrPast(request.effectiveDate)"
+                title="Edit">
+                <svg
+                  class="action-icon draft-icon"
+                  [ngClass]="getRequestTypeClass(request.requestTypeName)"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  (click)="handleViewAction(request); $event.stopPropagation()">
+                  <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>
+                </svg>
+              </span>
+              <!-- View icon (eye) for processing/completed/cancelled/failed requests, or pending with effective date today or past -->
+              <span
+                *ngIf="request.requestStatusName?.toLowerCase() !== 'draft' && (request.requestStatusName?.toLowerCase() !== 'pending' || isEffectiveDateTodayOrPast(request.effectiveDate))"
+                title="View">
+                <svg
+                  class="action-icon view-icon"
+                  [ngClass]="getRequestTypeClass(request.requestTypeName)"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  (click)="handleViewAction(request); $event.stopPropagation()">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                  <circle cx="12" cy="12" r="3"></circle>
+                </svg>
+              </span>
+              <!-- Cancel button for eligible requests -->
+              <span
+                *ngIf="canShowCancelButton(request)"
+                title="Cancel">
+                <svg
+                  class="action-icon cancel-icon"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  (click)="cancelRequest(request); $event.stopPropagation()">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <line x1="15" y1="9" x2="9" y2="15"></line>
+                  <line x1="9" y1="9" x2="15" y2="15"></line>
+                </svg>
+              </span>
+              <!-- Retry button for failed requests (excluding New Hire) -->
+              <span
+                *ngIf="isRequestFailed(request.requestStatusName) && !isNewHireRequest(request.requestTypeName)"
+                title="Retry Failed Request">
+                <svg
+                  class="action-icon retry-icon"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  (click)="retryFailedRequest(request); $event.stopPropagation()">
+                  <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/>
+                  <path d="M21 3v5h-5"/>
+                  <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/>
+                  <path d="M3 21v-5h5"/>
+                </svg>
+              </span>
+            </div>
+          </td>
+        </tr>
+        <tr *ngIf="paginatedRequests.length === 0">
+          <td colspan="8" class="empty-state">
+            <h3>No requests found</h3>
+            <p>Try adjusting your search criteria</p>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="pagination">
+    <button 
+      [disabled]="!canGoPrevious" 
+      (click)="changePage(-1)">
+      Previous
+    </button>
+    <span class="page-info">
+      Page {{ currentPage }} of {{ totalPages }}
+    </span>
+    <button 
+      [disabled]="!canGoNext" 
+      (click)="changePage(1)">
+      Next
+    </button>
+    <select 
+      class="page-size-selector" 
+      [ngModel]="pageSize" 
+      (change)="updatePageSize($event)">
+      <option value="5">5 per page</option>
+      <option value="10">10 per page</option>
+      <option value="20">20 per page</option>
+      <option value="50">50 per page</option>
+    </select>
+  </div>
+</div>
+
+<!-- Modal -->
+<div class="modal-overlay" [class.show]="showModal" (click)="closeModal()">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <button class="modal-close" (click)="closeModal()">&times;</button>
+    <h2>Select Request Type</h2>
+    <div class="request-options">
+      <div 
+        class="request-option" 
+        *ngFor="let option of requestTypeOptions"
+        (click)="createRequest(option.type)">
+        <div class="request-option-icon" [ngClass]="option.type">
+          {{ option.icon }}
+        </div>
+        <div class="request-option-content">
+          <h3>{{ option.title }}</h3>
+          <p>{{ option.description }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Cancel Confirmation Dialog -->
+<app-confirmation-dialog
+  [show]="showCancelConfirmDialog"
+  [config]="confirmCancelDialogConfig"
+  (confirmed)="onCancelConfirmed()"
+  (cancelled)="onCancelDialogClosed()"
+  (closed)="onCancelDialogClosed()">
+</app-confirmation-dialog>

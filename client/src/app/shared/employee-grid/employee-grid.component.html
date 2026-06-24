@@ -1,0 +1,173 @@
+<!-- Search Container -->
+<div class="search-container" *ngIf="effectiveConfig.showSearch && !disabled">
+  <div class="search-type-toggle" *ngIf="hasMultipleSearchModes">
+    <button 
+      class="toggle-btn" 
+      [class.active]="searchType === 'employee'"
+      (click)="onSearchModeChange('employee')"
+      *ngIf="effectiveConfig.searchModes?.includes('employee')">
+      Individual
+    </button>
+    <button 
+      class="toggle-btn" 
+      [class.active]="searchType === 'division'"
+      (click)="onSearchModeChange('division')"
+      *ngIf="effectiveConfig.searchModes?.includes('division')">
+      By Company/Division
+    </button>
+  </div>
+  <input 
+    type="text" 
+    class="search-input" 
+    [value]="searchQuery"
+    (input)="onSearchChange($any($event.target).value || '')"
+    [placeholder]="searchType === 'employee' ? 'Search employees... (select multiple with checkboxes)' : 'Search divisions... (select multiple employees per division)'">
+</div>
+
+<!-- Search Results (for individual employee search) -->
+<div class="search-results" *ngIf="showSearchResults && showEmployeeSearch">
+  <div class="no-results" *ngIf="searchResults.length === 0">
+    <div style="margin-bottom: 8px;"><strong>💡 Tip:</strong> Use checkboxes to select multiple employees</div>
+    Start typing to search for employees
+  </div>
+  <div 
+    class="search-item"
+    [class.disabled]="isEmployeeDisabled(employee)"
+    *ngFor="let employee of searchResults"
+    (click)="onEmployeeToggle(employee.employeeNumber)">
+    <input 
+      type="checkbox" 
+      [checked]="isEmployeeSelected(employee.employeeNumber)"
+      [disabled]="isEmployeeDisabled(employee)"
+      (click)="$event.stopPropagation()"
+      (change)="onEmployeeToggle(employee.employeeNumber)">
+    <div class="employee-info">
+      <div class="employee-name">
+        {{ employee.name }}
+        <span *ngIf="isEmployeeDisabled(employee)" 
+              class="pending-request-icon tooltip">
+          ⚠️
+          <span class="tooltiptext">Has pending HR request</span>
+        </span>
+      </div>
+      <div class="employee-details">{{ employee.title }} • {{ employee.division }}</div>
+    </div>
+  </div>
+</div>
+
+<!-- Employee Grid -->
+<div class="employee-grid" [class.show]="!showSearchResults || showDivisionSearch">
+  <!-- Grid Controls -->
+  <div class="grid-controls" *ngIf="effectiveConfig.showPagination || effectiveConfig.showPageSize">
+    <div class="grid-info">{{ gridInfo }}</div>
+    <div class="page-size-selector" *ngIf="effectiveConfig.showPageSize">
+      <label>Show:</label>
+      <select [value]="pageSize" (change)="onPageSizeChange(+$any($event.target).value)">
+        <option *ngFor="let size of effectiveConfig.pageSizeOptions" 
+                [value]="size" 
+                [selected]="size === (effectiveConfig.defaultPageSize || 25)">
+          {{ size }}
+        </option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Table Container -->
+  <div class="table-container">
+    <table class="grid-table">
+      <thead>
+        <tr>
+          <th class="checkbox-cell" *ngIf="effectiveConfig.allowMultiSelect">Select</th>
+          <th *ngFor="let column of visibleColumns" 
+              [class.sortable]="column.sortable" 
+              [class.sort-active]="isSortActive(column.key)"
+              [style.width]="column.width"
+              (click)="column.sortable ? onSort(column.key) : null">
+            {{ column.label }}
+            <span class="sort-indicator" 
+                  *ngIf="column.sortable"
+                  [class.active]="isSortActive(column.key)">
+              {{ getSortIndicator(column.key) }}
+            </span>
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngIf="displayedEmployees.length === 0 && !isLoading">
+          <td [attr.colspan]="visibleColumns.length + (effectiveConfig.allowMultiSelect ? 1 : 0)" 
+              style="text-align: center; padding: 32px; color: #6b7280;">
+            {{ effectiveConfig.emptyMessage }}
+          </td>
+        </tr>
+        <tr *ngIf="isLoading">
+          <td [attr.colspan]="visibleColumns.length + (effectiveConfig.allowMultiSelect ? 1 : 0)" 
+              style="text-align: center; padding: 32px; color: #6b7280;">
+            Loading employees...
+          </td>
+        </tr>
+        <tr *ngFor="let employee of displayedEmployees" 
+            (click)="effectiveConfig.allowMultiSelect ? onEmployeeToggle(employee.employeeNumber) : null" 
+            [style.cursor]="effectiveConfig.allowMultiSelect ? 'pointer' : 'default'"
+            [class.disabled]="isEmployeeDisabled(employee)">
+          <td class="checkbox-cell" *ngIf="effectiveConfig.allowMultiSelect">
+            <input 
+              type="checkbox" 
+              [checked]="isEmployeeSelected(employee.employeeNumber)"
+              [disabled]="isEmployeeDisabled(employee)"
+              (click)="$event.stopPropagation()"
+              (change)="onEmployeeToggle(employee.employeeNumber)">
+          </td>
+          <td *ngFor="let column of visibleColumns">
+            <ng-container [ngSwitch]="column.key">
+              <!-- Employee Name with special formatting -->
+              <span *ngSwitchCase="'name'">
+                <strong>{{ getColumnValue(employee, column.key) }}</strong>
+                <span *ngIf="isEmployeeDisabled(employee)" 
+                      class="pending-request-icon tooltip">
+                  ⚠️
+                  <span class="tooltiptext">Has pending HR request</span>
+                </span>
+              </span>
+              <!-- Company with special styling -->
+              <span *ngSwitchCase="'company'" 
+                    class="company-name">
+                {{ getColumnValue(employee, column.key) }}
+              </span>
+              <!-- Division with special styling -->
+              <span *ngSwitchCase="'division'" 
+                    class="division-name">
+                {{ getColumnValue(employee, column.key) }}
+              </span>
+              <!-- Employee ID with special styling -->
+              <span *ngSwitchCase="'employeeNumber'" 
+                    class="employee-id">
+                {{ getColumnValue(employee, column.key) }}
+              </span>
+              <!-- Position Code with special styling -->
+              <span *ngSwitchCase="'positionCode'" 
+                    class="position-code">
+                {{ getColumnValue(employee, column.key) }}
+              </span>
+              <!-- Default case for other columns -->
+              <span *ngSwitchDefault>
+                {{ getColumnValue(employee, column.key) }}
+              </span>
+            </ng-container>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Pagination Controls -->
+  <div class="pagination-controls" *ngIf="effectiveConfig.showPagination && totalPages > 1">
+    <div class="pagination">
+      <button (click)="onPageChange(1)" [disabled]="currentPage === 1">First</button>
+      <button (click)="onPageChange(currentPage - 1)" [disabled]="currentPage === 1">Previous</button>
+      <span>{{ pageInfo }}</span>
+      <button (click)="onPageChange(currentPage + 1)" [disabled]="currentPage === totalPages">Next</button>
+      <button (click)="onPageChange(totalPages)" [disabled]="currentPage === totalPages">Last</button>
+    </div>
+    <div class="grid-info">{{ gridInfoBottom }}</div>
+  </div>
+</div>

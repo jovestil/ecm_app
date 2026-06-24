@@ -1,0 +1,1095 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Layoff Request</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        .app-header {
+            background-color: white;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            padding: 16px 24px;
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .logo img {
+            height: 40px;
+            width: auto;
+        }
+
+        .app-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .user-name {
+            font-weight: 500;
+            color: #1e293b;
+        }
+
+        .logout-link {
+            color: #3b82f6;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .logout-link:hover {
+            text-decoration: underline;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f8fafc;
+            color: #334155;
+            line-height: 1.5;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        .back-btn {
+            background: none;
+            border: 1px solid #d1d5db;
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            color: #6b7280;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .back-btn:hover {
+            background: #f3f4f6;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        .form-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .form-section {
+            padding: 24px;
+            border-bottom: 1px solid #f3f4f6;
+        }
+
+        .form-section:last-child {
+            border-bottom: none;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 16px;
+        }
+
+        .batch-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin-bottom: 20px;
+            color: #1e40af;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .search-container {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 12px 16px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .search-type-toggle {
+            display: flex;
+            background: #f1f5f9;
+            border-radius: 8px;
+            padding: 4px;
+        }
+
+        .toggle-btn {
+            padding: 8px 16px;
+            border: none;
+            background: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            color: #64748b;
+            transition: all 0.2s;
+        }
+
+        .toggle-btn.active {
+            background: white;
+            color: #1e293b;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        }
+
+        .search-results {
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            background: white;
+        }
+
+        .search-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            border-bottom: 1px solid #f3f4f6;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .search-item:hover {
+            background: #f8fafc;
+        }
+
+        .search-item:last-child {
+            border-bottom: none;
+        }
+
+        .search-item input[type="checkbox"] {
+            margin-right: 12px;
+        }
+
+        .employee-info {
+            flex: 1;
+        }
+
+        .employee-name {
+            font-weight: 500;
+            color: #1e293b;
+        }
+
+        .employee-details {
+            font-size: 14px;
+            color: #64748b;
+            margin-top: 2px;
+        }
+
+        .selected-employees {
+            margin-top: 24px;
+        }
+
+        .selected-employee {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px;
+            background: #fef3c7;
+            border: 1px solid #fcd34d;
+            border-radius: 8px;
+            margin-bottom: 12px;
+        }
+
+        .selected-employee-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .remove-btn {
+            background: none;
+            border: none;
+            color: #dc2626;
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 4px;
+        }
+
+        .remove-btn:hover {
+            background: #fee2e2;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+
+        label {
+            font-weight: 500;
+            color: #374151;
+        }
+
+        input[type="date"], textarea {
+            padding: 12px 16px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        input[type="date"]:focus, textarea:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            padding: 24px;
+            background: #f8fafc;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #374151;
+            border: 1px solid #d1d5db;
+        }
+
+        .btn-secondary:hover {
+            background: #f3f4f6;
+        }
+
+        .btn-primary {
+            background: #dc2626;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #b91c1c;
+        }
+
+        .btn-primary:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+        }
+
+        .warning-banner {
+            background: #fef3c7;
+            border: 1px solid #fcd34d;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .warning-icon {
+            color: #d97706;
+            flex-shrink: 0;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 32px;
+            color: #6b7280;
+        }
+
+        .division-header {
+            background: #f1f5f9;
+            padding: 8px 16px;
+            font-weight: 600;
+            color: #475569;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .employee-grid {
+            display: none;
+        }
+
+        .employee-grid.show {
+            display: block;
+        }
+
+        .grid-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        .grid-table th {
+            background: #f8fafc;
+            padding: 12px 16px;
+            text-align: left;
+            font-weight: 600;
+            color: #374151;
+            border-bottom: 2px solid #e5e7eb;
+        }
+
+        .grid-table td {
+            padding: 12px 16px;
+            border-bottom: 1px solid #f3f4f6;
+            vertical-align: middle;
+        }
+
+        .grid-table tr:hover {
+            background: #f9fafb;
+        }
+
+        .grid-table .checkbox-cell {
+            width: 40px;
+            text-align: center;
+        }
+
+        .grid-table .checkbox-cell input[type="checkbox"] {
+            margin: 0;
+        }
+
+        .employee-id {
+            color: #64748b;
+            font-family: monospace;
+            font-size: 13px;
+        }
+
+        .position-code {
+            color: #7c3aed;
+            font-weight: 500;
+            font-size: 13px;
+        }
+
+        .company-division {
+            color: #059669;
+            font-weight: 500;
+        }
+
+        .grid-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px;
+            background: #f8fafc;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .pagination {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .pagination button {
+            padding: 6px 12px;
+            border: 1px solid #d1d5db;
+            background: white;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .pagination button:hover:not(:disabled) {
+            background: #f3f4f6;
+        }
+
+        .pagination button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .pagination .current-page {
+            background: #3b82f6;
+            color: white;
+            border-color: #3b82f6;
+        }
+
+        .page-size-selector {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+        }
+
+        .page-size-selector select {
+            padding: 4px 8px;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .grid-table th {
+            background: #f8fafc;
+            padding: 12px 16px;
+            text-align: left;
+            font-weight: 600;
+            color: #374151;
+            border-bottom: 2px solid #e5e7eb;
+            cursor: pointer;
+            user-select: none;
+            position: relative;
+        }
+
+        .grid-table th:hover {
+            background: #f1f5f9;
+        }
+
+        .grid-table th.checkbox-cell {
+            cursor: default;
+        }
+
+        .grid-table th.checkbox-cell:hover {
+            background: #f8fafc;
+        }
+
+        .sort-indicator {
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            opacity: 0.5;
+        }
+
+        .sort-indicator.active {
+            opacity: 1;
+            color: #3b82f6;
+        }
+
+        .grid-info {
+            font-size: 14px;
+            color: #64748b;
+        }
+    </style>
+</head>
+<body>
+    <header class="app-header">
+        <div class="header-content">
+            <div class="header-left">
+                <div class="logo">
+                    <img src="Mathy-Seal_2017_320-1.png" alt="Mathy Seal">
+                </div>
+                <h1 class="app-title">Employee Change Management</h1>
+            </div>
+            <div class="header-right">
+                <div class="user-info">
+                    <span class="user-name">John Doe</span>
+                    <a href="#" class="logout-link" onclick="handleLogout()">Logout</a>
+                </div>
+            </div>
+        </div>
+    </header>
+    <div class="container">
+        <div class="header">
+            <button class="back-btn" onclick="goBack()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M19 12H5M12 19l-7-7 7-7"/>
+                </svg>
+                Back
+            </button>
+            <h1>Layoff Request</h1>
+        </div>
+
+        <div class="warning-banner">
+            <svg class="warning-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                <line x1="12" y1="9" x2="12" y2="13"/>
+                <line x1="12" y1="17" x2="12.01" y2="17"/>
+            </svg>
+            <div>
+                <strong>Important:</strong> This action will initiate layoff procedures for the selected employees. Please ensure all information is accurate before submitting.
+            </div>
+        </div>
+
+        <div class="form-card">
+            <div class="form-section">
+                <div class="section-title">Select Employees</div>
+                <div class="batch-indicator">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+                        <circle cx="9" cy="7" r="4"/>
+                        <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                    </svg>
+                    You can select multiple employees for a single layoff request
+                </div>
+                
+                <div class="search-container">
+                    <div class="search-type-toggle">
+                        <button class="toggle-btn active" id="employeeToggle" onclick="toggleSearchType('employee')">Individual</button>
+                        <button class="toggle-btn" id="divisionToggle" onclick="toggleSearchType('division')">By Company/Division</button>
+                    </div>
+                    <input type="text" class="search-input" id="searchInput" placeholder="Search employees... (select multiple with checkboxes)" oninput="searchEmployees()">
+                </div>
+
+                <div class="search-results" id="searchResults">
+                    <div class="no-results">
+                        <div style="margin-bottom: 8px;"><strong>💡 Tip:</strong> Use checkboxes to select multiple employees</div>
+                        Start typing to search for employees or divisions
+                    </div>
+                </div>
+
+                <div class="employee-grid" id="employeeGrid">
+                    <div class="grid-controls">
+                        <div class="grid-info" id="gridInfo">
+                            Showing 0 employees
+                        </div>
+                        <div class="page-size-selector">
+                            <label>Show:</label>
+                            <select id="pageSize" onchange="changePageSize()">
+                                <option value="10">10</option>
+                                <option value="25" selected>25</option>
+                                <option value="50">50</option>
+                                <option value="100">100</option>
+                            </select>
+                            <span>per page</span>
+                        </div>
+                    </div>
+                    <table class="grid-table">
+                        <thead>
+                            <tr>
+                                <th class="checkbox-cell">Select</th>
+                                <th onclick="sortGrid('name')" data-sort="name">
+                                    Employee Name
+                                    <span class="sort-indicator" id="sort-name">↕</span>
+                                </th>
+                                <th onclick="sortGrid('company')" data-sort="company">
+                                    Company/Division
+                                    <span class="sort-indicator" id="sort-company">↕</span>
+                                </th>
+                                <th onclick="sortGrid('id')" data-sort="id">
+                                    Emp ID
+                                    <span class="sort-indicator" id="sort-id">↕</span>
+                                </th>
+                                <th onclick="sortGrid('positionCode')" data-sort="positionCode">
+                                    Position
+                                    <span class="sort-indicator" id="sort-positionCode">↕</span>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody id="gridTableBody">
+                        </tbody>
+                    </table>
+                    <div class="grid-controls">
+                        <div class="pagination" id="pagination">
+                            <button onclick="goToPage(1)" id="firstPageBtn">First</button>
+                            <button onclick="goToPage(currentPage - 1)" id="prevPageBtn">Previous</button>
+                            <span id="pageInfo">Page 1 of 1</span>
+                            <button onclick="goToPage(currentPage + 1)" id="nextPageBtn">Next</button>
+                            <button onclick="goToPage(totalPages)" id="lastPageBtn">Last</button>
+                        </div>
+                        <div class="grid-info" id="gridInfoBottom">
+                            Total: 0 employees
+                        </div>
+                    </div>
+                </div>
+
+                <div class="selected-employees" id="selectedEmployees" style="display: none;">
+                    <h4 style="margin-bottom: 12px;">Selected for Layoff:</h4>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <div class="section-title">Layoff Details</div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="lastDayWorked">Last Day Worked *</label>
+                        <input type="date" id="lastDayWorked" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group full-width">
+                        <label for="notes">Notes</label>
+                        <textarea id="notes" placeholder="Additional details about the layoff..."></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button class="btn btn-secondary" onclick="goBack()">Cancel</button>
+                <button class="btn btn-primary" id="submitBtn" onclick="submitLayoff()" disabled>
+                    Submit Layoff Request
+                    <span id="submitCount" style="opacity: 0.8;"></span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let selectedEmployees = [];
+        let searchType = 'employee';
+        let currentPage = 1;
+        let pageSize = 25;
+        let totalPages = 1;
+        let currentSort = { field: null, direction: 'asc' };
+        let filteredEmployees = [];
+        let allEmployees = [
+            { id: 1001, name: 'Smith, John', title: 'Site Supervisor', division: 'Field Operations', department: 'Commercial Construction', positionCode: 'SITESUPR', company: 'MTS' },
+            { id: 1002, name: 'Johnson, Sarah', title: 'Project Manager', division: 'Project Management', department: 'Residential Projects', positionCode: 'PROJMGR', company: 'Mathy' },
+            { id: 1003, name: 'Chen, Mike', title: 'Heavy Equipment Operator', division: 'Field Operations', department: 'Infrastructure', positionCode: 'EQPOPER', company: 'MTS' },
+            { id: 1004, name: 'Davis, Emily', title: 'Safety Coordinator', division: 'Safety & Compliance', department: 'Job Site Safety', positionCode: 'SFTYCOORD', company: 'MTS' },
+            { id: 1005, name: 'Rodriguez, David', title: 'Electrician', division: 'Trades', department: 'Electrical Services', positionCode: 'ELECT', company: 'Mathy' },
+            { id: 1006, name: 'Wang, Lisa', title: 'CAD Technician', division: 'Engineering', department: 'Design & Drafting', positionCode: 'CADTECH', company: 'MTS' },
+            { id: 1007, name: 'Wilson, James', title: 'Cost Estimator', division: 'Pre-Construction', department: 'Estimating', positionCode: 'COSTESTIM', company: 'Mathy' },
+            { id: 1008, name: 'Thompson, Emma', title: 'Carpenter', division: 'Trades', department: 'Framing & Finish', positionCode: 'CARPNTR', company: 'MTS' },
+            { id: 1009, name: 'Martinez, Robert', title: 'Crane Operator', division: 'Field Operations', department: 'Heavy Equipment', positionCode: 'CRANEOPR', company: 'MTS' },
+            { id: 1010, name: 'Lee, Jennifer', title: 'Concrete Finisher', division: 'Trades', department: 'Concrete & Masonry', positionCode: 'CONCRFIN', company: 'Mathy' },
+            { id: 1011, name: 'Turner, Alex', title: 'Foreman', division: 'Field Operations', department: 'Commercial Construction', positionCode: 'FOREMAN', company: 'MTS' },
+            { id: 1012, name: 'Garcia, Maria', title: 'Plumber', division: 'Trades', department: 'Plumbing Services', positionCode: 'PLUMBER', company: 'Mathy' }
+        ];
+
+        function toggleSearchType(type) {
+            searchType = type;
+            document.getElementById('employeeToggle').classList.toggle('active', type === 'employee');
+            document.getElementById('divisionToggle').classList.toggle('active', type === 'division');
+            
+            const searchInput = document.getElementById('searchInput');
+            const searchResults = document.getElementById('searchResults');
+            const employeeGrid = document.getElementById('employeeGrid');
+            
+            if (type === 'employee') {
+                searchInput.placeholder = 'Search employees... (select multiple with checkboxes)';
+                searchResults.style.display = 'block';
+                employeeGrid.classList.remove('show');
+                searchInput.value = '';
+                searchResults.innerHTML = `
+                    <div class="no-results">
+                        <div style="margin-bottom: 8px;"><strong>💡 Tip:</strong> Use checkboxes to select multiple employees</div>
+                        Start typing to search for employees
+                    </div>
+                `;
+            } else {
+                searchInput.placeholder = 'Search divisions... (select multiple employees per division)';
+                searchResults.style.display = 'none';
+                employeeGrid.classList.add('show');
+                searchInput.value = '';
+                displayEmployeeGrid();
+            }
+        }
+
+        function displayEmployeeGrid() {
+            const gridBody = document.getElementById('gridTableBody');
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            
+            // Filter employees
+            filteredEmployees = allEmployees;
+            if (query.length >= 2) {
+                filteredEmployees = allEmployees.filter(emp => 
+                    emp.division.toLowerCase().includes(query) ||
+                    emp.company.toLowerCase().includes(query) ||
+                    emp.name.toLowerCase().includes(query) ||
+                    emp.positionCode.toLowerCase().includes(query)
+                );
+            }
+            
+            // Apply sorting
+            if (currentSort.field) {
+                filteredEmployees.sort((a, b) => {
+                    let aVal = a[currentSort.field];
+                    let bVal = b[currentSort.field];
+                    
+                    if (currentSort.field === 'company') {
+                        aVal = `${a.company} / ${a.division}`;
+                        bVal = `${b.company} / ${b.division}`;
+                    }
+                    
+                    if (typeof aVal === 'string') {
+                        aVal = aVal.toLowerCase();
+                        bVal = bVal.toLowerCase();
+                    }
+                    
+                    if (currentSort.direction === 'asc') {
+                        return aVal > bVal ? 1 : -1;
+                    } else {
+                        return aVal < bVal ? 1 : -1;
+                    }
+                });
+            }
+            
+            // Calculate pagination
+            totalPages = Math.ceil(filteredEmployees.length / pageSize);
+            if (currentPage > totalPages) currentPage = 1;
+            
+            const startIndex = (currentPage - 1) * pageSize;
+            const endIndex = startIndex + pageSize;
+            const pageEmployees = filteredEmployees.slice(startIndex, endIndex);
+            
+            // Update grid info
+            updateGridInfo();
+            
+            // Render table rows
+            let html = '';
+            pageEmployees.forEach(emp => {
+                const isSelected = selectedEmployees.find(sel => sel.id === emp.id);
+                html += `
+                    <tr onclick="toggleEmployeeFromGrid(${emp.id})" style="cursor: pointer;">
+                        <td class="checkbox-cell">
+                            <input type="checkbox" ${isSelected ? 'checked' : ''} 
+                                   onchange="event.stopPropagation(); toggleEmployeeFromGrid(${emp.id})">
+                        </td>
+                        <td>
+                            <strong>${emp.name}</strong>
+                        </td>
+                        <td>
+                            <div class="company-division">${emp.company} / ${emp.division}</div>
+                        </td>
+                        <td>
+                            <span class="employee-id">${emp.id}</span>
+                        </td>
+                        <td>
+                            <span class="position-code">${emp.positionCode}</span>
+                        </td>
+                    </tr>
+                `;
+            });
+            
+            if (html === '') {
+                html = `
+                    <tr>
+                        <td colspan="5" style="text-align: center; padding: 32px; color: #6b7280;">
+                            No employees found
+                        </td>
+                    </tr>
+                `;
+            }
+            
+            gridBody.innerHTML = html;
+            updatePagination();
+        }
+
+        function updateGridInfo() {
+            const startIndex = (currentPage - 1) * pageSize + 1;
+            const endIndex = Math.min(currentPage * pageSize, filteredEmployees.length);
+            const total = filteredEmployees.length;
+            
+            const topInfo = document.getElementById('gridInfo');
+            const bottomInfo = document.getElementById('gridInfoBottom');
+            
+            if (total === 0) {
+                topInfo.textContent = 'No employees found';
+                bottomInfo.textContent = 'Total: 0 employees';
+            } else {
+                topInfo.textContent = `Showing ${startIndex}-${endIndex} of ${total} employees`;
+                bottomInfo.textContent = `Total: ${total} employees`;
+            }
+        }
+
+        function updatePagination() {
+            const pageInfo = document.getElementById('pageInfo');
+            const firstBtn = document.getElementById('firstPageBtn');
+            const prevBtn = document.getElementById('prevPageBtn');
+            const nextBtn = document.getElementById('nextPageBtn');
+            const lastBtn = document.getElementById('lastPageBtn');
+            
+            pageInfo.textContent = `Page ${currentPage} of ${totalPages}`;
+            
+            firstBtn.disabled = currentPage === 1;
+            prevBtn.disabled = currentPage === 1;
+            nextBtn.disabled = currentPage === totalPages || totalPages === 0;
+            lastBtn.disabled = currentPage === totalPages || totalPages === 0;
+        }
+
+        function goToPage(page) {
+            if (page >= 1 && page <= totalPages) {
+                currentPage = page;
+                displayEmployeeGrid();
+            }
+        }
+
+        function changePageSize() {
+            pageSize = parseInt(document.getElementById('pageSize').value);
+            currentPage = 1;
+            displayEmployeeGrid();
+        }
+
+        function sortGrid(field) {
+            if (currentSort.field === field) {
+                currentSort.direction = currentSort.direction === 'asc' ? 'desc' : 'asc';
+            } else {
+                currentSort.field = field;
+                currentSort.direction = 'asc';
+            }
+            
+            // Update sort indicators
+            document.querySelectorAll('.sort-indicator').forEach(indicator => {
+                indicator.textContent = '↕';
+                indicator.classList.remove('active');
+            });
+            
+            const indicator = document.getElementById(`sort-${field}`);
+            indicator.textContent = currentSort.direction === 'asc' ? '↑' : '↓';
+            indicator.classList.add('active');
+            
+            currentPage = 1;
+            displayEmployeeGrid();
+        }
+
+        function toggleEmployeeFromGrid(employeeId) {
+            toggleEmployee(employeeId);
+            displayEmployeeGrid(); // Refresh grid to update checkboxes
+        }
+
+        function searchEmployees() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            
+            if (searchType === 'division') {
+                displayEmployeeGrid();
+                return;
+            }
+            
+            // Original employee search logic
+            const resultsContainer = document.getElementById('searchResults');
+            
+            if (query.length < 2) {
+                resultsContainer.innerHTML = `
+                    <div class="no-results">
+                        <div style="margin-bottom: 8px;"><strong>💡 Tip:</strong> Use checkboxes to select multiple employees</div>
+                        Start typing to search...
+                    </div>
+                `;
+                return;
+            }
+
+            let results = allEmployees.filter(emp => 
+                emp.name.toLowerCase().includes(query) ||
+                emp.title.toLowerCase().includes(query) ||
+                emp.division.toLowerCase().includes(query)
+            );
+            
+            displayEmployeeResults(results);
+        }
+
+        function displayEmployeeResults(employees) {
+            const resultsContainer = document.getElementById('searchResults');
+            
+            if (employees.length === 0) {
+                resultsContainer.innerHTML = '<div class="no-results">No employees found</div>';
+                return;
+            }
+
+            resultsContainer.innerHTML = employees.map(emp => `
+                <div class="search-item" onclick="toggleEmployee(${emp.id})">
+                    <input type="checkbox" ${selectedEmployees.find(sel => sel.id === emp.id) ? 'checked' : ''} onchange="event.stopPropagation(); toggleEmployee(${emp.id})">
+                    <div class="employee-info">
+                        <div class="employee-name">${emp.name}</div>
+                        <div class="employee-details">${emp.title} • ${emp.division}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function displayDivisionResults(divisions) {
+            const resultsContainer = document.getElementById('searchResults');
+            
+            if (divisions.length === 0) {
+                resultsContainer.innerHTML = '<div class="no-results">No divisions found</div>';
+                return;
+            }
+
+            let html = '';
+            divisions.forEach(division => {
+                const divisionEmployees = allEmployees.filter(emp => emp.division === division);
+                html += `<div class="division-header">${division} (${divisionEmployees.length} employees)</div>`;
+                
+                divisionEmployees.forEach(emp => {
+                    html += `
+                        <div class="search-item" onclick="toggleEmployee(${emp.id})">
+                            <input type="checkbox" ${selectedEmployees.find(sel => sel.id === emp.id) ? 'checked' : ''} onchange="event.stopPropagation(); toggleEmployee(${emp.id})">
+                            <div class="employee-info">
+                                <div class="employee-name">${emp.name}</div>
+                                <div class="employee-details">${emp.title}</div>
+                            </div>
+                        </div>
+                    `;
+                });
+            });
+            
+            resultsContainer.innerHTML = html;
+        }
+
+        function toggleEmployee(employeeId) {
+            const employee = allEmployees.find(emp => emp.id === employeeId);
+            const existingIndex = selectedEmployees.findIndex(sel => sel.id === employeeId);
+            
+            if (existingIndex > -1) {
+                selectedEmployees.splice(existingIndex, 1);
+            } else {
+                selectedEmployees.push(employee);
+            }
+            
+            updateSelectedEmployees();
+            updateSubmitButton();
+            
+            // Refresh search results to update checkboxes
+            if (document.getElementById('searchInput').value.length >= 2) {
+                searchEmployees();
+            }
+        }
+
+        function updateSelectedEmployees() {
+            const container = document.getElementById('selectedEmployees');
+            
+            if (selectedEmployees.length === 0) {
+                container.style.display = 'none';
+                return;
+            }
+            
+            container.style.display = 'block';
+            const employeesList = selectedEmployees.map(emp => `
+                <div class="selected-employee">
+                    <div class="selected-employee-info">
+                        <strong>${emp.name}</strong>
+                        <span style="color: #64748b; margin-left: 8px;">ID: ${emp.id} • ${emp.title} • ${emp.division}</span>
+                    </div>
+                    <button class="remove-btn" onclick="removeEmployee(${emp.id})" title="Remove">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                    </button>
+                </div>
+            `).join('');
+            
+            container.innerHTML = `<h4 style="margin-bottom: 12px;">Selected for Layoff (${selectedEmployees.length}):</h4>` + employeesList;
+        }
+
+        function removeEmployee(employeeId) {
+            selectedEmployees = selectedEmployees.filter(emp => emp.id !== employeeId);
+            updateSelectedEmployees();
+            updateSubmitButton();
+            
+            // Refresh search results to update checkboxes
+            if (document.getElementById('searchInput').value.length >= 2) {
+                searchEmployees();
+            }
+        }
+
+        function updateSubmitButton() {
+            const submitBtn = document.getElementById('submitBtn');
+            const submitCount = document.getElementById('submitCount');
+            const lastDayWorked = document.getElementById('lastDayWorked').value;
+            
+            submitBtn.disabled = selectedEmployees.length === 0 || !lastDayWorked;
+            
+            if (selectedEmployees.length > 0) {
+                submitCount.textContent = `(${selectedEmployees.length} employee${selectedEmployees.length === 1 ? '' : 's'})`;
+            } else {
+                submitCount.textContent = '';
+            }
+        }
+
+        function submitLayoff() {
+            const lastDayWorked = document.getElementById('lastDayWorked').value;
+            const notes = document.getElementById('notes').value;
+            
+            if (selectedEmployees.length === 0) {
+                alert('Please select at least one employee');
+                return;
+            }
+            
+            if (!lastDayWorked) {
+                alert('Please specify the last day worked');
+                return;
+            }
+            
+            // In real app, this would submit to backend
+            console.log('Layoff Request:', {
+                employees: selectedEmployees,
+                lastDayWorked,
+                notes,
+                submittedBy: 'Current User', // Would come from auth
+                submittedDate: new Date().toISOString()
+            });
+            
+            alert(`Layoff request submitted for ${selectedEmployees.length} employee(s)`);
+            goBack();
+        }
+
+        function goBack() {
+            window.location.href = 'hr_request_dashboard.html';
+        }
+
+        // Update submit button when date changes
+        document.getElementById('lastDayWorked').addEventListener('change', updateSubmitButton);
+        
+        // Set min date to today for future/past date flexibility
+        document.getElementById('lastDayWorked').min = '2020-01-01';
+    </script>
+</body>
+</html>

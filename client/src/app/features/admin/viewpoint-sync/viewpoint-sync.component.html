@@ -1,0 +1,571 @@
+<app-header [userName]="userName"></app-header>
+
+<div class="container">
+  <div class="header">
+    <h1>Viewpoint Data Sync</h1>
+    <p class="subtitle">Synchronize data from Viewpoint HR system to local database</p>
+  </div>
+
+  <!-- Sync Status Overview Section -->
+  <div class="sync-status-section">
+    <div class="status-header">
+      <h2>Sync Status Overview</h2>
+      <div class="header-actions">
+        <button 
+          class="sync-btn secondary schedule-btn"
+          (click)="toggleScheduleSettings()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="3"></circle>
+            <path d="M12 1v6m0 6v6m11-7h-6m-6 0H1"></path>
+          </svg>
+          Schedule
+        </button>
+        <button 
+          class="sync-btn secondary status-refresh-btn"
+          [disabled]="syncStatusLoading"
+          (click)="refreshSyncStatus()">
+          <svg *ngIf="!syncStatusLoading" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 12a9 9 0 1 1-6.26-8.54"></path>
+            <polyline points="13,4 21,4 21,12"></polyline>
+          </svg>
+          <svg *ngIf="syncStatusLoading" class="spinner" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 12a9 9 0 1 1-6.26-8.54"></path>
+          </svg>
+          {{ syncStatusLoading ? 'Loading...' : 'Refresh' }}
+        </button>
+      </div>
+    </div>
+
+    <!-- Automatic Sync Schedule Settings -->
+    <div class="schedule-settings" *ngIf="showScheduleSettings">
+      <h3>Automatic Sync Scheduling</h3>
+      <div class="schedule-grid">
+        <div class="schedule-item">
+          <label>Companies Sync</label>
+          <select [(ngModel)]="scheduleSettings.companies" class="schedule-select">
+            <option value="disabled">Disabled</option>
+            <option value="daily">Daily at 9:00 AM</option>
+            <option value="weekly">Weekly (Monday 9:00 AM)</option>
+            <option value="monthly">Monthly (1st, 9:00 AM)</option>
+          </select>
+        </div>
+        <div class="schedule-item">
+          <label>Departments Sync</label>
+          <select [(ngModel)]="scheduleSettings.departments" class="schedule-select">
+            <option value="disabled">Disabled</option>
+            <option value="daily">Daily at 9:05 AM</option>
+            <option value="weekly">Weekly (Monday 9:05 AM)</option>
+            <option value="monthly">Monthly (1st, 9:05 AM)</option>
+          </select>
+        </div>
+        <div class="schedule-item">
+          <label>Positions Sync</label>
+          <select [(ngModel)]="scheduleSettings.positions" class="schedule-select">
+            <option value="disabled">Disabled</option>
+            <option value="daily">Daily at 9:10 AM</option>
+            <option value="weekly">Weekly (Monday 9:10 AM)</option>
+            <option value="monthly">Monthly (1st, 9:10 AM)</option>
+          </select>
+        </div>
+        <div class="schedule-item">
+          <label>Payroll Groups Sync</label>
+          <select [(ngModel)]="scheduleSettings.payrollGroups" class="schedule-select">
+            <option value="disabled">Disabled</option>
+            <option value="daily">Daily at 9:15 AM</option>
+            <option value="weekly">Weekly (Monday 9:15 AM)</option>
+            <option value="monthly">Monthly (1st, 9:15 AM)</option>
+          </select>
+        </div>
+        <div class="schedule-item">
+          <label>Union Crafts Sync</label>
+          <select [(ngModel)]="scheduleSettings.unionCrafts" class="schedule-select">
+            <option value="disabled">Disabled</option>
+            <option value="daily">Daily at 9:18 AM</option>
+            <option value="weekly">Weekly (Monday 9:18 AM)</option>
+            <option value="monthly">Monthly (1st, 9:18 AM)</option>
+          </select>
+        </div>
+        <div class="schedule-item">
+          <label>Employment Statuses Sync</label>
+          <select [(ngModel)]="scheduleSettings.employmentStatuses" class="schedule-select">
+            <option value="disabled">Disabled</option>
+            <option value="daily">Daily at 9:19 AM</option>
+            <option value="weekly">Weekly (Monday 9:19 AM)</option>
+            <option value="monthly">Monthly (1st, 9:19 AM)</option>
+          </select>
+        </div>
+        <div class="schedule-item">
+          <label>Employee Salary Types Sync</label>
+          <select [(ngModel)]="scheduleSettings.employeeSalaryTypes" class="schedule-select">
+            <option value="disabled">Disabled</option>
+            <option value="daily">Daily at 9:19 AM</option>
+            <option value="weekly">Weekly (Monday 9:19 AM)</option>
+            <option value="monthly">Monthly (1st, 9:19 AM)</option>
+          </select>
+        </div>
+        <div class="schedule-item">
+          <label>Employees Sync</label>
+          <select [(ngModel)]="scheduleSettings.employees" class="schedule-select">
+            <option value="disabled">Disabled</option>
+            <option value="daily">Daily at 9:20 AM</option>
+            <option value="weekly">Weekly (Monday 9:20 AM)</option>
+            <option value="monthly">Monthly (1st, 9:20 AM)</option>
+          </select>
+        </div>
+        <div class="schedule-item full-width">
+          <div class="schedule-actions">
+            <button 
+              class="sync-btn primary"
+              [disabled]="savingSchedule"
+              (click)="saveScheduleSettings()">
+              <svg *ngIf="!savingSchedule" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                <polyline points="17,21 17,13 7,13 7,21"></polyline>
+                <polyline points="7,3 7,8 15,8"></polyline>
+              </svg>
+              <svg *ngIf="savingSchedule" class="spinner" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 12a9 9 0 1 1-6.26-8.54"></path>
+              </svg>
+              {{ savingSchedule ? 'Saving...' : 'Save Schedule' }}
+            </button>
+            <button 
+              class="sync-btn secondary"
+              (click)="resetScheduleSettings()">
+              Reset
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sync Status Loading -->
+    <div class="status-loading" *ngIf="syncStatusLoading && !syncStatus">
+      <div class="loading-spinner">
+        <svg class="spinner" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 12a9 9 0 1 1-6.26-8.54"></path>
+        </svg>
+        <span>Loading sync status...</span>
+      </div>
+    </div>
+
+    <!-- Sync Status Error -->
+    <div class="sync-status-error" *ngIf="syncStatusError && !syncStatusLoading">
+      <div class="error-alert">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="15" y1="9" x2="9" y2="15"></line>
+          <line x1="9" y1="9" x2="15" y2="15"></line>
+        </svg>
+        <div>
+          <strong>Failed to load sync status</strong>
+          <p>{{ syncStatusError }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sync Status Grid -->
+    <div class="sync-status-grid" *ngIf="syncStatus && !syncStatusLoading && !syncStatusError">
+      <!-- Companies Card -->
+      <div class="status-card" [attr.data-sync-status]="getStatusClass(syncStatus.companySyncStatus)">
+        <div class="status-icon companies">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M3 21h18"></path>
+            <path d="M5 21V7l8-4v18"></path>
+            <path d="M19 21V11l-6-4"></path>
+          </svg>
+        </div>
+        <div class="status-content">
+          <div class="status-title">Companies</div>
+          <div class="status-count">{{ syncStatus.totalCompanies | number }} records</div>
+          <div class="status-date" [ngClass]="getStatusClass(syncStatus.companySyncStatus)">
+            {{ syncStatus.companySyncStatus }}
+          </div>
+          <div class="status-actions">
+            <button 
+              class="sync-btn-card primary"
+              [disabled]="companySyncRunning"
+              (click)="startCompanySync()">
+              <svg *ngIf="!companySyncRunning" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 12a9 9 0 1 1-6.26-8.54"></path>
+                <polyline points="13,4 21,4 21,12"></polyline>
+              </svg>
+              <svg *ngIf="companySyncRunning" class="spinner" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 12a9 9 0 1 1-6.26-8.54"></path>
+              </svg>
+              {{ companySyncRunning ? 'Syncing...' : 'Sync Now' }}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Departments Card -->
+      <div class="status-card" [attr.data-sync-status]="getStatusClass(syncStatus.departmentSyncStatus)">
+        <div class="status-icon departments">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+            <circle cx="9" cy="7" r="4"></circle>
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+          </svg>
+        </div>
+        <div class="status-content">
+          <div class="status-title">Departments</div>
+          <div class="status-count">{{ syncStatus.totalDepartments | number }} records</div>
+          <div class="status-date" [ngClass]="getStatusClass(syncStatus.departmentSyncStatus)">
+            {{ syncStatus.departmentSyncStatus }}
+          </div>
+          <div class="status-actions">
+            <button 
+              class="sync-btn-card primary"
+              [disabled]="departmentSyncRunning"
+              (click)="startDepartmentSync()">
+              <svg *ngIf="!departmentSyncRunning" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 12a9 9 0 1 1-6.26-8.54"></path>
+                <polyline points="13,4 21,4 21,12"></polyline>
+              </svg>
+              <svg *ngIf="departmentSyncRunning" class="spinner" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 12a9 9 0 1 1-6.26-8.54"></path>
+              </svg>
+              {{ departmentSyncRunning ? 'Syncing...' : 'Sync Now' }}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Positions Card -->
+      <div class="status-card" [attr.data-sync-status]="getStatusClass(syncStatus.positionSyncStatus)">
+        <div class="status-icon positions">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+            <line x1="8" y1="21" x2="16" y2="21"></line>
+            <line x1="12" y1="17" x2="12" y2="21"></line>
+          </svg>
+        </div>
+        <div class="status-content">
+          <div class="status-title">Positions</div>
+          <div class="status-count">{{ syncStatus.totalPositions | number }} records</div>
+          <div class="status-date" [ngClass]="getStatusClass(syncStatus.positionSyncStatus)">
+            {{ syncStatus.positionSyncStatus }}
+          </div>
+          <div class="status-actions">
+            <button 
+              class="sync-btn-card primary"
+              [disabled]="positionSyncRunning"
+              (click)="startPositionSync()">
+              <svg *ngIf="!positionSyncRunning" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 12a9 9 0 1 1-6.26-8.54"></path>
+                <polyline points="13,4 21,4 21,12"></polyline>
+              </svg>
+              <svg *ngIf="positionSyncRunning" class="spinner" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 12a9 9 0 1 1-6.26-8.54"></path>
+              </svg>
+              {{ positionSyncRunning ? 'Syncing...' : 'Sync Now' }}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Payroll Groups Card -->
+      <div class="status-card" [attr.data-sync-status]="getStatusClass(syncStatus.payrollGroupSyncStatus)">
+        <div class="status-icon payroll-groups">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="12" y1="1" x2="12" y2="23"></line>
+            <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+          </svg>
+        </div>
+        <div class="status-content">
+          <div class="status-title">Payroll Groups</div>
+          <div class="status-count">{{ syncStatus.totalPayrollGroups | number }} records</div>
+          <div class="status-date" [ngClass]="getStatusClass(syncStatus.payrollGroupSyncStatus)">
+            {{ syncStatus.payrollGroupSyncStatus }}
+          </div>
+          <div class="status-actions">
+            <button
+              class="sync-btn-card primary"
+              [disabled]="payrollGroupSyncRunning"
+              (click)="startPayrollGroupSync()">
+              <svg *ngIf="!payrollGroupSyncRunning" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 12a9 9 0 1 1-6.26-8.54"></path>
+                <polyline points="13,4 21,4 21,12"></polyline>
+              </svg>
+              <svg *ngIf="payrollGroupSyncRunning" class="spinner" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 12a9 9 0 1 1-6.26-8.54"></path>
+              </svg>
+              {{ payrollGroupSyncRunning ? 'Syncing...' : 'Sync Now' }}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Union Crafts Card -->
+      <div class="status-card" [attr.data-sync-status]="getStatusClass(syncStatus.unionCraftSyncStatus)">
+        <div class="status-icon union-crafts">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M20 7h-4V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2H4a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"></path>
+            <line x1="10" y1="17" x2="14" y2="17"></line>
+          </svg>
+        </div>
+        <div class="status-content">
+          <div class="status-title">Union Crafts</div>
+          <div class="status-count">{{ syncStatus.totalUnionCrafts | number }} records</div>
+          <div class="status-date" [ngClass]="getStatusClass(syncStatus.unionCraftSyncStatus)">
+            {{ syncStatus.unionCraftSyncStatus }}
+          </div>
+          <div class="status-actions">
+            <button
+              class="sync-btn-card primary"
+              [disabled]="unionCraftSyncRunning"
+              (click)="startUnionCraftSync()">
+              <svg *ngIf="!unionCraftSyncRunning" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 12a9 9 0 1 1-6.26-8.54"></path>
+                <polyline points="13,4 21,4 21,12"></polyline>
+              </svg>
+              <svg *ngIf="unionCraftSyncRunning" class="spinner" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 12a9 9 0 1 1-6.26-8.54"></path>
+              </svg>
+              {{ unionCraftSyncRunning ? 'Syncing...' : 'Sync Now' }}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Employment Status Card -->
+      <div class="status-card" [attr.data-sync-status]="getStatusClass(syncStatus.employmentStatusSyncStatus || 'Never synced')">
+        <div class="status-icon employment-status">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+            <circle cx="8.5" cy="7" r="4"></circle>
+            <polyline points="17,11 19,13 23,9"></polyline>
+          </svg>
+        </div>
+        <div class="status-content">
+          <div class="status-title">Employment Status</div>
+          <div class="status-count">{{ (syncStatus.totalEmploymentStatuses || 0) | number }} records</div>
+          <div class="status-date" [ngClass]="getStatusClass(syncStatus.employmentStatusSyncStatus || 'Never synced')">
+            {{ syncStatus.employmentStatusSyncStatus || 'Never synced' }}
+          </div>
+          <div class="status-actions">
+            <button
+              class="sync-btn-card primary"
+              [disabled]="employmentStatusSyncRunning"
+              (click)="startEmploymentStatusSync()">
+              <svg *ngIf="!employmentStatusSyncRunning" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 12a9 9 0 1 1-6.26-8.54"></path>
+                <polyline points="13,4 21,4 21,12"></polyline>
+              </svg>
+              <svg *ngIf="employmentStatusSyncRunning" class="spinner" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 12a9 9 0 1 1-6.26-8.54"></path>
+              </svg>
+              {{ employmentStatusSyncRunning ? 'Syncing...' : 'Sync Now' }}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Employee Salary Types Card -->
+      <div class="status-card" [attr.data-sync-status]="getStatusClass(syncStatus.employeeSalaryTypeSyncStatus || 'Never synced')">
+        <div class="status-icon salary-types">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <path d="M12 6v6l4 2"></path>
+            <path d="M16 8h-6"></path>
+            <path d="M8 12h8"></path>
+            <path d="M10 16h4"></path>
+          </svg>
+        </div>
+        <div class="status-content">
+          <div class="status-title">Employee Salary Types</div>
+          <div class="status-count">{{ (syncStatus.totalEmployeeSalaryTypes || 0) | number }} records</div>
+          <div class="status-date" [ngClass]="getStatusClass(syncStatus.employeeSalaryTypeSyncStatus || 'Never synced')">
+            {{ syncStatus.employeeSalaryTypeSyncStatus || 'Never synced' }}
+          </div>
+          <div class="status-actions">
+            <button
+              class="sync-btn-card primary"
+              [disabled]="employeeSalaryTypeSyncRunning"
+              (click)="startEmployeeSalaryTypeSync()">
+              <svg *ngIf="!employeeSalaryTypeSyncRunning" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 12a9 9 0 1 1-6.26-8.54"></path>
+                <polyline points="13,4 21,4 21,12"></polyline>
+              </svg>
+              <svg *ngIf="employeeSalaryTypeSyncRunning" class="spinner" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 12a9 9 0 1 1-6.26-8.54"></path>
+              </svg>
+              {{ employeeSalaryTypeSyncRunning ? 'Syncing...' : 'Sync Now' }}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Employees Card -->
+      <div class="status-card employee-card" [attr.data-sync-status]="getStatusClass(syncStatus.employeeSyncStatus)">
+        <div class="status-icon employees">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+            <circle cx="12" cy="7" r="4"></circle>
+          </svg>
+        </div>
+        <div class="status-content">
+          <div class="status-title">Employees</div>
+          <div class="status-count">{{ syncStatus.totalEmployees | number }} records</div>
+          <div class="status-date" [ngClass]="getStatusClass(syncStatus.employeeSyncStatus)">
+            {{ syncStatus.employeeSyncStatus }}
+          </div>
+          
+          <!-- Employee Sync Configuration -->
+          <!-- Page Size / Filter dropdowns removed: the full-sweep sync
+               processes every Viewpoint employee in one call (no pagination)
+               and cannot apply a filter without breaking the soft-delete pass. -->
+
+
+          <div class="status-actions">
+            <button 
+              class="sync-btn-card special"
+              [disabled]="progress.isRunning"
+              (click)="startSync()">
+              <svg *ngIf="!progress.isRunning" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 12a9 9 0 1 1-6.26-8.54"></path>
+                <polyline points="13,4 21,4 21,12"></polyline>
+              </svg>
+              <svg *ngIf="progress.isRunning" class="spinner" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 12a9 9 0 1 1-6.26-8.54"></path>
+              </svg>
+              {{ progress.isRunning ? 'Syncing...' : 'Sync Now' }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- Sync Progress Section -->
+  <div class="progress-section" *ngIf="progress.isRunning || showResults">
+    <h2>Employee Sync Progress</h2>
+    
+    <!-- Progress Bar -->
+    <div class="progress-container">
+      <div class="progress-bar">
+        <div 
+          class="progress-fill" 
+          [style.width.%]="progressPercentage"
+          [class.complete]="!progress.isRunning && !errorMessage">
+        </div>
+      </div>
+      <div class="progress-text">
+        <span *ngIf="progress.isRunning">
+          Syncing all employees from Viewpoint...
+        </span>
+        <span *ngIf="!progress.isRunning && !errorMessage" class="complete-text">
+          Sync Completed Successfully
+        </span>
+        <span *ngIf="!progress.isRunning && errorMessage" class="error-text">
+          Sync Failed
+        </span>
+      </div>
+    </div>
+
+    <!-- Live Stats -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-number">{{ progress.totalProcessed }}</div>
+        <div class="stat-label">Processed</div>
+      </div>
+      <div class="stat-card success">
+        <div class="stat-number">{{ progress.totalInserted }}</div>
+        <div class="stat-label">Inserted</div>
+      </div>
+      <div class="stat-card info">
+        <div class="stat-number">{{ progress.totalUpdated }}</div>
+        <div class="stat-label">Updated</div>
+      </div>
+      <div class="stat-card warning" *ngIf="progress.totalDeleted > 0">
+        <div class="stat-number">{{ progress.totalDeleted }}</div>
+        <div class="stat-label">Soft-Deleted</div>
+      </div>
+      <div class="stat-card error" *ngIf="progress.totalErrors > 0">
+        <div class="stat-number">{{ progress.totalErrors }}</div>
+        <div class="stat-label">Errors</div>
+      </div>
+    </div>
+
+    <!-- Time Info -->
+    <div class="time-info">
+      <span><strong>Duration:</strong> {{ syncDuration }}</span>
+      <span *ngIf="progress.startTime">
+        <strong>Started:</strong> {{ progress.startTime | date:'short' }}
+      </span>
+      <span *ngIf="progress.endTime">
+        <strong>Completed:</strong> {{ progress.endTime | date:'short' }}
+      </span>
+    </div>
+
+    <!-- Sync Controls -->
+    <div class="controls-section">
+      <div class="sync-controls">
+        <button 
+          class="sync-btn secondary"
+          *ngIf="progress.isRunning"
+          (click)="stopSync()">
+          Stop Sync
+        </button>
+        
+        <button 
+          class="sync-btn secondary"
+          *ngIf="showResults && !progress.isRunning"
+          (click)="resetSync()">
+          Reset
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Error Message -->
+  <div class="error-section" *ngIf="errorMessage">
+    <div class="error-alert">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="10"></circle>
+        <line x1="15" y1="9" x2="9" y2="15"></line>
+        <line x1="9" y1="9" x2="15" y2="15"></line>
+      </svg>
+      <div>
+        <strong>Employee Sync Error</strong>
+        <p>{{ errorMessage }}</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Detailed Errors -->
+  <div class="errors-section" *ngIf="progress.allErrors.length > 0">
+    <div class="errors-header">
+      <h3>Error Details ({{ progress.allErrors.length }})</h3>
+      <button class="toggle-btn" (click)="toggleErrors()">
+        {{ showErrors ? 'Hide' : 'Show' }} Details
+      </button>
+    </div>
+    
+    <div class="errors-list" *ngIf="showErrors">
+      <div class="error-item" *ngFor="let error of progress.allErrors; let i = index">
+        <span class="error-index">{{ i + 1 }}.</span>
+        <span class="error-text">{{ error }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Success Summary -->
+  <div class="success-section" *ngIf="showResults && !progress.isRunning && !errorMessage">
+    <div class="success-alert">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+        <polyline points="22,4 12,14.01 9,11.01"></polyline>
+      </svg>
+      <div>
+        <strong>Employee Sync Completed Successfully!</strong>
+        <p>
+          Processed {{ progress.totalProcessed }} employees in {{ syncDuration }}.
+          {{ progress.totalInserted }} new employees added, {{ progress.totalUpdated }} existing employees updated<ng-container *ngIf="progress.totalDeleted > 0">, {{ progress.totalDeleted }} soft-deleted (no longer in Viewpoint)</ng-container>.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>

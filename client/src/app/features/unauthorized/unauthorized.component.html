@@ -1,0 +1,41 @@
+<div class="unauthorized-container">
+  <div class="unauthorized-card">
+    <div class="icon-wrapper">
+      <svg class="unauthorized-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"></circle>
+        <line x1="15" y1="9" x2="9" y2="15"></line>
+        <line x1="9" y1="9" x2="15" y2="15"></line>
+      </svg>
+    </div>
+    
+    <h1 class="title">Access Denied</h1>
+    <p class="message">
+      You are not authorized to access this application. Please contact your administrator if you believe this is an error.
+    </p>
+    
+    <div class="user-info-section">
+      <div class="user-detail" *ngIf="userEmail">
+        <span class="label">Email:</span>
+        <span class="value">{{ userEmail }}</span>
+      </div>
+      <div class="user-detail">
+        <span class="label">Roles:</span>
+        <span class="value" *ngIf="userRoles.length > 0">{{ userRoles.join(', ') }}</span>
+        <span class="value no-roles" *ngIf="userRoles.length === 0">No roles assigned</span>
+      </div>
+    </div>
+    
+    <div class="countdown-section">
+      <p class="countdown-text">
+        Logging out automatically in <span class="countdown-number">{{ countdown }}</span> second{{ countdown !== 1 ? 's' : '' }}
+      </p>
+      <div class="countdown-progress">
+        <div class="progress-bar" [style.width.%]="(countdown / 3) * 100"></div>
+      </div>
+    </div>
+    
+    <button class="logout-button" (click)="logoutNow()">
+      Logout Now
+    </button>
+  </div>
+</div>

@@ -1,0 +1,134 @@
+<header class="app-header">
+  <div class="header-content">
+    <div class="header-left">
+      <div class="logo">
+        <img src="assets/Mathy-Seal_2017_320-1.png" alt="Mathy Seal">
+      </div>
+      <h1 class="app-title">Employee Change Management</h1>
+    </div>
+    <div class="header-right">
+      <div class="user-info">
+        <span class="user-name">{{ userName }}</span>
+        <a href="#" class="logout-link" (click)="handleLogout()">Logout</a>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="container">
+  <div class="header">
+    <h1>HR Requests</h1>
+    <button class="new-request-btn" (click)="openModal()">+ New Request</button>
+  </div>
+
+  <div class="controls">
+    <div class="search-box">
+      <svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="11" cy="11" r="8"></circle>
+        <path d="m21 21-4.35-4.35"></path>
+      </svg>
+      <input 
+        type="text" 
+        placeholder="Search requests..." 
+        [(ngModel)]="searchTerm"
+        (input)="onSearch($event)">
+    </div>
+  </div>
+
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th>Request Type</th>
+          <th>Employee Name</th>
+          <th>Effective Date</th>
+          <th>Status</th>
+          <th>Submitted By</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let request of paginatedRequests" (click)="viewRequest(request)">
+          <td>
+            <span class="request-type" [ngClass]="request.type">
+              {{ formatRequestType(request.type) }}
+            </span>
+          </td>
+          <td>{{ request.employeeName }}</td>
+          <td>{{ request.effectiveDate }}</td>
+          <td>
+            <span class="status" [ngClass]="request.status">
+              {{ formatStatus(request.status) }}
+            </span>
+          </td>
+          <td>{{ request.submittedBy }}</td>
+          <td>
+            <svg 
+              class="action-icon" 
+              viewBox="0 0 24 24" 
+              fill="none" 
+              stroke="currentColor" 
+              stroke-width="2"
+              (click)="viewRequest(request); $event.stopPropagation()">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+              <circle cx="12" cy="12" r="3"></circle>
+            </svg>
+          </td>
+        </tr>
+        <tr *ngIf="paginatedRequests.length === 0">
+          <td colspan="6" class="empty-state">
+            <h3>No requests found</h3>
+            <p>Try adjusting your search criteria</p>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="pagination">
+    <button 
+      [disabled]="!canGoPrevious" 
+      (click)="changePage(-1)">
+      Previous
+    </button>
+    <span class="page-info">
+      Page {{ currentPage }} of {{ totalPages }}
+    </span>
+    <button 
+      [disabled]="!canGoNext" 
+      (click)="changePage(1)">
+      Next
+    </button>
+    <select 
+      class="page-size-selector" 
+      [ngModel]="pageSize" 
+      (change)="updatePageSize($event)">
+      <option value="5">5 per page</option>
+      <option value="10">10 per page</option>
+      <option value="20">20 per page</option>
+      <option value="50">50 per page</option>
+    </select>
+  </div>
+</div>
+
+<!-- Modal -->
+<div class="modal-overlay" [class.show]="showModal" (click)="closeModal()">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <button class="modal-close" (click)="closeModal()">&times;</button>
+    <h2>Select Request Type</h2>
+    <div class="request-options">
+      <div 
+        class="request-option" 
+        *ngFor="let option of requestTypeOptions"
+        (click)="createRequest(option.type)">
+        <div class="request-option-icon" [ngClass]="option.type">
+          {{ option.icon }}
+        </div>
+        <div class="request-option-content">
+          <h3>{{ option.title }}</h3>
+          <p>{{ option.description }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

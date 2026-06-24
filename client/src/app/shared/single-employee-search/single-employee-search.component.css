@@ -1,0 +1,258 @@
+/* Search Container */
+.search-container {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.selection-header {
+  margin-bottom: 12px;
+  color: #1e293b;
+  font-weight: 600;
+}
+
+.search-input {
+  flex: 1;
+  padding: 12px 16px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 14px;
+  font-family: inherit;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.search-input:disabled {
+  background-color: #f3f4f6;
+  color: #6b7280;
+  cursor: not-allowed;
+}
+
+/* Search Results */
+.search-results {
+  max-height: 200px;
+  overflow-y: auto;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: white;
+  margin-bottom: 16px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.search-item {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  border-bottom: 1px solid #f3f4f6;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.search-item:hover {
+  background: #f8fafc;
+}
+
+.search-item:last-child {
+  border-bottom: none;
+}
+
+.employee-info {
+  flex: 1;
+}
+
+.employee-name {
+  font-weight: 500;
+  color: #1e293b;
+  font-size: 14px;
+}
+
+.employee-details {
+  font-size: 14px;
+  color: #64748b;
+  margin-top: 2px;
+}
+
+/* Selected Employee Display */
+.selected-employee {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+}
+
+/* Default theme (blue) */
+.selected-employee--default {
+  background: #f0f9ff;
+  border: 1px solid #bae6fd;
+}
+
+/* Danger theme (red) - for termination */
+.selected-employee--danger {
+  background: #fee2e2;
+  border: 1px solid #fca5a5;
+}
+
+/* Promotion theme (purple) - for promotion/transfer */
+.selected-employee--promotion {
+  background: #f3e8ff;
+  border: 1px solid #c4b5fd;
+}
+
+.selected-employee-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.selected-employee-info strong {
+  color: #1e293b;
+  font-size: 14px;
+}
+
+.employee-details-selected {
+  color: #64748b;
+  font-size: 13px;
+}
+
+.clear-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Default theme (blue) */
+.clear-btn--default {
+  color: #0369a1;
+}
+
+.clear-btn--default:hover:not(:disabled) {
+  background: #e0f2fe;
+}
+
+/* Danger theme (red) - for termination */
+.clear-btn--danger {
+  color: #dc2626;
+}
+
+.clear-btn--danger:hover:not(:disabled) {
+  background: #fee2e2;
+}
+
+/* Promotion theme (purple) - for promotion/transfer */
+.clear-btn--promotion {
+  color: #7c3aed;
+}
+
+.clear-btn--promotion:hover:not(:disabled) {
+  background: #ede9fe;
+}
+
+.clear-btn:disabled {
+  color: #94a3b8;
+  cursor: not-allowed;
+}
+
+/* No Results State */
+.no-results {
+  text-align: center;
+  padding: 24px;
+  color: #6b7280;
+  font-size: 14px;
+}
+
+/* Scrollbar Styling */
+.search-results::-webkit-scrollbar {
+  width: 6px;
+}
+
+.search-results::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+
+.search-results::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 3px;
+}
+
+.search-results::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Disabled Employees */
+.search-item.disabled {
+  opacity: 0.6;
+  background-color: #f1f5f9;
+  cursor: not-allowed !important;
+}
+
+.search-item.disabled:hover {
+  background-color: #f1f5f9;
+}
+
+/* Tooltip Styles */
+.pending-request-icon {
+  position: relative;
+  display: inline-block;
+  margin-left: 8px;
+  cursor: help;
+}
+
+.tooltip .tooltiptext {
+  visibility: hidden;
+  width: 140px;
+  background-color: #333;
+  color: white;
+  text-align: center;
+  border-radius: 6px;
+  padding: 8px;
+  font-size: 0.75rem;
+  position: absolute;
+  z-index: 1;
+  bottom: 125%;
+  left: 50%;
+  margin-left: -70px;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.tooltip .tooltiptext::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: #333 transparent transparent transparent;
+}
+
+.tooltip:hover .tooltiptext {
+  visibility: visible;
+  opacity: 1;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .selected-employee {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  
+  .clear-btn {
+    align-self: flex-end;
+  }
+}

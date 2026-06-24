@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Termination Request</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f8fafc;
+            color: #334155;
+            line-height: 1.5;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        .back-btn {
+            background: none;
+            border: 1px solid #d1d5db;
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            color: #6b7280;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .back-btn:hover {
+            background: #f3f4f6;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        .form-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .form-section {
+            padding: 24px;
+            border-bottom: 1px solid #f3f4f6;
+        }
+
+        .form-section:last-child {
+            border-bottom: none;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 16px;
+        }
+
+        .search-container {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 12px 16px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .search-results {
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            background: white;
+            margin-bottom: 16px;
+        }
+
+        .search-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            border-bottom: 1px solid #f3f4f6;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .search-item:hover {
+            background: #f8fafc;
+        }
+
+        .search-item:last-child {
+            border-bottom: none;
+        }
+
+        .search-item.selected {
+            background: #eff6ff;
+            border-color: #3b82f6;
+        }
+
+        .employee-info {
+            flex: 1;
+        }
+
+        .employee-name {
+            font-weight: 500;
+            color: #1e293b;
+        }
+
+        .employee-details {
+            font-size: 14px;
+            color: #64748b;
+            margin-top: 2px;
+        }
+
+        .selected-employee {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px;
+            background: #fee2e2;
+            border: 1px solid #fca5a5;
+            border-radius: 8px;
+            margin-bottom: 16px;
+        }
+
+        .selected-employee-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .clear-btn {
+            background: none;
+            border: none;
+            color: #dc2626;
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 4px;
+        }
+
+        .clear-btn:hover {
+            background: #fee2e2;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+
+        label {
+            font-weight: 500;
+            color: #374151;
+        }
+
+        label.required::after {
+            content: " *";
+            color: #dc2626;
+        }
+
+        input[type="text"], input[type="date"], select, textarea {
+            padding: 12px 16px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        input[type="text"]:focus, input[type="date"]:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .radio-group {
+            display: flex;
+            gap: 16px;
+            margin-top: 6px;
+        }
+
+        .radio-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .checkbox-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 6px;
+        }
+
+        .checkbox-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            padding: 24px;
+            background: #f8fafc;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #374151;
+            border: 1px solid #d1d5db;
+        }
+
+        .btn-secondary:hover {
+            background: #f3f4f6;
+        }
+
+        .btn-primary {
+            background: #dc2626;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #b91c1c;
+        }
+
+        .btn-primary:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+        }
+
+        .warning-banner {
+            background: #fef3c7;
+            border: 1px solid #fcd34d;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .warning-icon {
+            color: #d97706;
+            flex-shrink: 0;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 24px;
+            color: #6b7280;
+        }
+
+        .field-description {
+            font-size: 13px;
+            color: #64748b;
+            margin-top: 2px;
+        }
+
+        .app-header {
+            background-color: white;
+            border-bottom: 1px solid #e5e7eb;
+            padding: 16px 24px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .logo {
+            width: 32px;
+            height: 32px;
+        }
+
+        .logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .app-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1e293b;
+            margin: 0;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .user-name {
+            font-size: 14px;
+            font-weight: 500;
+            color: #1e293b;
+        }
+
+        .logout-link {
+            color: #7c3aed;
+            text-decoration: none;
+            font-size: 14px;
+            padding: 6px 12px;
+            border-radius: 6px;
+            transition: background-color 0.2s;
+        }
+
+        .logout-link:hover {
+            background-color: #f3e8ff;
+        }
+    </style>
+</head>
+<body>
+    <header class="app-header">
+        <div class="header-content">
+            <div class="header-left">
+                <div class="logo">
+                    <img src="Mathy-Seal_2017_320-1.png" alt="Mathy Seal">
+                </div>
+                <h1 class="app-title">Employee Change Management</h1>
+            </div>
+            <div class="header-right">
+                <div class="user-info">
+                    <span class="user-name">John Doe</span>
+                    <a href="#" class="logout-link" onclick="handleLogout()">Logout</a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="header">
+            <button class="back-btn" onclick="goBack()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M19 12H5M12 19l-7-7 7-7"/>
+                </svg>
+                Back
+            </button>
+            <h1>Termination Request</h1>
+        </div>
+
+        <div class="warning-banner">
+            <svg class="warning-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                <line x1="12" y1="9" x2="12" y2="13"/>
+                <line x1="12" y1="17" x2="12.01" y2="17"/>
+            </svg>
+            <div>
+                <strong>Important:</strong> This action will initiate termination procedures for the selected employee. Please ensure all information is accurate before submitting.
+            </div>
+        </div>
+
+        <div class="form-card">
+            <div class="form-section">
+                <div class="section-title">Select Employee</div>
+                
+                <div class="search-container">
+                    <input type="text" class="search-input" id="searchInput" placeholder="Search for employee to terminate..." oninput="searchEmployees()">
+                </div>
+
+                <div class="search-results" id="searchResults" style="display: none;">
+                </div>
+
+                <div id="selectedEmployee" style="display: none;">
+                </div>
+            </div>
+
+            <div class="form-section">
+                <div class="section-title">Termination Details</div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="reason" class="required">Reason for Termination</label>
+                        <select id="reason" required>
+                            <option value="">Select a reason...</option>
+                            <option value="performance">Performance Issues</option>
+                            <option value="misconduct">Misconduct / Policy Violation</option>
+                            <option value="attendance">Attendance / Tardiness</option>
+                            <option value="restructuring">Position Elimination / Restructuring</option>
+                            <option value="violation">Safety / Regulatory Violation</option>
+                            <option value="resignation">Voluntary Resignation</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="effectiveDate" class="required">Effective Date</label>
+                        <input type="date" id="effectiveDate" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Contest Unemployment</label>
+                        <div class="radio-group">
+                            <div class="radio-option">
+                                <input type="radio" id="contestYes" name="contestUnemployment" value="yes">
+                                <label for="contestYes">Yes</label>
+                            </div>
+                            <div class="radio-option">
+                                <input type="radio" id="contestNo" name="contestUnemployment" value="no">
+                                <label for="contestNo">No</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <div class="section-title">Communication & Equipment</div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="forwardEmail">Forward Email 60 Days to</label>
+                        <input type="text" id="forwardEmail" placeholder="email@company.com">
+                        <div class="field-description">Email address to forward terminated employee's emails</div>
+                    </div>
+                    <div class="form-group">
+                        <label for="forwardDeskPhone">Forward Desk Phone to</label>
+                        <input type="text" id="forwardDeskPhone" placeholder="(555) 123-4567">
+                        <div class="field-description">Phone number to forward desk phone calls</div>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="forwardCellPhone">Forward Cell 30 Days to</label>
+                        <input type="text" id="forwardCellPhone" placeholder="(555) 123-4567">
+                        <div class="field-description">Phone number to forward cell phone calls</div>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group full-width">
+                        <label for="autoReply">Automatic Email Reply</label>
+                        <textarea id="autoReply" placeholder="Thank you for your email. [Employee Name] is no longer with the company. For immediate assistance, please contact..."></textarea>
+                        <div class="field-description">Auto-reply message for the terminated employee's email</div>
+                    </div>
+                </div>
+
+                
+            </div>
+
+            <div class="form-section">
+                <div class="section-title">Additional Information</div>
+                
+                <div class="form-row">
+                    <div class="form-group full-width">
+                        <label for="notes">Notes</label>
+                        <textarea id="notes" placeholder="Additional details about the termination..."></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button class="btn btn-secondary" onclick="goBack()">Cancel</button>
+                <button class="btn btn-primary" id="submitBtn" onclick="submitTermination()" disabled>Submit Termination Request</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let selectedEmployee = null;
+        let allEmployees = [
+            { id: 1, name: 'John Smith', title: 'Site Supervisor', division: 'Field Operations', department: 'Commercial Construction' },
+            { id: 2, name: 'Sarah Johnson', title: 'Project Manager', division: 'Project Management', department: 'Residential Projects' },
+            { id: 3, name: 'Mike Chen', title: 'Heavy Equipment Operator', division: 'Field Operations', department: 'Infrastructure' },
+            { id: 4, name: 'Emily Davis', title: 'Safety Coordinator', division: 'Safety & Compliance', department: 'Job Site Safety' },
+            { id: 5, name: 'David Rodriguez', title: 'Electrician', division: 'Trades', department: 'Electrical Services' },
+            { id: 6, name: 'Lisa Wang', title: 'CAD Technician', division: 'Engineering', department: 'Design & Drafting' },
+            { id: 7, name: 'James Wilson', title: 'Cost Estimator', division: 'Pre-Construction', department: 'Estimating' },
+            { id: 8, name: 'Emma Thompson', title: 'Carpenter', division: 'Trades', department: 'Framing & Finish' },
+            { id: 9, name: 'Robert Martinez', title: 'Crane Operator', division: 'Field Operations', department: 'Heavy Equipment' },
+            { id: 10, name: 'Jennifer Lee', title: 'Concrete Finisher', division: 'Trades', department: 'Concrete & Masonry' },
+            { id: 11, name: 'Alex Turner', title: 'Foreman', division: 'Field Operations', department: 'Commercial Construction' },
+            { id: 12, name: 'Maria Garcia', title: 'Plumber', division: 'Trades', department: 'Plumbing Services' }
+        ];
+
+        function searchEmployees() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            const resultsContainer = document.getElementById('searchResults');
+            
+            if (query.length < 2) {
+                resultsContainer.style.display = 'none';
+                return;
+            }
+
+            const results = allEmployees.filter(emp => 
+                emp.name.toLowerCase().includes(query) ||
+                emp.title.toLowerCase().includes(query) ||
+                emp.division.toLowerCase().includes(query)
+            );
+            
+            resultsContainer.style.display = 'block';
+            
+            if (results.length === 0) {
+                resultsContainer.innerHTML = '<div class="no-results">No employees found</div>';
+                return;
+            }
+
+            resultsContainer.innerHTML = results.map(emp => `
+                <div class="search-item ${selectedEmployee && selectedEmployee.id === emp.id ? 'selected' : ''}" onclick="selectEmployee(${emp.id})">
+                    <div class="employee-info">
+                        <div class="employee-name">${emp.name}</div>
+                        <div class="employee-details">${emp.title} • ${emp.division}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function selectEmployee(employeeId) {
+            selectedEmployee = allEmployees.find(emp => emp.id === employeeId);
+            updateSelectedEmployee();
+            updateSubmitButton();
+            
+            // Hide search results and clear search input
+            document.getElementById('searchResults').style.display = 'none';
+            document.getElementById('searchInput').value = '';
+        }
+
+        function updateSelectedEmployee() {
+            const container = document.getElementById('selectedEmployee');
+            
+            if (!selectedEmployee) {
+                container.style.display = 'none';
+                return;
+            }
+            
+            container.style.display = 'block';
+            container.innerHTML = `
+                <div class="selected-employee">
+                    <div class="selected-employee-info">
+                        <strong>${selectedEmployee.name}</strong>
+                        <span style="color: #64748b; margin-left: 8px;">${selectedEmployee.title} • ${selectedEmployee.division}</span>
+                    </div>
+                    <button class="clear-btn" onclick="clearEmployee()" title="Clear selection">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                    </button>
+                </div>
+            `;
+        }
+
+        function clearEmployee() {
+            selectedEmployee = null;
+            updateSelectedEmployee();
+            updateSubmitButton();
+        }
+
+        function updateSubmitButton() {
+            const submitBtn = document.getElementById('submitBtn');
+            const reason = document.getElementById('reason').value;
+            const effectiveDate = document.getElementById('effectiveDate').value;
+            
+            submitBtn.disabled = !selectedEmployee || !reason || !effectiveDate;
+        }
+
+        function submitTermination() {
+            if (!selectedEmployee) {
+                alert('Please select an employee');
+                return;
+            }
+            
+            const reason = document.getElementById('reason').value;
+            const effectiveDate = document.getElementById('effectiveDate').value;
+            const contestUnemployment = document.querySelector('input[name="contestUnemployment"]:checked')?.value;
+            const forwardEmail = document.getElementById('forwardEmail').value;
+            const forwardDeskPhone = document.getElementById('forwardDeskPhone').value;
+            const forwardCellPhone = document.getElementById('forwardCellPhone').value;
+            const autoReply = document.getElementById('autoReply').value;
+            const notes = document.getElementById('notes').value;
+            
+            // Get selected equipment to reclaim
+            const equipment = [];
+            if (document.getElementById('noEquipment').checked) equipment.push('none');
+            if (document.getElementById('computerAccess').checked) equipment.push('computer');
+            if (document.getElementById('deskPhone').checked) equipment.push('desk-phone');
+            if (document.getElementById('cellPhone').checked) equipment.push('cell-phone');
+            
+            if (!reason || !effectiveDate) {
+                alert('Please fill in all required fields');
+                return;
+            }
+            
+            // In real app, this would submit to backend
+            console.log('Termination Request:', {
+                employee: selectedEmployee,
+                reason,
+                effectiveDate,
+                contestUnemployment,
+                forwardEmail,
+                forwardDeskPhone,
+                forwardCellPhone,
+                autoReply,
+                equipment,
+                notes,
+                submittedBy: 'Current User', // Would come from auth
+                submittedDate: new Date().toISOString()
+            });
+            
+            alert(`Termination request submitted for ${selectedEmployee.name}`);
+            goBack();
+        }
+
+        function goBack() {
+            window.location.href = 'hr_request_dashboard.html';
+        }
+
+        // Update submit button when required fields change
+        document.getElementById('reason').addEventListener('change', updateSubmitButton);
+        document.getElementById('effectiveDate').addEventListener('change', updateSubmitButton);
+        
+        // Set min date to allow past/future dates
+        document.getElementById('effectiveDate').min = '2020-01-01';
+
+        function handleLogout() {
+            // In a real app, this would handle the logout process
+            if (confirm('Are you sure you want to log out?')) {
+                window.location.href = 'login.html';
+            }
+        }
+    </script>
+</body>
+</html>

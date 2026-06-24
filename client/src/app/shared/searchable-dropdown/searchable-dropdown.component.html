@@ -1,0 +1,71 @@
+<div class="searchable-dropdown" [class.disabled]="config.disabled">
+  <!-- Input Field -->
+  <div class="dropdown-input-container">
+    <input 
+      type="text"
+      class="dropdown-input"
+      [value]="searchQuery"
+      [placeholder]="getPlaceholder()"
+      [disabled]="!!(config.disabled || config.loading)"
+      [required]="required"
+      (input)="onSearchInputChange($event)"
+      (focus)="onInputFocus()"
+      (blur)="onInputBlur()"
+      (keydown)="onKeyDown($event)"
+      autocomplete="off"
+      #searchInput>
+    
+    <!-- Dropdown Arrow -->
+    <div class="dropdown-arrow" 
+         [class.open]="isDropdownOpen"
+         (click)="onInputFocus()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M6 9l6 6 6-6"/>
+      </svg>
+    </div>
+
+    <!-- Clear Button (when item is selected) -->
+    <button 
+      type="button"
+      class="clear-button"
+      *ngIf="selectedItem && !config.disabled"
+      (click)="clearSelection()"
+      title="Clear selection">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <line x1="18" y1="6" x2="6" y2="18"></line>
+        <line x1="6" y1="6" x2="18" y2="18"></line>
+      </svg>
+    </button>
+  </div>
+
+  <!-- Dropdown List -->
+  <div class="dropdown-list" *ngIf="isDropdownOpen" #dropdownList>
+    <!-- Loading State -->
+    <div class="dropdown-item loading" *ngIf="config.loading || isSearching">
+      <div class="loading-indicator">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"/>
+          <path d="M12 6v6l4 2"/>
+        </svg>
+        Searching...
+      </div>
+    </div>
+
+    <!-- No Results -->
+    <div class="dropdown-item no-results" *ngIf="shouldShowNoResults()">
+      {{ config.noResultsText }}
+    </div>
+
+    <!-- Dropdown Items -->
+    <div 
+      class="dropdown-item"
+      *ngFor="let item of searchResults; let i = index"
+      [class.highlighted]="isItemHighlighted(i)"
+      [class.selected]="selectedItem === item"
+      (click)="selectItem(item)"
+      (mousedown)="onItemMouseDown($event, item)"
+      (mouseenter)="highlightedIndex = i">
+      {{ getDisplayText(item) }}
+    </div>
+  </div>
+</div>

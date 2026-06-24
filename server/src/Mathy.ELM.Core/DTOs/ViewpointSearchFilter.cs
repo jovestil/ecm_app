@@ -1,0 +1,21 @@
+using System.Text.Json.Serialization;
+
+namespace Mathy.ELM.Core.DTOs;
+
+public class ViewpointSearchFilter
+{
+    [JsonPropertyName("propertyName")]
+    public string PropertyName { get; set; } = string.Empty;
+
+    [JsonPropertyName("value")]
+    public object Value { get; set; } = new();
+
+    [JsonPropertyName("operator")]
+    public string Operator { get; set; } = "Equal";
+}
+
+public class ViewpointSearchRequest
+{
+    [JsonPropertyName("filters")]
+    public List<ViewpointSearchFilter> Filters { get; set; } = new();
+}

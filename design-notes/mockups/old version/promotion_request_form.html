@@ -1,0 +1,1842 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Promotion Request</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f8fafc;
+            color: #334155;
+            line-height: 1.5;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        .back-btn {
+            background: none;
+            border: 1px solid #d1d5db;
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            color: #6b7280;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .back-btn:hover {
+            background: #f3f4f6;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        .form-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .form-section {
+            padding: 24px;
+            border-bottom: 1px solid #f3f4f6;
+        }
+
+        .form-section:last-child {
+            border-bottom: none;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 16px;
+        }
+
+        .search-container {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 12px 16px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .search-results {
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            background: white;
+            margin-bottom: 16px;
+        }
+
+        .search-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            border-bottom: 1px solid #f3f4f6;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .search-item:hover {
+            background: #f8fafc;
+        }
+
+        .search-item:last-child {
+            border-bottom: none;
+        }
+
+        .search-item.selected {
+            background: #f3e8ff;
+            border-color: #7c3aed;
+        }
+
+        .employee-info {
+            flex: 1;
+        }
+
+        .employee-name {
+            font-weight: 500;
+            color: #1e293b;
+        }
+
+        .employee-details {
+            font-size: 14px;
+            color: #64748b;
+            margin-top: 2px;
+        }
+
+        .selected-employee {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px;
+            background: #f3e8ff;
+            border: 1px solid #c4b5fd;
+            border-radius: 8px;
+            margin-bottom: 16px;
+        }
+
+        .selected-employee-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .clear-btn {
+            background: none;
+            border: none;
+            color: #7c3aed;
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 4px;
+        }
+
+        .clear-btn:hover {
+            background: #ede9fe;
+        }
+
+        .position-comparison {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-top: 24px;
+        }
+
+        .position-card {
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .position-card.current {
+            border-color: #94a3b8;
+        }
+
+        .position-card.new {
+            border-color: #7c3aed;
+        }
+
+        .position-card-header {
+            padding: 16px 20px;
+            font-weight: 600;
+            color: white;
+        }
+
+        .position-card.current .position-card-header {
+            background: #64748b;
+        }
+
+        .position-card.new .position-card-header {
+            background: #7c3aed;
+        }
+
+        .position-card-body {
+            padding: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin-bottom: 16px;
+        }
+
+        label {
+            font-weight: 500;
+            color: #374151;
+            font-size: 14px;
+        }
+
+        label.required::after {
+            content: " *";
+            color: #dc2626;
+        }
+
+        input[type="text"], input[type="date"], select, textarea {
+            padding: 12px 16px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        input[type="text"]:focus, input[type="date"]:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        input[readonly] {
+            background: #f8fafc;
+            color: #64748b;
+        }
+
+        select[disabled] {
+            background: #f8fafc;
+            color: #64748b;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .additional-fields {
+            margin-top: 32px;
+            padding-top: 24px;
+            border-top: 2px solid #e5e7eb;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .radio-group {
+            display: flex;
+            gap: 16px;
+            margin-top: 6px;
+        }
+
+        .radio-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            padding: 24px;
+            background: #f8fafc;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #374151;
+            border: 1px solid #d1d5db;
+        }
+
+        .btn-secondary:hover {
+            background: #f3f4f6;
+        }
+
+        .btn-primary {
+            background: #7c3aed;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #6d28d9;
+        }
+
+        .btn-primary:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+        }
+
+        .info-banner {
+            background: #f3e8ff;
+            border: 1px solid #c4b5fd;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .info-icon {
+            color: #7c3aed;
+            flex-shrink: 0;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 24px;
+            color: #6b7280;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .app-header {
+            background-color: white;
+            border-bottom: 1px solid #e5e7eb;
+            padding: 16px 24px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .logo {
+            width: 32px;
+            height: 32px;
+        }
+
+        .logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .app-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1e293b;
+            margin: 0;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .user-name {
+            font-size: 14px;
+            font-weight: 500;
+            color: #1e293b;
+        }
+
+        .logout-link {
+            color: #7c3aed;
+            text-decoration: none;
+            font-size: 14px;
+            padding: 6px 12px;
+            border-radius: 6px;
+            transition: background-color 0.2s;
+        }
+
+        .logout-link:hover {
+            background-color: #f3e8ff;
+        }
+
+        .conditional-banner {
+            background: #fef3c7;
+            border: 1px solid #f59e0b;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #92400e;
+        }
+
+        .conditional-banner-icon {
+            color: #f59e0b;
+            flex-shrink: 0;
+        }
+
+        .conditional-section {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            margin-bottom: 24px;
+            overflow: hidden;
+        }
+
+        .conditional-section .section-title {
+            background: #f1f5f9;
+            padding: 16px 24px;
+            font-size: 16px;
+            font-weight: 600;
+            color: #1e293b;
+            border-bottom: 1px solid #e2e8f0;
+            margin-bottom: 0;
+        }
+
+        .conditional-section-content {
+            padding: 24px;
+        }
+
+        .sub-section {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 16px;
+            margin-top: 16px;
+            margin-left: 24px;
+        }
+
+        .sub-section.hidden {
+            display: none;
+        }
+
+        .conditional-form-group {
+            margin-bottom: 20px;
+        }
+
+        .conditional-form-group:last-child {
+            margin-bottom: 0;
+        }
+
+        .conditional-form-group label {
+            display: block;
+            font-weight: 500;
+            color: #374151;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+
+        .conditional-radio-group {
+            display: flex;
+            gap: 16px;
+            margin-top: 8px;
+        }
+
+        .conditional-radio-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .conditional-radio-option input[type="radio"] {
+            margin: 0;
+        }
+
+        .conditional-radio-option label {
+            margin: 0;
+            font-weight: 400;
+        }
+
+        .currency-input {
+            position: relative;
+        }
+
+        .currency-input::before {
+            content: '$';
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #6b7280;
+            font-weight: 500;
+        }
+
+        .currency-input input {
+            padding-left: 28px;
+        }
+
+        .it-section {
+            margin-top: 24px;
+            padding-top: 20px;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        .it-section-header {
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 8px;
+            font-size: 15px;
+        }
+
+        .it-section-note {
+            font-size: 13px;
+            color: #64748b;
+            margin-bottom: 16px;
+            font-style: italic;
+        }
+
+        .app-selector-form {
+            display: flex;
+            gap: 12px;
+            align-items: flex-end;
+            margin-bottom: 16px;
+            padding: 16px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+        }
+
+        .app-selector-form .form-field {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .app-selector-form label {
+            font-size: 13px;
+            font-weight: 500;
+            color: #374151;
+            margin: 0;
+        }
+
+        .app-selector-form select {
+            padding: 8px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .app-add-button {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: background 0.2s;
+        }
+
+        .app-add-button:hover {
+            background: #2563eb;
+        }
+
+        .app-grid {
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            overflow: hidden;
+            margin-bottom: 16px;
+        }
+
+        .app-grid table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .app-grid th {
+            background: #f1f5f9;
+            padding: 12px 16px;
+            text-align: left;
+            font-weight: 600;
+            color: #374151;
+            border-bottom: 1px solid #e5e7eb;
+            font-size: 13px;
+        }
+
+        .app-grid td {
+            padding: 12px 16px;
+            border-bottom: 1px solid #f3f4f6;
+            vertical-align: middle;
+            background: #fafbfc;
+        }
+
+        .app-grid tr:hover {
+            background: #f3f4f6;
+        }
+
+        .app-grid tr:hover td {
+            background: #f3f4f6;
+        }
+
+        .app-grid .note-input {
+            width: 100%;
+            border: none;
+            background: transparent;
+            padding: 4px 8px;
+            font-size: 14px;
+        }
+
+        .app-grid .note-input:focus {
+            outline: 1px solid #3b82f6;
+            background: white;
+            border-radius: 4px;
+        }
+
+        .app-grid .remove-btn {
+            background: #ef4444;
+            color: white;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: background 0.2s;
+        }
+
+        .app-grid .remove-btn:hover {
+            background: #dc2626;
+        }
+
+        .app-grid .empty-state {
+            text-align: center;
+            padding: 24px;
+            color: #6b7280;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <header class="app-header">
+        <div class="header-content">
+            <div class="header-left">
+                <div class="logo">
+                    <img src="Mathy-Seal_2017_320-1.png" alt="Mathy Seal">
+                </div>
+                <h1 class="app-title">Employee Change Management</h1>
+            </div>
+            <div class="header-right">
+                <div class="user-info">
+                    <span class="user-name">John Doe</span>
+                    <a href="#" class="logout-link" onclick="handleLogout()">Logout</a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="header">
+            <button class="back-btn" onclick="goBack()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M19 12H5M12 19l-7-7 7-7"/>
+                </svg>
+                Back
+            </button>
+            <h1>Promotion / Transfer</h1>
+        </div>
+
+        <div class="info-banner">
+            <svg class="info-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+            </svg>
+            <div>
+                <strong>Employee Promotion / Transfer:</strong> Update an employee's position, department, and compensation details.
+            </div>
+        </div>
+
+        <div class="form-card">
+            <div class="form-section">
+                <div class="section-title">Select Employee</div>
+                
+                <div class="search-container">
+                    <input type="text" class="search-input" id="searchInput" placeholder="Search for employee to promote..." oninput="searchEmployees()">
+                </div>
+
+                <div class="search-results" id="searchResults" style="display: none;">
+                </div>
+
+                <div id="selectedEmployee" style="display: none;">
+                </div>
+
+                <div id="positionComparison" class="hidden">
+                    <div class="position-comparison">
+                        <div class="position-card current">
+                            <div class="position-card-header">Current Position</div>
+                            <div class="position-card-body">
+                                <div class="form-group">
+                                    <label>Payroll Company</label>
+                                    <select id="currentPayrollCompany" disabled>
+                                        <option value="">Select...</option>
+                                        <option value="64">64 - MTS</option>
+                                        <option value="19">19 - Mathy</option>
+                                        <option value="22">22 - Construction Plus</option>
+                                        <option value="31">31 - Premier Building</option>
+                                        <option value="45">45 - Midwest Contractors</option>
+                                        <option value="67">67 - Elite Construction</option>
+                                        <option value="78">78 - Summit Builders</option>
+                                        <option value="83">83 - Valley Construction</option>
+                                        <option value="91">91 - Northern Works</option>
+                                        <option value="52">52 - Peak Development</option>
+                                        <option value="76">76 - Metro Building Co</option>
+                                        <option value="39">39 - Precision Construction</option>
+                                        <option value="84">84 - Alliance Builders</option>
+                                        <option value="55">55 - Horizon Construction</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Payroll Group</label>
+                                    <select id="currentPayrollGroup" disabled>
+                                        <option value="">Select...</option>
+                                        <option value="1">1 - Management & Tech Svc.-Exempt</option>
+                                        <option value="2">2 - Field Operations-Non-Exempt</option>
+                                        <option value="3">3 - Administrative-Exempt</option>
+                                        <option value="4">4 - Trades-Hourly</option>
+                                        <option value="5">5 - Safety & Compliance-Exempt</option>
+                                        <option value="6">6 - Project Management-Exempt</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Payroll Dept. Code</label>
+                                    <select id="currentPayrollDept" disabled>
+                                        <option value="">Select...</option>
+                                        <option value="6400">6400 - Management Technology Services</option>
+                                        <option value="6401">6401 - Field Operations Division</option>
+                                        <option value="6402">6402 - Administrative Services</option>
+                                        <option value="6403">6403 - Safety & Compliance</option>
+                                        <option value="6404">6404 - Project Management Office</option>
+                                        <option value="6405">6405 - Human Resources Department</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Position</label>
+                                    <select id="currentPosition" disabled>
+                                        <option value="">Select...</option>
+                                        <option value="PROJMGR BA">PROJMGR BA - Project Mgr/Business Analyst</option>
+                                        <option value="SITESUPR">SITESUPR - Site Supervisor</option>
+                                        <option value="SFTYCOORD">SFTYCOORD - Safety Coordinator</option>
+                                        <option value="EQPOPER">EQPOPER - Equipment Operator</option>
+                                        <option value="ELECT">ELECT - Electrician</option>
+                                        <option value="PLUMBER">PLUMBER - Plumber</option>
+                                        <option value="CARPNTR">CARPNTR - Carpenter</option>
+                                        <option value="CONCRFIN">CONCRFIN - Concrete Finisher</option>
+                                        <option value="FOREMAN">FOREMAN - Foreman</option>
+                                        <option value="COSTESTIM">COSTESTIM - Cost Estimator</option>
+                                        <option value="CADTECH">CADTECH - CAD Technician</option>
+                                        <option value="ADMINAST">ADMINAST - Administrative Assistant</option>
+                                        <option value="HRCOORD">HRCOORD - HR Coordinator</option>
+                                        <option value="ACCNTNT">ACCNTNT - Accountant</option>
+                                        <option value="CRANEOPR">CRANEOPR - Crane Operator</option>
+                                        <option value="WLDER">WLDER - Welder</option>
+                                        <option value="ROOFER">ROOFER - Roofer</option>
+                                        <option value="QCINSPC">QCINSPC - Quality Control Inspector</option>
+                                        <option value="EQPMECH">EQPMECH - Equipment Mechanic</option>
+                                        <option value="SCHDUL">SCHDUL - Scheduler</option>
+                                        <option value="LABORER">LABORER - Laborer</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Time Card Supervisor</label>
+                                    <input type="text" id="currentTimeCardSupervisor" readonly>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Vacation Supervisor</label>
+                                    <input type="text" id="currentVacationSupervisor" readonly>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Functional Department</label>
+                                    <select id="currentFunctionalDept" disabled>
+                                        <option value="">Select...</option>
+                                        <option value="None">None</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Physical Location</label>
+                                    <select id="currentPhysicalLocation" disabled>
+                                        <option value="">Select...</option>
+                                        <option value="100">100 - WI - Onalaska</option>
+                                        <option value="101">101 - MN - Rochester</option>
+                                        <option value="102">102 - IA - Cedar Rapids</option>
+                                        <option value="103">103 - WI - Madison</option>
+                                        <option value="104">104 - MN - Minneapolis</option>
+                                        <option value="105">105 - IA - Des Moines</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Status</label>
+                                    <select id="currentStatus" disabled>
+                                        <option value="">Select...</option>
+                                        <option value="FULL TIME">FULL TIME</option>
+                                        <option value="PART TIME">PART TIME</option>
+                                        <option value="RETIRED">RETIRED</option>
+                                        <option value="RETIRED - PART TIME">RETIRED - PART TIME</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="position-card new">
+                            <div class="position-card-header">New Position</div>
+                            <div class="position-card-body">
+                                <div class="form-group">
+                                    <label class="required">Payroll Company</label>
+                                    <select id="newPayrollCompany" required>
+                                        <option value="">Select...</option>
+                                        <option value="64">64 - MTS</option>
+                                        <option value="19">19 - Mathy</option>
+                                        <option value="22">22 - Construction Plus</option>
+                                        <option value="31">31 - Premier Building</option>
+                                        <option value="45">45 - Midwest Contractors</option>
+                                        <option value="67">67 - Elite Construction</option>
+                                        <option value="78">78 - Summit Builders</option>
+                                        <option value="83">83 - Valley Construction</option>
+                                        <option value="91">91 - Northern Works</option>
+                                        <option value="52">52 - Peak Development</option>
+                                        <option value="76">76 - Metro Building Co</option>
+                                        <option value="39">39 - Precision Construction</option>
+                                        <option value="84">84 - Alliance Builders</option>
+                                        <option value="55">55 - Horizon Construction</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="required">Payroll Group</label>
+                                    <select id="newPayrollGroup" required>
+                                        <option value="">Select...</option>
+                                        <option value="1">1 - Management & Tech Svc.-Exempt</option>
+                                        <option value="2">2 - Field Operations-Non-Exempt</option>
+                                        <option value="3">3 - Administrative-Exempt</option>
+                                        <option value="4">4 - Trades-Hourly</option>
+                                        <option value="5">5 - Safety & Compliance-Exempt</option>
+                                        <option value="6">6 - Project Management-Exempt</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="required">Payroll Dept. Code</label>
+                                    <select id="newPayrollDept" required>
+                                        <option value="">Select...</option>
+                                        <option value="6400">6400 - Management Technology Services</option>
+                                        <option value="6401">6401 - Field Operations Division</option>
+                                        <option value="6402">6402 - Administrative Services</option>
+                                        <option value="6403">6403 - Safety & Compliance</option>
+                                        <option value="6404">6404 - Project Management Office</option>
+                                        <option value="6405">6405 - Human Resources Department</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="required">Position</label>
+                                    <select id="newPosition" required>
+                                        <option value="">Select...</option>
+                                        <option value="PROJMGR BA">PROJMGR BA - Project Mgr/Business Analyst</option>
+                                        <option value="SITESUPR">SITESUPR - Site Supervisor</option>
+                                        <option value="SFTYCOORD">SFTYCOORD - Safety Coordinator</option>
+                                        <option value="EQPOPER">EQPOPER - Equipment Operator</option>
+                                        <option value="ELECT">ELECT - Electrician</option>
+                                        <option value="PLUMBER">PLUMBER - Plumber</option>
+                                        <option value="CARPNTR">CARPNTR - Carpenter</option>
+                                        <option value="CONCRFIN">CONCRFIN - Concrete Finisher</option>
+                                        <option value="FOREMAN">FOREMAN - Foreman</option>
+                                        <option value="COSTESTIM">COSTESTIM - Cost Estimator</option>
+                                        <option value="CADTECH">CADTECH - CAD Technician</option>
+                                        <option value="ADMINAST">ADMINAST - Administrative Assistant</option>
+                                        <option value="HRCOORD">HRCOORD - HR Coordinator</option>
+                                        <option value="ACCNTNT">ACCNTNT - Accountant</option>
+                                        <option value="CRANEOPR">CRANEOPR - Crane Operator</option>
+                                        <option value="WLDER">WLDER - Welder</option>
+                                        <option value="ROOFER">ROOFER - Roofer</option>
+                                        <option value="QCINSPC">QCINSPC - Quality Control Inspector</option>
+                                        <option value="EQPMECH">EQPMECH - Equipment Mechanic</option>
+                                        <option value="SCHDUL">SCHDUL - Scheduler</option>
+                                        <option value="LABORER">LABORER - Laborer</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="required">Time Card Supervisor</label>
+                                    <input type="text" id="newTimeCardSupervisor" required>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Vacation Supervisor</label>
+                                    <input type="text" id="newVacationSupervisor">
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Functional Department</label>
+                                    <select id="newFunctionalDept">
+                                        <option value="">Select...</option>
+                                        <option value="None">None</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="required">Physical Location</label>
+                                    <select id="newPhysicalLocation" required>
+                                        <option value="">Select...</option>
+                                        <option value="100">100 - WI - Onalaska</option>
+                                        <option value="101">101 - MN - Rochester</option>
+                                        <option value="102">102 - IA - Cedar Rapids</option>
+                                        <option value="103">103 - WI - Madison</option>
+                                        <option value="104">104 - MN - Minneapolis</option>
+                                        <option value="105">105 - IA - Des Moines</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="required">Status</label>
+                                    <select id="newStatus" required>
+                                        <option value="">Select...</option>
+                                        <option value="FULL TIME">FULL TIME</option>
+                                        <option value="PART TIME">PART TIME</option>
+                                        <option value="RETIRED">RETIRED</option>
+                                        <option value="RETIRED - PART TIME">RETIRED - PART TIME</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="additional-fields">
+                        <div class="section-title">Additional Information</div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="required">Payroll Type</label>
+                                <select id="payrollType" required>
+                                    <option value="">Select...</option>
+                                    <option value="Hourly">Hourly</option>
+                                    <option value="Salary">Salary</option>
+                                    <option value="Commission">Commission</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="effectiveDate" class="required">Effective Date</label>
+                                <input type="date" id="effectiveDate" required>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group full-width">
+                                <label for="notes">Notes</label>
+                                <textarea id="notes" placeholder="Additional details about the promotion..."></textarea>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="required">Does this job change require adding access and/or resources?</label>
+                                <div class="radio-group">
+                                    <div class="radio-option">
+                                        <input type="radio" id="requiresAccessNo" name="requiresAccess" value="no" checked onchange="checkConditionalSections()">
+                                        <label for="requiresAccessNo">No</label>
+                                    </div>
+                                    <div class="radio-option">
+                                        <input type="radio" id="requiresAccessYes" name="requiresAccess" value="yes" onchange="checkConditionalSections()">
+                                        <label for="requiresAccessYes">Yes</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Conditional Sections -->
+                    <div id="conditionalSections" class="hidden">
+                        <div class="conditional-banner">
+                            <svg class="conditional-banner-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                                <line x1="12" y1="9" x2="12" y2="13"/>
+                                <line x1="12" y1="17" x2="12.01" y2="17"/>
+                            </svg>
+                            <div>
+                                <strong>Additional Setup Required:</strong> Please complete the sections below to provide necessary access and resources.
+                            </div>
+                        </div>
+
+                        <!-- Credit Cards Section -->
+                        <div class="conditional-section">
+                            <div class="section-title">Credit Cards</div>
+                            <div class="conditional-section-content">
+                                <div class="conditional-form-group">
+                                    <label>Does this employee need a Kwik Trip credit card?</label>
+                                    <div class="conditional-radio-group">
+                                        <div class="conditional-radio-option">
+                                            <input type="radio" id="kwikTripNo" name="kwikTripCard" value="no" checked>
+                                            <label for="kwikTripNo">No</label>
+                                        </div>
+                                        <div class="conditional-radio-option">
+                                            <input type="radio" id="kwikTripYes" name="kwikTripCard" value="yes">
+                                            <label for="kwikTripYes">Yes</label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="conditional-form-group">
+                                    <label>Does this employee need a Company Expense card?</label>
+                                    <div class="conditional-radio-group">
+                                        <div class="conditional-radio-option">
+                                            <input type="radio" id="expenseCardNo" name="expenseCard" value="no" checked onchange="toggleExpenseCardDetails()">
+                                            <label for="expenseCardNo">No</label>
+                                        </div>
+                                        <div class="conditional-radio-option">
+                                            <input type="radio" id="expenseCardFuelOnly" name="expenseCard" value="fuel-only" onchange="toggleExpenseCardDetails()">
+                                            <label for="expenseCardFuelOnly">Fuel Only</label>
+                                        </div>
+                                        <div class="conditional-radio-option">
+                                            <input type="radio" id="expenseCardEE" name="expenseCard" value="ee-expense" onchange="toggleExpenseCardDetails()">
+                                            <label for="expenseCardEE">EE Expense Credit Card</label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div id="expenseCardDetails" class="sub-section hidden">
+                                    <div class="conditional-form-group">
+                                        <label>Company Credit Card Weekly Limit</label>
+                                        <div class="currency-input">
+                                            <input type="text" id="weeklyLimit" value="1,000.00" placeholder="1,000.00">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="conditional-form-group">
+                                    <label>Fuel Cardlock Access</label>
+                                    <div class="conditional-radio-group">
+                                        <div class="conditional-radio-option">
+                                            <input type="radio" id="cardlockNo" name="cardlockAccess" value="no" checked onchange="toggleCardlockDetails()">
+                                            <label for="cardlockNo">No</label>
+                                        </div>
+                                        <div class="conditional-radio-option">
+                                            <input type="radio" id="cardlockYes" name="cardlockAccess" value="yes" onchange="toggleCardlockDetails()">
+                                            <label for="cardlockYes">Yes</label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div id="cardlockDetails" class="sub-section hidden">
+                                    <div class="conditional-form-group">
+                                        <label>Cardlock - Ship Address</label>
+                                        <input type="text" id="cardlockAddress" placeholder="Enter shipping address" readonly>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Company Vehicle Details Section -->
+                        <div class="conditional-section">
+                            <div class="section-title">Company Vehicle Details</div>
+                            <div class="conditional-section-content">
+                                <div class="conditional-form-group">
+                                    <label>Approved to operate company vehicle?</label>
+                                    <div class="conditional-radio-group">
+                                        <div class="conditional-radio-option">
+                                            <input type="radio" id="companyVehicleNo" name="companyVehicleApproved" value="no" checked onchange="toggleVehicleDetails()">
+                                            <label for="companyVehicleNo">No</label>
+                                        </div>
+                                        <div class="conditional-radio-option">
+                                            <input type="radio" id="companyVehicleYes" name="companyVehicleApproved" value="yes" onchange="toggleVehicleDetails()">
+                                            <label for="companyVehicleYes">Yes</label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div id="vehicleDetails" class="sub-section hidden">
+                                    <div class="conditional-form-group">
+                                        <label>Driver Classification</label>
+                                        <select id="driverClassification">
+                                            <option value="">Select...</option>
+                                            <option value="Class A CDL">Class A CDL</option>
+                                            <option value="Class B CDL">Class B CDL</option>
+                                            <option value="Class C CDL">Class C CDL</option>
+                                            <option value="Regular License">Regular License</option>
+                                            <option value="Chauffeur License">Chauffeur License</option>
+                                            <option value="Motorcycle License">Motorcycle License</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="conditional-form-group">
+                                        <label>Drug & Alcohol Profile</label>
+                                        <div class="conditional-radio-group">
+                                            <div class="conditional-radio-option">
+                                                <input type="radio" id="dotDrugPool" name="drugProfile" value="DOT Drug Pool" checked>
+                                                <label for="dotDrugPool">DOT Drug Pool</label>
+                                            </div>
+                                            <div class="conditional-radio-option">
+                                                <input type="radio" id="wiPrevailingPool" name="drugProfile" value="WI Prevailing Wage Pool">
+                                                <label for="wiPrevailingPool">WI Prevailing Wage Pool</label>
+                                            </div>
+                                            <div class="conditional-radio-option">
+                                                <input type="radio" id="noTesting" name="drugProfile" value="No Testing">
+                                                <label for="noTesting">No Testing</label>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="conditional-form-group">
+                                        <label>Do you need a company car?</label>
+                                        <div class="conditional-radio-group">
+                                            <div class="conditional-radio-option">
+                                                <input type="radio" id="companyCarNo" name="companyCar" value="no" checked>
+                                                <label for="companyCarNo">No</label>
+                                            </div>
+                                            <div class="conditional-radio-option">
+                                                <input type="radio" id="companyCarYes" name="companyCar" value="yes">
+                                                <label for="companyCarYes">Yes</label>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="conditional-form-group">
+                                        <label>Is Application Part 2 Complete?</label>
+                                        <div class="conditional-radio-group">
+                                            <div class="conditional-radio-option">
+                                                <input type="radio" id="part2No" name="applicationPart2" value="no" checked>
+                                                <label for="part2No">No</label>
+                                            </div>
+                                            <div class="conditional-radio-option">
+                                                <input type="radio" id="part2Yes" name="applicationPart2" value="yes">
+                                                <label for="part2Yes">Yes</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- IT Related Information Section -->
+                        <div class="conditional-section">
+                            <div class="section-title">IT Related Information</div>
+                            <div class="conditional-section-content">
+                                <div class="conditional-form-group">
+                                    <label>Does Employee Require an Email Address?</label>
+                                    <div class="conditional-radio-group">
+                                        <div class="conditional-radio-option">
+                                            <input type="radio" id="emailRequiredNo" name="emailRequired" value="no" checked>
+                                            <label for="emailRequiredNo">No</label>
+                                        </div>
+                                        <div class="conditional-radio-option">
+                                            <input type="radio" id="emailRequiredYes" name="emailRequired" value="yes">
+                                            <label for="emailRequiredYes">Yes</label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="conditional-form-group">
+                                    <label>Note: All items will be delivered to <span id="deliveryLocation">[Physical Location selected]</span> unless noted here:</label>
+                                    <input type="text" id="alternateDeliveryLocation" placeholder="Enter alternate delivery location if different from physical location">
+                                </div>
+
+                                <div class="it-section">
+                                    <div class="it-section-header">Application/Software</div>
+                                    <div class="it-section-note">(TEAMS access is not collected here because the Team owner manages that.)</div>
+                                    
+                                    <div class="app-selector-form">
+                                        <div class="form-field">
+                                            <label>Application/Software</label>
+                                            <select id="applicationSelect">
+                                                <option value="">Select...</option>
+                                                <option value="Cargas Energy">Cargas Energy</option>
+                                                <option value="AutoCAD">AutoCAD</option>
+                                                <option value="Microsoft Project">Microsoft Project</option>
+                                                <option value="Sage 300">Sage 300</option>
+                                                <option value="Bluebeam Revu">Bluebeam Revu</option>
+                                                <option value="SketchUp">SketchUp</option>
+                                                <option value="Primavera P6">Primavera P6</option>
+                                                <option value="Procore">Procore</option>
+                                                <option value="PlanGrid">PlanGrid</option>
+                                                <option value="Viewpoint">Viewpoint</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-field">
+                                            <label>Access Notes</label>
+                                            <input type="text" id="applicationNoteInput" placeholder="Enter access requirements or notes">
+                                        </div>
+                                        <button type="button" class="app-add-button" onclick="addApplicationItem()">Add</button>
+                                    </div>
+
+                                    <div class="app-grid">
+                                        <table>
+                                            <thead>
+                                                <tr>
+                                                    <th>Application/Software</th>
+                                                    <th>Access Notes</th>
+                                                    <th>Action</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="applicationGridBody">
+                                                <tr>
+                                                    <td colspan="3" class="empty-state">No applications selected</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+
+                                <div class="it-section">
+                                    <div class="it-section-header">Folder/SharePoint/Mailbox</div>
+                                    
+                                    <div class="app-selector-form">
+                                        <div class="form-field">
+                                            <label>Type</label>
+                                            <select id="folderTypeSelect">
+                                                <option value="">Select...</option>
+                                                <option value="Shared Folder">Shared Folder</option>
+                                                <option value="SharePoint Site">SharePoint Site</option>
+                                                <option value="Mailbox">Mailbox</option>
+                                                <option value="Distribution List">Distribution List</option>
+                                                <option value="OneDrive Access">OneDrive Access</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-field">
+                                            <label>Folder/SharePoint/Mailbox Name</label>
+                                            <input type="text" id="folderNameInput" placeholder="Enter name or path">
+                                        </div>
+                                        <button type="button" class="app-add-button" onclick="addFolderItem()">Add</button>
+                                    </div>
+
+                                    <div class="app-grid">
+                                        <table>
+                                            <thead>
+                                                <tr>
+                                                    <th>Type</th>
+                                                    <th>Folder/SharePoint/Mailbox</th>
+                                                    <th>Action</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="folderGridBody">
+                                                <tr>
+                                                    <td colspan="3" class="empty-state">No folders/sites/mailboxes added</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button class="btn btn-secondary" onclick="goBack()">Cancel</button>
+                <button class="btn btn-primary" id="submitBtn" onclick="submitPromotion()" disabled>Submit Promotion Request</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let selectedEmployee = null;
+        let allEmployees = [
+            { 
+                id: 1, 
+                name: 'John Smith', 
+                title: 'Site Supervisor', 
+                division: 'Field Operations', 
+                department: 'Commercial Construction',
+                currentData: {
+                    payrollCompany: '64',
+                    payrollGroup: '2',
+                    payrollDept: '6401',
+                    position: 'SITESUPR',
+                    timeCardSupervisor: 'Mike Johnson',
+                    vacationSupervisor: 'Sarah Davis',
+                    functionalDept: 'None',
+                    physicalLocation: '100',
+                    status: 'FULL TIME'
+                }
+            },
+            { 
+                id: 2, 
+                name: 'Sarah Johnson', 
+                title: 'Project Manager', 
+                division: 'Project Management', 
+                department: 'Residential Projects',
+                currentData: {
+                    payrollCompany: '19',
+                    payrollGroup: '6',
+                    payrollDept: '6404',
+                    position: 'PROJMGR BA',
+                    timeCardSupervisor: 'David Wilson',
+                    vacationSupervisor: 'Lisa Chen',
+                    functionalDept: 'None',
+                    physicalLocation: '101',
+                    status: 'FULL TIME'
+                }
+            },
+            { 
+                id: 3, 
+                name: 'Mike Chen', 
+                title: 'Heavy Equipment Operator', 
+                division: 'Field Operations', 
+                department: 'Infrastructure',
+                currentData: {
+                    payrollCompany: '64',
+                    payrollGroup: '4',
+                    payrollDept: '6401',
+                    position: 'EQPOPER',
+                    timeCardSupervisor: 'Robert Martinez',
+                    vacationSupervisor: 'John Smith',
+                    functionalDept: 'None',
+                    physicalLocation: '102',
+                    status: 'FULL TIME'
+                }
+            }
+        ];
+
+        function searchEmployees() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            const resultsContainer = document.getElementById('searchResults');
+            
+            if (query.length < 2) {
+                resultsContainer.style.display = 'none';
+                return;
+            }
+
+            const results = allEmployees.filter(emp => 
+                emp.name.toLowerCase().includes(query) ||
+                emp.title.toLowerCase().includes(query) ||
+                emp.division.toLowerCase().includes(query)
+            );
+            
+            resultsContainer.style.display = 'block';
+            
+            if (results.length === 0) {
+                resultsContainer.innerHTML = '<div class="no-results">No employees found</div>';
+                return;
+            }
+
+            resultsContainer.innerHTML = results.map(emp => `
+                <div class="search-item ${selectedEmployee && selectedEmployee.id === emp.id ? 'selected' : ''}" onclick="selectEmployee(${emp.id})">
+                    <div class="employee-info">
+                        <div class="employee-name">${emp.name}</div>
+                        <div class="employee-details">${emp.title} • ${emp.division}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function selectEmployee(employeeId) {
+            selectedEmployee = allEmployees.find(emp => emp.id === employeeId);
+            updateSelectedEmployee();
+            populateCurrentPosition();
+            updateSubmitButton();
+            
+            // Hide search results and clear search input
+            document.getElementById('searchResults').style.display = 'none';
+            document.getElementById('searchInput').value = '';
+            
+            // Show position comparison
+            document.getElementById('positionComparison').classList.remove('hidden');
+        }
+
+        function updateSelectedEmployee() {
+            const container = document.getElementById('selectedEmployee');
+            
+            if (!selectedEmployee) {
+                container.style.display = 'none';
+                return;
+            }
+            
+            container.style.display = 'block';
+            container.innerHTML = `
+                <div class="selected-employee">
+                    <div class="selected-employee-info">
+                        <strong>${selectedEmployee.name}</strong>
+                        <span style="color: #64748b; margin-left: 8px;">${selectedEmployee.title} • ${selectedEmployee.division}</span>
+                    </div>
+                    <button class="clear-btn" onclick="clearEmployee()" title="Clear selection">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                    </button>
+                </div>
+            `;
+        }
+
+        function clearEmployee() {
+            selectedEmployee = null;
+            updateSelectedEmployee();
+            updateSubmitButton();
+            document.getElementById('positionComparison').classList.add('hidden');
+        }
+
+        function populateCurrentPosition() {
+            if (!selectedEmployee) return;
+            
+            const data = selectedEmployee.currentData;
+            
+            // Populate current position fields (readonly/disabled)
+            document.getElementById('currentPayrollCompany').value = data.payrollCompany;
+            document.getElementById('currentPayrollGroup').value = data.payrollGroup;
+            document.getElementById('currentPayrollDept').value = data.payrollDept;
+            document.getElementById('currentPosition').value = data.position;
+            document.getElementById('currentTimeCardSupervisor').value = data.timeCardSupervisor;
+            document.getElementById('currentVacationSupervisor').value = data.vacationSupervisor;
+            document.getElementById('currentFunctionalDept').value = data.functionalDept;
+            document.getElementById('currentPhysicalLocation').value = data.physicalLocation;
+            document.getElementById('currentStatus').value = data.status;
+            
+            // Pre-populate new position fields with current data (editable)
+            document.getElementById('newPayrollCompany').value = data.payrollCompany;
+            document.getElementById('newPayrollGroup').value = data.payrollGroup;
+            document.getElementById('newPayrollDept').value = data.payrollDept;
+            document.getElementById('newPosition').value = data.position;
+            document.getElementById('newTimeCardSupervisor').value = data.timeCardSupervisor;
+            document.getElementById('newVacationSupervisor').value = data.vacationSupervisor;
+            document.getElementById('newFunctionalDept').value = data.functionalDept;
+            document.getElementById('newPhysicalLocation').value = data.physicalLocation;
+            document.getElementById('newStatus').value = data.status;
+            
+            // Check if conditional sections should be shown
+            checkConditionalSections();
+            
+            // Update cardlock address with current physical location
+            updateCardlockAddress();
+        }
+
+        function checkConditionalSections() {
+            if (!selectedEmployee) {
+                document.getElementById('conditionalSections').classList.add('hidden');
+                return;
+            }
+            
+            // Show conditional sections only if user selects "Yes" to requiring access/resources
+            const requiresAccess = document.querySelector('input[name="requiresAccess"]:checked')?.value;
+            const shouldShow = requiresAccess === 'yes';
+            
+            if (shouldShow) {
+                document.getElementById('conditionalSections').classList.remove('hidden');
+            } else {
+                document.getElementById('conditionalSections').classList.add('hidden');
+            }
+        }
+
+        function toggleExpenseCardDetails() {
+            const expenseCardValue = document.querySelector('input[name="expenseCard"]:checked')?.value;
+            const detailsSection = document.getElementById('expenseCardDetails');
+            
+            if (expenseCardValue && expenseCardValue !== 'no') {
+                detailsSection.classList.remove('hidden');
+            } else {
+                detailsSection.classList.add('hidden');
+            }
+        }
+
+        function toggleCardlockDetails() {
+            const cardlockYes = document.getElementById('cardlockYes').checked;
+            const detailsSection = document.getElementById('cardlockDetails');
+            
+            if (cardlockYes) {
+                detailsSection.classList.remove('hidden');
+            } else {
+                detailsSection.classList.add('hidden');
+            }
+        }
+
+        function toggleVehicleDetails() {
+            const vehicleYes = document.getElementById('companyVehicleYes').checked;
+            const detailsSection = document.getElementById('vehicleDetails');
+            
+            if (vehicleYes) {
+                detailsSection.classList.remove('hidden');
+            } else {
+                detailsSection.classList.add('hidden');
+            }
+        }
+
+        let applicationGrid = [];
+        let folderGrid = [];
+
+        function addApplicationItem() {
+            const appSelect = document.getElementById('applicationSelect');
+            const noteInput = document.getElementById('applicationNoteInput');
+            
+            const appName = appSelect.value;
+            const note = noteInput.value.trim();
+            
+            if (!appName) {
+                alert('Please select an application');
+                return;
+            }
+            
+            // Check if already exists in grid
+            if (applicationGrid.find(app => app.name === appName)) {
+                alert('This application has already been added');
+                return;
+            }
+            
+            applicationGrid.push({
+                name: appName,
+                note: note
+            });
+            
+            // Clear form
+            appSelect.value = '';
+            noteInput.value = '';
+            
+            // Refresh grid
+            updateApplicationGrid();
+        }
+
+        function updateApplicationGrid() {
+            const tbody = document.getElementById('applicationGridBody');
+            
+            if (applicationGrid.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="3" class="empty-state">No applications selected</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = applicationGrid.map((app, index) => `
+                <tr>
+                    <td>${app.name}</td>
+                    <td>
+                        <input type="text" class="note-input" 
+                               value="${app.note}" 
+                               placeholder="Enter access requirements or notes"
+                               onchange="updateApplicationNote(${index}, this.value)">
+                    </td>
+                    <td>
+                        <button type="button" class="remove-btn" onclick="removeApplication(${index})">Remove</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function updateApplicationNote(index, note) {
+            applicationGrid[index].note = note;
+        }
+
+        function removeApplication(index) {
+            applicationGrid.splice(index, 1);
+            updateApplicationGrid();
+        }
+
+        function addFolderItem() {
+            const typeSelect = document.getElementById('folderTypeSelect');
+            const nameInput = document.getElementById('folderNameInput');
+            
+            const type = typeSelect.value;
+            const name = nameInput.value.trim();
+            
+            if (!type || !name) {
+                alert('Please select a type and enter a name');
+                return;
+            }
+            
+            folderGrid.push({
+                type: type,
+                name: name
+            });
+            
+            // Clear form
+            typeSelect.value = '';
+            nameInput.value = '';
+            
+            // Refresh grid
+            updateFolderGrid();
+        }
+
+        function updateFolderGrid() {
+            const tbody = document.getElementById('folderGridBody');
+            
+            if (folderGrid.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="3" class="empty-state">No folders/sites/mailboxes added</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = folderGrid.map((folder, index) => `
+                <tr>
+                    <td>${folder.type}</td>
+                    <td>
+                        <input type="text" class="note-input" 
+                               value="${folder.name}" 
+                               placeholder="Enter name or path"
+                               onchange="updateFolderName(${index}, this.value)">
+                    </td>
+                    <td>
+                        <button type="button" class="remove-btn" onclick="removeFolder(${index})">Remove</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function updateFolderName(index, name) {
+            folderGrid[index].name = name;
+        }
+
+        function removeFolder(index) {
+            folderGrid.splice(index, 1);
+            updateFolderGrid();
+        }
+
+        function collectApplicationData() {
+            return applicationGrid.map(app => ({
+                application: app.name,
+                note: app.note
+            }));
+        }
+
+        function collectFolderData() {
+            return folderGrid.map(folder => ({
+                type: folder.type,
+                name: folder.name
+            }));
+        }
+
+        function updateCardlockAddress() {
+            const physicalLocationSelect = document.getElementById('newPhysicalLocation');
+            const cardlockAddressField = document.getElementById('cardlockAddress');
+            const deliveryLocationSpan = document.getElementById('deliveryLocation');
+            
+            if (physicalLocationSelect) {
+                const selectedOption = physicalLocationSelect.options[physicalLocationSelect.selectedIndex];
+                const locationText = selectedOption.text;
+                
+                // Update cardlock address field
+                if (cardlockAddressField) {
+                    if (locationText && locationText !== 'Select...') {
+                        cardlockAddressField.value = locationText;
+                    } else {
+                        cardlockAddressField.value = '';
+                    }
+                }
+                
+                // Update delivery location display in IT section
+                if (deliveryLocationSpan) {
+                    if (locationText && locationText !== 'Select...') {
+                        deliveryLocationSpan.textContent = locationText;
+                    } else {
+                        deliveryLocationSpan.textContent = '[Physical Location selected]';
+                    }
+                }
+            }
+        }
+
+        function updateSubmitButton() {
+            const submitBtn = document.getElementById('submitBtn');
+            const effectiveDate = document.getElementById('effectiveDate').value;
+            const payrollType = document.getElementById('payrollType').value;
+            const requiresAccess = document.querySelector('input[name="requiresAccess"]:checked')?.value;
+            
+            // Check required fields
+            const requiredFields = [
+                'newPayrollCompany',
+                'newPayrollGroup', 
+                'newPayrollDept',
+                'newPosition',
+                'newTimeCardSupervisor',
+                'newPhysicalLocation',
+                'newStatus'
+            ];
+            
+            const allFieldsFilled = requiredFields.every(fieldId => 
+                document.getElementById(fieldId).value.trim() !== ''
+            );
+            
+            submitBtn.disabled = !selectedEmployee || !effectiveDate || !payrollType || !requiresAccess || !allFieldsFilled;
+        }
+
+        function submitPromotion() {
+            if (!selectedEmployee) {
+                alert('Please select an employee');
+                return;
+            }
+            
+            const effectiveDate = document.getElementById('effectiveDate').value;
+            const payrollType = document.getElementById('payrollType').value;
+            const notes = document.getElementById('notes').value;
+            
+            // Collect new position data
+            const newPosition = {
+                payrollCompany: document.getElementById('newPayrollCompany').value,
+                payrollGroup: document.getElementById('newPayrollGroup').value,
+                payrollDept: document.getElementById('newPayrollDept').value,
+                position: document.getElementById('newPosition').value,
+                timeCardSupervisor: document.getElementById('newTimeCardSupervisor').value,
+                vacationSupervisor: document.getElementById('newVacationSupervisor').value,
+                functionalDept: document.getElementById('newFunctionalDept').value,
+                physicalLocation: document.getElementById('newPhysicalLocation').value,
+                status: document.getElementById('newStatus').value
+            };
+            
+            // Collect conditional data if sections are visible
+            let conditionalData = null;
+            if (!document.getElementById('conditionalSections').classList.contains('hidden')) {
+                conditionalData = {
+                    creditCards: {
+                        kwikTripCard: document.querySelector('input[name="kwikTripCard"]:checked')?.value,
+                        expenseCard: document.querySelector('input[name="expenseCard"]:checked')?.value,
+                        weeklyLimit: document.getElementById('weeklyLimit').value,
+                        cardlockAccess: document.querySelector('input[name="cardlockAccess"]:checked')?.value,
+                        cardlockAddress: document.getElementById('cardlockAddress').value
+                    },
+                    vehicle: {
+                        companyVehicleApproved: document.querySelector('input[name="companyVehicleApproved"]:checked')?.value,
+                        driverClassification: document.getElementById('driverClassification').value,
+                        drugProfile: document.querySelector('input[name="drugProfile"]:checked')?.value,
+                        companyCar: document.querySelector('input[name="companyCar"]:checked')?.value,
+                        applicationPart2: document.querySelector('input[name="applicationPart2"]:checked')?.value
+                    },
+                    it: {
+                        emailRequired: document.querySelector('input[name="emailRequired"]:checked')?.value,
+                        alternateDeliveryLocation: document.getElementById('alternateDeliveryLocation').value,
+                        applications: collectApplicationData(),
+                        folders: collectFolderData()
+                    }
+                };
+            }
+            
+            if (!effectiveDate || !payrollType) {
+                alert('Please fill in all required fields');
+                return;
+            }
+            
+            // In real app, this would submit to backend
+            const submissionData = {
+                employee: selectedEmployee,
+                currentPosition: selectedEmployee.currentData,
+                newPosition,
+                effectiveDate,
+                payrollType,
+                notes,
+                submittedBy: 'Current User',
+                submittedDate: new Date().toISOString()
+            };
+            
+            // Add conditional data if present
+            if (conditionalData) {
+                submissionData.conditionalData = conditionalData;
+            }
+            
+            console.log('Promotion Request:', submissionData);
+            
+            alert(`Promotion request submitted for ${selectedEmployee.name}`);
+            goBack();
+        }
+
+        function goBack() {
+            window.location.href = 'hr_request_dashboard.html';
+        }
+
+        // Add event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            const fieldsToWatch = [
+                'effectiveDate', 'payrollType', 'newPayrollCompany', 'newPayrollGroup',
+                'newPayrollDept', 'newPosition', 'newTimeCardSupervisor', 
+                'newPhysicalLocation', 'newStatus'
+            ];
+            
+            fieldsToWatch.forEach(fieldId => {
+                const field = document.getElementById(fieldId);
+                if (field) {
+                    field.addEventListener('change', updateSubmitButton);
+                    field.addEventListener('input', updateSubmitButton);
+                }
+            });
+            
+            // Add event listeners for radio buttons
+            const requiresAccessRadios = document.querySelectorAll('input[name="requiresAccess"]');
+            requiresAccessRadios.forEach(radio => {
+                radio.addEventListener('change', updateSubmitButton);
+            });
+            
+            // Add physical location listener for cardlock address updates
+            const physicalLocationField = document.getElementById('newPhysicalLocation');
+            
+            if (physicalLocationField) {
+                physicalLocationField.addEventListener('change', updateCardlockAddress);
+            }
+            
+            // Set min date for effective date
+            document.getElementById('effectiveDate').min = new Date().toISOString().split('T')[0];
+        });
+
+        function handleLogout() {
+            // In a real app, this would handle the logout process
+            if (confirm('Are you sure you want to log out?')) {
+                window.location.href = 'login.html';
+            }
+        }
+    </script>
+</body>
+</html>

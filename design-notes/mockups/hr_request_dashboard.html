@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HR Request Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f8fafc;
+            color: #334155;
+            line-height: 1.5;
+        }
+        .action-icon {
+            width: 32px;
+            height: 32px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 32px;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        .new-request-btn {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .new-request-btn:hover {
+            background: #2563eb;
+        }
+
+        .controls {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 24px;
+            align-items: center;
+        }
+
+        .search-box {
+            flex: 1;
+            max-width: 400px;
+            position: relative;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 12px 16px 12px 44px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 14px;
+            background: white;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #9ca3af;
+        }
+
+        .table-container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            margin-bottom: 24px;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            margin-top: 24px;
+        }
+
+        .pagination button {
+            padding: 8px 16px;
+            border: 1px solid #e5e7eb;
+            background: white;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            color: #374151;
+            transition: all 0.2s;
+        }
+
+        .pagination button:hover:not(:disabled) {
+            background: #f3f4f6;
+            border-color: #d1d5db;
+        }
+
+        .pagination button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .pagination .page-info {
+            font-size: 14px;
+            color: #6b7280;
+        }
+
+        .pagination .page-size-selector {
+            margin-left: 16px;
+            padding: 8px;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            background: white;
+            color: #374151;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background: #f8fafc;
+            padding: 16px;
+            text-align: left;
+            font-weight: 600;
+            color: #374151;
+            border-bottom: 1px solid #e5e7eb;
+            cursor: pointer;
+            user-select: none;
+            position: relative;
+        }
+
+        th:hover {
+            background: #f1f5f9;
+        }
+
+        th::after {
+            content: '↕';
+            position: absolute;
+            right: 8px;
+            color: #9ca3af;
+            font-size: 12px;
+        }
+
+        th.asc::after {
+            content: '↑';
+            color: #3b82f6;
+        }
+
+        th.desc::after {
+            content: '↓';
+            color: #3b82f6;
+        }
+
+        td {
+            padding: 16px;
+            border-bottom: 1px solid #f3f4f6;
+        }
+
+        tr:hover {
+            background: #f9fafb;
+        }
+
+        .status {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .status.submitted {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .status.draft {
+            background: #f3f4f6;
+            color: #4b5563;
+        }
+
+        .request-type {
+            font-weight: 500;
+        }
+
+        .request-type.new-hire {
+            color: #059669;
+        }
+
+        .request-type.termination {
+            color: #dc2626;
+        }
+
+        .request-type.promotion {
+            color: #7c3aed;
+        }
+
+        .request-type.transfer {
+            color: #ea580c;
+        }
+
+        .request-type.layoff {
+            color: #991b1b;
+        }
+
+        .request-type.return {
+            color: #0891b2;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 64px 24px;
+            color: #6b7280;
+        }
+
+        .empty-state h3 {
+            font-size: 18px;
+            margin-bottom: 8px;
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal-overlay.show {
+            display: flex;
+        }
+
+        .modal {
+            background: white;
+            border-radius: 12px;
+            padding: 32px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        .modal h2 {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 24px;
+            color: #1e293b;
+        }
+
+        .request-options {
+            display: grid;
+            gap: 12px;
+        }
+
+        .request-option {
+            display: flex;
+            align-items: center;
+            padding: 16px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: white;
+        }
+
+        .request-option:hover {
+            border-color: #3b82f6;
+            background: #f8fafc;
+        }
+
+        .request-option-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 16px;
+            font-weight: 600;
+            color: white;
+        }
+
+        .request-option-icon.new-hire { background: #059669; }
+        .request-option-icon.termination { background: #dc2626; }
+        .request-option-icon.layoff { background: #991b1b; }
+        .request-option-icon.promotion { background: #7c3aed; }
+        .request-option-icon.transfer { background: #ea580c; }
+        .request-option-icon.return { background: #0891b2; }
+
+        .request-option-content h3 {
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 4px;
+        }
+
+        .request-option-content p {
+            color: #64748b;
+            font-size: 14px;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: #9ca3af;
+            cursor: pointer;
+            padding: 8px;
+        }
+
+        .modal-close:hover {
+            color: #374151;
+        }
+
+        .modal {
+            position: relative;
+        }
+
+        .action-icon {
+            cursor: pointer;
+            color: #6b7280;
+            transition: color 0.2s;
+            padding: 12px;
+            border-radius: 6px;
+            width: 32px;
+            height: 32px;
+        }
+
+        .action-icon:hover {
+            color: #3b82f6;
+            background: #f1f5f9;
+        }
+
+        .app-header {
+            background-color: white;
+            border-bottom: 1px solid #e5e7eb;
+            padding: 16px 24px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .logo {
+            width: 32px;
+            height: 32px;
+        }
+
+        .logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .app-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1e293b;
+            margin: 0;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .user-name {
+            font-size: 14px;
+            font-weight: 500;
+            color: #1e293b;
+        }
+
+        .logout-link {
+            color: #7c3aed;
+            text-decoration: none;
+            font-size: 14px;
+            padding: 6px 12px;
+            border-radius: 6px;
+            transition: background-color 0.2s;
+        }
+
+        .logout-link:hover {
+            background-color: #f3e8ff;
+        }
+    </style>
+</head>
+<body>
+    <header class="app-header">
+        <div class="header-content">
+            <div class="header-left">
+                <div class="logo">
+                    <img src="Mathy-Seal_2017_320-1.png" alt="Mathy Seal">
+                </div>
+                <h1 class="app-title">Employee Change Management</h1>
+            </div>
+            <div class="header-right">
+                <div class="user-info">
+                    <span class="user-name">John Doe</span>
+                    <a href="#" class="logout-link" onclick="handleLogout()">Logout</a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="header">
+            <h1>HR Requests</h1>
+            <button class="new-request-btn" onclick="initiateRequest()">+ New Request</button>
+        </div>
+
+        <div class="controls">
+            <div class="search-box">
+                <svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <path d="m21 21-4.35-4.35"></path>
+                </svg>
+                <input type="text" placeholder="Search requests..." id="searchInput" oninput="filterRequests()">
+            </div>
+        </div>
+
+        <div class="table-container">
+            <table id="requestsTable">
+                <thead>
+                    <tr>
+                        <th>Request Type</th>
+                        <th>Employee Name</th>
+                        <th>Effective Date</th>
+                        <th>Status</th>
+                        <th>Submitted By</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Table rows will be populated dynamically -->
+                </tbody>
+            </table>
+        </div>
+        <div class="pagination">
+            <button id="prevPage" onclick="changePage(-1)">Previous</button>
+            <span class="page-info">Page <span id="currentPage">1</span> of <span id="totalPages">1</span></span>
+            <button id="nextPage" onclick="changePage(1)">Next</button>
+            <select class="page-size-selector" id="pageSize" onchange="updatePageSize()">
+                <option value="5">5 per page</option>
+                <option value="10" selected>10 per page</option>
+                <option value="20">20 per page</option>
+                <option value="50">50 per page</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="requestModal">
+        <div class="modal">
+            <button class="modal-close" onclick="closeModal()">&times;</button>
+            <h2>Select Request Type</h2>
+            <div class="request-options">
+                <div class="request-option" onclick="createRequest('new-hire')">
+                    <div class="request-option-icon new-hire">NH</div>
+                    <div class="request-option-content">
+                        <h3>New Hire</h3>
+                        <p>Request to hire a new employee</p>
+                    </div>
+                </div>
+                <div class="request-option" onclick="createRequest('promotion')">
+                    <div class="request-option-icon promotion">PT</div>
+                    <div class="request-option-content">
+                        <h3>Promotion / Transfer</h3>
+                        <p>Request to promote or transfer an employee</p>
+                    </div>
+                </div>
+                <div class="request-option" onclick="createRequest('layoff')">
+                    <div class="request-option-icon layoff">L</div>
+                    <div class="request-option-content">
+                        <h3>Layoff</h3>
+                        <p>Request for employee layoff</p>
+                    </div>
+                </div>
+                <div class="request-option" onclick="createRequest('return')">
+                    <div class="request-option-icon return">R</div>
+                    <div class="request-option-content">
+                        <h3>Return to Work</h3>
+                        <p>Request for employee return after layoff</p>
+                    </div>
+                </div>
+                <div class="request-option" onclick="createRequest('termination')">
+                    <div class="request-option-icon termination">T</div>
+                    <div class="request-option-content">
+                        <h3>Termination</h3>
+                        <p>Request to terminate an employee</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Add these variables at the top of your script
+        let currentPage = 1;
+        let pageSize = 10;
+        let allRequests = [];
+        let filteredRequests = [];
+
+        // Initialize the table with sample data
+        function initializeTable() {
+            allRequests = [
+                {
+                    type: 'new-hire',
+                    employeeName: 'Sarah Johnson',
+                    effectiveDate: 'June 15, 2025',
+                    status: 'submitted',
+                    submittedBy: 'Michael Chen'
+                },
+                {
+                    type: 'promotion',
+                    employeeName: 'David Rodriguez',
+                    effectiveDate: 'July 1, 2025',
+                    status: 'draft',
+                    submittedBy: 'Lisa Wang'
+                },
+                {
+                    type: 'transfer',
+                    employeeName: 'Emma Thompson',
+                    effectiveDate: 'June 30, 2025',
+                    status: 'submitted',
+                    submittedBy: 'Michael Chen'
+                },
+                {
+                    type: 'termination',
+                    employeeName: 'James Wilson',
+                    effectiveDate: 'June 10, 2025',
+                    status: 'draft',
+                    submittedBy: 'Jennifer Lee'
+                },
+                {
+                    type: 'return',
+                    employeeName: 'Maria Garcia',
+                    effectiveDate: 'June 20, 2025',
+                    status: 'submitted',
+                    submittedBy: 'Robert Kim'
+                },
+                {
+                    type: 'layoff',
+                    employeeName: 'Alex Turner',
+                    effectiveDate: 'May 31, 2025',
+                    status: 'draft',
+                    submittedBy: 'Michael Chen'
+                }
+            ];
+            filteredRequests = [...allRequests];
+            renderTable();
+        }
+
+        function renderTable() {
+            const tbody = document.querySelector('#requestsTable tbody');
+            tbody.innerHTML = '';
+
+            const startIndex = (currentPage - 1) * pageSize;
+            const endIndex = startIndex + pageSize;
+            const pageRequests = filteredRequests.slice(startIndex, endIndex);
+
+            pageRequests.forEach(request => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td><span class="request-type ${request.type}">${request.type.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}</span></td>
+                    <td>${request.employeeName}</td>
+                    <td>${request.effectiveDate}</td>
+                    <td><span class="status ${request.status}">${request.status.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}</span></td>
+                    <td>${request.submittedBy}</td>
+                    <td>
+                        <svg class="action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" onclick="viewRequest('${request.type}', '${request.employeeName}')">
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                            <circle cx="12" cy="12" r="3"></circle>
+                        </svg>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+
+            updatePagination();
+        }
+
+        function updatePagination() {
+            const totalPages = Math.ceil(filteredRequests.length / pageSize);
+            document.getElementById('currentPage').textContent = currentPage;
+            document.getElementById('totalPages').textContent = totalPages;
+            document.getElementById('prevPage').disabled = currentPage === 1;
+            document.getElementById('nextPage').disabled = currentPage === totalPages;
+        }
+
+        function changePage(delta) {
+            const newPage = currentPage + delta;
+            const totalPages = Math.ceil(filteredRequests.length / pageSize);
+            
+            if (newPage >= 1 && newPage <= totalPages) {
+                currentPage = newPage;
+                renderTable();
+            }
+        }
+
+        function updatePageSize() {
+            pageSize = parseInt(document.getElementById('pageSize').value);
+            currentPage = 1; // Reset to first page when changing page size
+            renderTable();
+        }
+
+        function filterRequests() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            filteredRequests = allRequests.filter(request => {
+                return Object.values(request).some(value => 
+                    value.toString().toLowerCase().includes(searchTerm)
+                );
+            });
+            currentPage = 1; // Reset to first page when filtering
+            renderTable();
+        }
+
+        // Initialize the table when the page loads
+        document.addEventListener('DOMContentLoaded', initializeTable);
+
+        function initiateRequest() {
+            document.getElementById('requestModal').classList.add('show');
+        }
+
+        function closeModal() {
+            document.getElementById('requestModal').classList.remove('show');
+        }
+
+        function createRequest(type) {
+            closeModal();
+            if (type === 'layoff') {
+                window.location.href = 'layoff_request_form.html';
+            } else if (type === 'termination') {
+                window.location.href = 'termination_request_form.html';
+            } else if (type === 'return') {
+                window.location.href = 'return_to_work_form.html';
+            } else if (type === 'promotion') {
+                window.location.href = 'promotion_request_form.html';
+            } else if (type === 'new-hire') {
+                window.location.href = 'new_hire_request_form.html';
+
+            } else {
+                alert(`Creating ${type.replace('-', ' ')} request form...`);
+            }
+        }
+
+        // Close modal when clicking outside
+        document.getElementById('requestModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+
+        // Add sorting functionality
+        document.querySelectorAll('th').forEach(header => {
+            header.addEventListener('click', () => {
+                const table = document.getElementById('requestsTable');
+                const tbody = table.querySelector('tbody');
+                const rows = Array.from(tbody.querySelectorAll('tr'));
+                const index = Array.from(header.parentElement.children).indexOf(header);
+                const isAsc = header.classList.contains('asc');
+                
+                // Remove sort classes from all headers
+                document.querySelectorAll('th').forEach(th => {
+                    th.classList.remove('asc', 'desc');
+                });
+
+                // Add appropriate sort class
+                header.classList.add(isAsc ? 'desc' : 'asc');
+
+                // Sort the rows
+                rows.sort((a, b) => {
+                    const aValue = a.children[index].textContent.trim();
+                    const bValue = b.children[index].textContent.trim();
+
+                    // Handle date sorting
+                    if (header.textContent === 'Effective Date') {
+                        return isAsc ? 
+                            new Date(bValue) - new Date(aValue) : 
+                            new Date(aValue) - new Date(bValue);
+                    }
+
+                    // Handle status and request type sorting (sort by the text inside the span)
+                    if (header.textContent === 'Status' || header.textContent === 'Request Type') {
+                        const aSpan = a.children[index].querySelector('span');
+                        const bSpan = b.children[index].querySelector('span');
+                        const aText = aSpan ? aSpan.textContent : aValue;
+                        const bText = bSpan ? bSpan.textContent : bValue;
+                        return isAsc ? 
+                            bText.localeCompare(aText) : 
+                            aText.localeCompare(bText);
+                    }
+
+                    // Default string comparison
+                    return isAsc ? 
+                        bValue.localeCompare(aValue) : 
+                        aValue.localeCompare(bValue);
+                });
+
+                // Reorder the rows in the table
+                rows.forEach(row => tbody.appendChild(row));
+            });
+        });
+
+        function viewRequest(type, employeeName) {
+            // For now, we'll just show an alert, but this could be replaced with
+            // actual navigation to a request details page
+            alert(`Viewing ${type} request for ${employeeName}`);
+        }
+
+        function handleLogout() {
+            // In a real app, this would handle the logout process
+            if (confirm('Are you sure you want to log out?')) {
+                window.location.href = 'login.html';
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,2149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Change Management</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f5f5;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .position-comparison {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-top: 24px;
+        }
+
+        .position-card {
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .position-card.current {
+            border-color: #94a3b8;
+        }
+
+        .position-card.new {
+            border-color: #7c3aed;
+        }
+
+        .position-card-header {
+            padding: 16px 20px;
+            font-weight: 600;
+            color: white;
+        }
+
+        .position-card.current .position-card-header {
+            background: #64748b;
+        }
+
+        .position-card.new .position-card-header {
+            background: #7c3aed;
+        }
+
+        .position-card-body {
+            padding: 20px;
+        }
+        .back-btn {
+            background: none;
+            border: 1px solid #d1d5db;
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            color: #6b7280;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .back-btn:hover {
+            background: #f3f4f6;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        .form-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }        
+
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            padding: 24px;
+            background: #f8fafc;
+        }
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .tabs {
+            display: flex;
+            background-color: #f8f9fa;
+            border-bottom: 2px solid #dee2e6;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 15px 25px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #6c757d;
+            transition: all 0.3s ease;
+            border-bottom: 3px solid transparent;
+        }
+
+        .tab:hover {
+            background-color: #e9ecef;
+            color: #495057;
+        }
+
+        .tab.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+            background-color: white;
+        }
+
+        .tab-content {
+            display: none;
+            padding: 30px;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .section {
+            margin-bottom: 40px;
+            padding: 25px;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            background-color: #fafbfc;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 16px;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .form-group {
+            flex: 1;
+            min-width: 250px;
+        }
+
+        .form-group2 {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin-bottom: 16px;
+        }
+
+        .form-group.half {
+            flex: 0 0 calc(50% - 10px);
+        }
+
+        .form-group.full {
+            flex: 1 1 100%;
+        }
+
+        .form-group2.full-width {
+            grid-column: 1 / -1;
+            width: -webkit-fill-available;
+        }
+
+        .search-container {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 12px 16px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .search-results {
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            background: white;
+            margin-bottom: 16px;
+        }
+
+        .search-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            border-bottom: 1px solid #f3f4f6;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .search-item:hover {
+            background: #f8fafc;
+        }
+
+        .search-item:last-child {
+            border-bottom: none;
+        }
+
+        .search-item.selected {
+            background: #f3e8ff;
+            border-color: #7c3aed;
+        }
+
+        .employee-info {
+            flex: 1;
+        }
+
+        .employee-name {
+            font-weight: 500;
+            color: #1e293b;
+        }
+
+        .employee-details {
+            font-size: 14px;
+            color: #64748b;
+            margin-top: 2px;
+        }
+
+        .selected-employee {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px;
+            background: #f3e8ff;
+            border: 1px solid #c4b5fd;
+            border-radius: 8px;
+            margin-bottom: 16px;
+        }
+
+        .selected-employee-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .additional-fields {
+            margin-top: 32px;
+            padding-top: 24px;
+            border-top: 2px solid #e5e7eb;
+        }
+
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #495057;
+            font-size: 0.95rem;
+        }
+
+        input[type="text"],
+        input[type="date"],
+        input[type="number"],
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #dee2e6;
+            border-radius: 6px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+            background-color: white;
+        }
+
+        input[type="text"]:focus,
+        input[type="date"]:focus,
+        input[type="number"]:focus,
+        select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        input[type="text"], input[type="date"], select, textarea {
+            padding: 12px 16px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        input[type="text"]:focus, input[type="date"]:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }        
+
+        .radio-group {
+            display: flex;
+            gap: 20px;
+            margin-top: 8px;
+        }
+
+        .radio-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        input[type="radio"] {
+            width: 18px;
+            height: 18px;
+            accent-color: #667eea;
+        }
+
+        .radio-label {
+            font-weight: 500;
+            color: #495057;
+            cursor: pointer;
+        }
+
+        .credit-cards-section {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+
+        .credit-card-title {
+            font-size: 1.0rem;
+            font-weight: 700;
+            color: #495057;
+            margin-bottom: 20px;
+            text-align: center;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .credit-card-question {
+            margin-bottom: 15px;
+            padding: 15px;
+            background-color: white;
+            border-radius: 6px;
+            border-left: 4px solid #667eea;
+        }
+
+        .credit-card-question label {
+            margin-bottom: 10px;
+        }
+
+        .clear-btn {
+            background: none;
+            border: none;
+            color: #7c3aed;
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 4px;
+        }
+
+        .clear-btn:hover {
+            background: #ede9fe;
+        }
+        .icon-btn {
+            width: 36px;
+            height: 36px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            flex-shrink: 0;
+        }
+
+        .icon-btn svg {
+            width: 18px;
+            height: 18px;
+            stroke: currentColor;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            fill: none;
+        }
+
+        .add-btn {
+            background: #28a745;
+            color: white;
+        }
+
+        .add-btn:hover {
+            background: #218838;
+            transform: translateY(-1px);
+        }
+
+        .remove-btn {
+            background: #dc3545;
+            color: white;
+        }
+
+        .remove-btn:hover {
+            background: #c82333;
+            transform: translateY(-1px);
+        }
+
+        .submit-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 40px;
+            border: none;
+            border-radius: 6px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+            margin-top: 30px;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+            }
+            
+            .form-group {
+                min-width: 100%;
+            }
+            
+            .form-group.half {
+                flex: 1 1 100%;
+            }
+            
+            .radio-group {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+        .btn {
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #374151;
+            border: 1px solid #d1d5db;
+        }
+
+        .btn-secondary:hover {
+            background: #f3f4f6;
+        }
+
+        .btn-primary {
+            background: #7c3aed;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #6d28d9;
+        }
+
+        .btn-primary:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+        }
+
+        .info-banner {
+            background: #f3e8ff;
+            border: 1px solid #c4b5fd;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .info-icon {
+            color: #7c3aed;
+            flex-shrink: 0;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 24px;
+            color: #6b7280;
+        }
+        .app-header {
+            background-color: white;
+            border-bottom: 1px solid #e5e7eb;
+            padding: 16px 24px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .logo {
+            width: 32px;
+            height: 32px;
+        }
+
+        .logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .app-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1e293b;
+            margin: 0;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .user-name {
+            font-size: 14px;
+            font-weight: 500;
+            color: #1e293b;
+        }
+
+        .logout-link {
+            color: #7c3aed;
+            text-decoration: none;
+            font-size: 14px;
+            padding: 6px 12px;
+            border-radius: 6px;
+            transition: background-color 0.2s;
+        }
+
+        .logout-link:hover {
+            background-color: #f3e8ff;
+        }
+
+        .conditional-banner {
+            background: #fef3c7;
+            border: 1px solid #f59e0b;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #92400e;
+        }
+
+        .conditional-banner-icon {
+            color: #f59e0b;
+            flex-shrink: 0;
+        }
+
+        .conditional-section {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            margin-bottom: 24px;
+            overflow: hidden;
+        }
+
+        .conditional-section .section-title {
+            background: #f1f5f9;
+            padding: 16px 24px;
+            font-size: 16px;
+            font-weight: 600;
+            color: #1e293b;
+            border-bottom: 1px solid #e2e8f0;
+            margin-bottom: 0;
+        }
+
+        .conditional-section-content {
+            padding: 24px;
+        }                
+    </style>
+</head>
+<body>
+    
+    <header class="app-header">
+        <div class="header-content">
+            <div class="header-left">
+                <div class="logo">
+                    <img src="Mathy-Seal_2017_320-1.png" alt="Mathy Seal">
+                </div>
+                <h1 class="app-title">Employee Change Management</h1>
+            </div>
+            <div class="header-right">
+                <div class="user-info">
+                    <span class="user-name">John Doe</span>
+                    <a href="#" class="logout-link" onclick="handleLogout()">Logout</a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+
+    <div class="container">
+
+        <div class="header">
+            <button class="back-btn" onclick="goBack()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M19 12H5M12 19l-7-7 7-7"/>
+                </svg>
+                Back
+            </button>
+            <h1>Promotion / Transfer</h1>
+        </div>
+
+        <div class="info-banner">
+            <svg class="info-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+            </svg>
+            <div>
+                <strong>Employee Promotion / Transfer:</strong> Update an employee's position, department, and compensation details.
+            </div>
+        </div>
+
+        <div class="form-card">
+            <div class="section">
+                <div class="section-title">Select Employee</div>
+                <div class="search-container">
+                    <input type="text" class="search-input" id="searchInput" placeholder="Search for employee to promote / transfer..." oninput="searchEmployees()">
+                </div>
+
+                <div class="search-results" id="searchResults" style="display: none;">
+                </div>
+
+                <div id="selectedEmployee" style="display: none;">
+                </div>        
+
+                <div id="positionComparison" class="hidden">
+                    <div class="position-comparison">
+                        <div class="position-card current">
+                            <div class="position-card-header">Current Position</div>
+                            <div class="position-card-body">
+                                <div class="form-group">
+                                    <label>Payroll Company</label>
+                                    <select id="currentPayrollCompany" disabled>
+                                        <option value="">Select...</option>
+                                        <option value="64">64 - MTS</option>
+                                        <option value="19">19 - Mathy</option>
+                                        <option value="22">22 - Construction Plus</option>
+                                        <option value="31">31 - Premier Building</option>
+                                        <option value="45">45 - Midwest Contractors</option>
+                                        <option value="67">67 - Elite Construction</option>
+                                        <option value="78">78 - Summit Builders</option>
+                                        <option value="83">83 - Valley Construction</option>
+                                        <option value="91">91 - Northern Works</option>
+                                        <option value="52">52 - Peak Development</option>
+                                        <option value="76">76 - Metro Building Co</option>
+                                        <option value="39">39 - Precision Construction</option>
+                                        <option value="84">84 - Alliance Builders</option>
+                                        <option value="55">55 - Horizon Construction</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Payroll Group</label>
+                                    <select id="currentPayrollGroup" disabled>
+                                        <option value="">Select...</option>
+                                        <option value="1">1 - Management & Tech Svc.-Exempt</option>
+                                        <option value="2">2 - Field Operations-Non-Exempt</option>
+                                        <option value="3">3 - Administrative-Exempt</option>
+                                        <option value="4">4 - Trades-Hourly</option>
+                                        <option value="5">5 - Safety & Compliance-Exempt</option>
+                                        <option value="6">6 - Project Management-Exempt</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Payroll Dept. Code</label>
+                                    <select id="currentPayrollDept" disabled>
+                                        <option value="">Select...</option>
+                                        <option value="6400">6400 - Management Technology Services</option>
+                                        <option value="6401">6401 - Field Operations Division</option>
+                                        <option value="6402">6402 - Administrative Services</option>
+                                        <option value="6403">6403 - Safety & Compliance</option>
+                                        <option value="6404">6404 - Project Management Office</option>
+                                        <option value="6405">6405 - Human Resources Department</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Position</label>
+                                    <select id="currentPosition" disabled>
+                                        <option value="">Select...</option>
+                                        <option value="PROJMGR BA">PROJMGR BA - Project Mgr/Business Analyst</option>
+                                        <option value="SITESUPR">SITESUPR - Site Supervisor</option>
+                                        <option value="SFTYCOORD">SFTYCOORD - Safety Coordinator</option>
+                                        <option value="EQPOPER">EQPOPER - Equipment Operator</option>
+                                        <option value="ELECT">ELECT - Electrician</option>
+                                        <option value="PLUMBER">PLUMBER - Plumber</option>
+                                        <option value="CARPNTR">CARPNTR - Carpenter</option>
+                                        <option value="CONCRFIN">CONCRFIN - Concrete Finisher</option>
+                                        <option value="FOREMAN">FOREMAN - Foreman</option>
+                                        <option value="COSTESTIM">COSTESTIM - Cost Estimator</option>
+                                        <option value="CADTECH">CADTECH - CAD Technician</option>
+                                        <option value="ADMINAST">ADMINAST - Administrative Assistant</option>
+                                        <option value="HRCOORD">HRCOORD - HR Coordinator</option>
+                                        <option value="ACCNTNT">ACCNTNT - Accountant</option>
+                                        <option value="CRANEOPR">CRANEOPR - Crane Operator</option>
+                                        <option value="WLDER">WLDER - Welder</option>
+                                        <option value="ROOFER">ROOFER - Roofer</option>
+                                        <option value="QCINSPC">QCINSPC - Quality Control Inspector</option>
+                                        <option value="EQPMECH">EQPMECH - Equipment Mechanic</option>
+                                        <option value="SCHDUL">SCHDUL - Scheduler</option>
+                                        <option value="LABORER">LABORER - Laborer</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="required">Supervisor</label>
+                                    <select id="currentSupervisor" disabled>
+                                        <option value="">Select...</option>
+                                        <option value="Mike Johnson">Mike Johnson</option>
+                                        <option value="David Wilson">David Wilson</option>
+                                        <option value="Robert Martinez">Robert Martinez</option>
+                                    </select>                                                                   
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="required">HR Representative</label>
+                                    <select id="currentHRrep" disabled>
+                                        <option value="">Select...</option>
+                                        <option value="Kyle Adamski">Kyle Adamski</option>
+                                        <option value="Megan Myllyla">Megan Myllyla</option>
+                                        <option value="Kristine Eliotte">Kristine Eliotte</option>
+                                    </select>                                                                   
+                                </div>                                
+
+                                <div class="form-group">
+                                    <label>Physical Location</label>
+                                    <select id="currentPhysicalLocation" disabled>
+                                        <option value="">Select...</option>
+                                        <option value="100">100 - WI - Onalaska</option>
+                                        <option value="101">101 - MN - Rochester</option>
+                                        <option value="102">102 - IA - Cedar Rapids</option>
+                                        <option value="103">103 - WI - Madison</option>
+                                        <option value="104">104 - MN - Minneapolis</option>
+                                        <option value="105">105 - IA - Des Moines</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Status</label>
+                                    <select id="currentStatus" disabled>
+                                        <option value="">Select...</option>
+                                        <option value="FULL TIME">FULL TIME</option>
+                                        <option value="PART TIME">PART TIME</option>
+                                        <option value="RETIRED">RETIRED</option>
+                                        <option value="RETIRED - PART TIME">RETIRED - PART TIME</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Pay Rate</label>
+                                    <select id="currentpayRate" disabled>
+                                        <option value="">Select...</option>
+                                        <option value="Hourly">Hourly</option>
+                                        <option value="Weekly">Weekly</option>
+                                        <option value="Monthly">Monthly</option>
+                                    </select>
+                                </div> 
+
+                            </div>                         
+                        </div>
+
+                        <div class="position-card new">
+                            <div class="position-card-header">New Position</div>
+                            <div class="position-card-body">
+                                <div class="form-group">
+                                    <label class="required">Payroll Company</label>
+                                    <select id="newPayrollCompany" required>
+                                        <option value="">Select...</option>
+                                        <option value="64">64 - MTS</option>
+                                        <option value="19">19 - Mathy</option>
+                                        <option value="22">22 - Construction Plus</option>
+                                        <option value="31">31 - Premier Building</option>
+                                        <option value="45">45 - Midwest Contractors</option>
+                                        <option value="67">67 - Elite Construction</option>
+                                        <option value="78">78 - Summit Builders</option>
+                                        <option value="83">83 - Valley Construction</option>
+                                        <option value="91">91 - Northern Works</option>
+                                        <option value="52">52 - Peak Development</option>
+                                        <option value="76">76 - Metro Building Co</option>
+                                        <option value="39">39 - Precision Construction</option>
+                                        <option value="84">84 - Alliance Builders</option>
+                                        <option value="55">55 - Horizon Construction</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="required">Payroll Group</label>
+                                    <select id="newPayrollGroup" required>
+                                        <option value="">Select...</option>
+                                        <option value="1">1 - Management & Tech Svc.-Exempt</option>
+                                        <option value="2">2 - Field Operations-Non-Exempt</option>
+                                        <option value="3">3 - Administrative-Exempt</option>
+                                        <option value="4">4 - Trades-Hourly</option>
+                                        <option value="5">5 - Safety & Compliance-Exempt</option>
+                                        <option value="6">6 - Project Management-Exempt</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="required">Payroll Dept. Code</label>
+                                    <select id="newPayrollDept" required>
+                                        <option value="">Select...</option>
+                                        <option value="6400">6400 - Management Technology Services</option>
+                                        <option value="6401">6401 - Field Operations Division</option>
+                                        <option value="6402">6402 - Administrative Services</option>
+                                        <option value="6403">6403 - Safety & Compliance</option>
+                                        <option value="6404">6404 - Project Management Office</option>
+                                        <option value="6405">6405 - Human Resources Department</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="required">Position</label>
+                                    <select id="newPosition" required>
+                                        <option value="">Select...</option>
+                                        <option value="PROJMGR BA">PROJMGR BA - Project Mgr/Business Analyst</option>
+                                        <option value="SITESUPR">SITESUPR - Site Supervisor</option>
+                                        <option value="SFTYCOORD">SFTYCOORD - Safety Coordinator</option>
+                                        <option value="EQPOPER">EQPOPER - Equipment Operator</option>
+                                        <option value="ELECT">ELECT - Electrician</option>
+                                        <option value="PLUMBER">PLUMBER - Plumber</option>
+                                        <option value="CARPNTR">CARPNTR - Carpenter</option>
+                                        <option value="CONCRFIN">CONCRFIN - Concrete Finisher</option>
+                                        <option value="FOREMAN">FOREMAN - Foreman</option>
+                                        <option value="COSTESTIM">COSTESTIM - Cost Estimator</option>
+                                        <option value="CADTECH">CADTECH - CAD Technician</option>
+                                        <option value="ADMINAST">ADMINAST - Administrative Assistant</option>
+                                        <option value="HRCOORD">HRCOORD - HR Coordinator</option>
+                                        <option value="ACCNTNT">ACCNTNT - Accountant</option>
+                                        <option value="CRANEOPR">CRANEOPR - Crane Operator</option>
+                                        <option value="WLDER">WLDER - Welder</option>
+                                        <option value="ROOFER">ROOFER - Roofer</option>
+                                        <option value="QCINSPC">QCINSPC - Quality Control Inspector</option>
+                                        <option value="EQPMECH">EQPMECH - Equipment Mechanic</option>
+                                        <option value="SCHDUL">SCHDUL - Scheduler</option>
+                                        <option value="LABORER">LABORER - Laborer</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="required">Supervisor</label>
+                                    <select id="newSupervisor" required>
+                                        <option value="">Select...</option>
+                                        <option value="Mike Johnson">Mike Johnson</option>
+                                        <option value="David Wilson">David Wilson</option>
+                                        <option value="Robert Martinez">Robert Martinez</option>
+                                    </select>                                                                   
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="required">HR Representative</label>
+                                    <select id="newHRrep" required>
+                                        <option value="">Select...</option>
+                                        <option value="Kyle Adamski">Kyle Adamski</option>
+                                        <option value="Megan Myllyla">Megan Myllyla</option>
+                                        <option value="Kristine Eliotte">Kristine Eliotte</option>
+                                    </select>                                                                   
+                                </div> 
+
+                                <div class="form-group">
+                                    <label class="required">Physical Location</label>
+                                    <select id="newPhysicalLocation" required>
+                                        <option value="">Select...</option>
+                                        <option value="100">100 - WI - Onalaska</option>
+                                        <option value="101">101 - MN - Rochester</option>
+                                        <option value="102">102 - IA - Cedar Rapids</option>
+                                        <option value="103">103 - WI - Madison</option>
+                                        <option value="104">104 - MN - Minneapolis</option>
+                                        <option value="105">105 - IA - Des Moines</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="required">Status</label>
+                                    <select id="newStatus" required>
+                                        <option value="">Select...</option>
+                                        <option value="FULL TIME">FULL TIME</option>
+                                        <option value="PART TIME">PART TIME</option>
+                                        <option value="RETIRED">RETIRED</option>
+                                        <option value="RETIRED - PART TIME">RETIRED - PART TIME</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="required">Pay Rate</label>
+                                    <select id="newpayRate">
+                                        <option value="">Select...</option>
+                                        <option value="Hourly">Hourly</option>
+                                        <option value="Weekly">Weekly</option>
+                                        <option value="Monthly">Monthly</option>
+                                    </select>
+                                </div> 
+
+                            </div>
+                        </div>
+                    </div>    
+                    <div class="additional-fields">
+                        <div class="form-row">
+                            <div class="form-group half">
+                                <label for="effectiveDate" class="required">Effective Date</label>
+                                <input type="date" id="effectiveDate" required>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group2 full-width">
+                                <label for="notes">Notes</label>
+                                <textarea id="notes" placeholder="Additional details about the promotion / transfer..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+
+        <div id="conditionalSections" class="hidden">
+            <div class="tabs">
+                <button class="tab active" onclick="showTab('personal')">Additional Information</button>
+                <button class="tab" onclick="showTab('it')">IT Related Information</button>
+            </div>
+            <div class="form-card">
+
+                <div id="personal" class="tab-content active">
+                    <!-- General Information Section -->
+                    <div class="section">
+                        <h2 class="section-title">General Information</h2>
+                        
+                        <div class="credit-cards-section">
+                            <h3 class="credit-card-title">Credit Cards</h3>
+                            
+                            <div class="credit-card-question">
+                                <label>Does this employee need a Kwik Trip Credit Card? *</label>
+                                <div class="radio-group">
+                                    <div class="radio-option">
+                                        <input type="radio" id="kwikTripYes" name="kwikTripCard" value="yes" required>
+                                        <label for="kwikTripYes" class="radio-label">Yes</label>
+                                    </div>
+                                    <div class="radio-option">
+                                        <input type="radio" id="kwikTripNo" name="kwikTripCard" value="no" required>
+                                        <label for="kwikTripNo" class="radio-label">No</label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="credit-card-question">
+                                <label>Does this employee need a Company Expense Card? *</label>
+                                <div class="radio-group">
+                                    <div class="radio-option">
+                                        <input type="radio" id="companyExpenseYes" name="companyExpenseCard" value="yes" required>
+                                        <label for="companyExpenseYes" class="radio-label">Yes</label>
+                                    </div>
+                                    <div class="radio-option">
+                                        <input type="radio" id="companyExpenseNo" name="companyExpenseCard" value="no" required>
+                                        <label for="companyExpenseNo" class="radio-label">No</label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="credit-card-question" id="fuelOnlySection" style="margin-left: 30px;">
+                                <label>Fuel Only *</label>
+                                <div class="radio-group">
+                                    <div class="radio-option">
+                                        <input type="radio" id="fuelOnlyYes" name="fuelOnly" value="yes" required>
+                                        <label for="fuelOnlyYes" class="radio-label">Yes</label>
+                                    </div>
+                                    <div class="radio-option">
+                                        <input type="radio" id="fuelOnlyNo" name="fuelOnly" value="no" required>
+                                        <label for="fuelOnlyNo" class="radio-label">No</label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="credit-card-question" id="eeExpenseSection" style="margin-left: 30px;">
+                                <label>EE Expense Credit Card *</label>
+                                <div class="radio-group">
+                                    <div class="radio-option">
+                                        <input type="radio" id="eeExpenseYes" name="eeExpenseCard" value="yes" required>
+                                        <label for="eeExpenseYes" class="radio-label">Yes</label>
+                                    </div>
+                                    <div class="radio-option">
+                                        <input type="radio" id="eeExpenseNo" name="eeExpenseCard" value="no" required>
+                                        <label for="eeExpenseNo" class="radio-label">No</label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="credit-card-question" id="weeklyLimitSection" style="margin-left: 30px;">
+                                <label for="weeklyLimit">Company Credit Card Weekly Limit</label>
+                                <input type="number" id="weeklyLimit" name="weeklyLimit" step="0.01" min="0" placeholder="0.00">
+                            </div>
+
+                            <div class="credit-card-question">
+                                <label>Fuel Cardlock Access *</label>
+                                <div class="radio-group">
+                                    <div class="radio-option">
+                                        <input type="radio" id="fuelCardlockYes" name="fuelCardlockAccess" value="yes" required>
+                                        <label for="fuelCardlockYes" class="radio-label">Yes</label>
+                                    </div>
+                                    <div class="radio-option">
+                                        <input type="radio" id="fuelCardlockNo" name="fuelCardlockAccess" value="no" required>
+                                        <label for="fuelCardlockNo" class="radio-label">No</label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="credit-card-question" id="cardlockShipSection" style="margin-left: 30px; display: none;">
+                                <label for="cardlockShipAddress">Cardlock - ship address</label>
+                                <input type="text" id="cardlockShipAddress" name="cardlockShipAddress" placeholder="Enter shipping address">
+                            </div>
+                        
+                            <h3 class="credit-card-title">Company Vehicles Details</h3>
+                        
+                            <div class="credit-card-question">
+                                <label>Approved to Operate Company Vehicle *</label>
+                                <div class="radio-group">
+                                    <div class="radio-option">
+                                        <input type="radio" id="approvedVehicleYes" name="approvedVehicle" value="yes" required>
+                                        <label for="approvedVehicleYes" class="radio-label">Yes</label>
+                                    </div>
+                                    <div class="radio-option">
+                                        <input type="radio" id="approvedVehicleNo" name="approvedVehicle" value="no" required>
+                                        <label for="approvedVehicleNo" class="radio-label">No</label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="credit-card-question" id="driverClassificationSection" style="margin-left: 30px; display: none;">
+                                <label for="driverClassification">Driver Classification *</label>
+                                <select id="driverClassification" name="driverClassification">
+                                    <option value="">Please select...</option>
+                                </select>
+                            </div>
+
+                            <div class="credit-card-question" id="drugAlcoholSection" style="margin-left: 30px; display: none;">
+                                <label>Drug & Alcohol Profile *</label>
+                                <div class="radio-group">
+                                    <div class="radio-option">
+                                        <input type="radio" id="dotDrugPool" name="drugAlcoholProfile" value="DOT Drug Pool" required>
+                                        <label for="dotDrugPool" class="radio-label">DOT Drug Pool</label>
+                                    </div>
+                                    <div class="radio-option">
+                                        <input type="radio" id="wiPrevailingWage" name="drugAlcoholProfile" value="WI Prevailing Wage Pool" required>
+                                        <label for="wiPrevailingWage" class="radio-label">WI Prevailing Wage Pool</label>
+                                    </div>
+                                    <div class="radio-option">
+                                        <input type="radio" id="noTesting" name="drugAlcoholProfile" value="No Testing" required>
+                                        <label for="noTesting" class="radio-label">No Testing</label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="credit-card-question" id="companyCarSection" style="margin-left: 30px; display: none;">
+                                <label>Do You Need a Company Car *</label>
+                                <div class="radio-group">
+                                    <div class="radio-option">
+                                        <input type="radio" id="companyCarYes" name="companyCarNeeded" value="yes" required>
+                                        <label for="companyCarYes" class="radio-label">Yes</label>
+                                    </div>
+                                    <div class="radio-option">
+                                        <input type="radio" id="companyCarNo" name="companyCarNeeded" value="no" required>
+                                        <label for="companyCarNo" class="radio-label">No</label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="credit-card-question" id="applicationPart2Section" style="margin-left: 30px; display: none;">
+                                <label>Is Application Part 2 Complete *</label>
+                                <div class="radio-group">
+                                    <div class="radio-option">
+                                        <input type="radio" id="applicationPart2Yes" name="applicationPart2" value="yes" required>
+                                        <label for="applicationPart2Yes" class="radio-label">Yes</label>
+                                    </div>
+                                    <div class="radio-option">
+                                        <input type="radio" id="applicationPart2No" name="applicationPart2" value="no" required>
+                                        <label for="applicationPart2No" class="radio-label">No</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Building Access Section -->
+                    <div class="section">
+                        <h2 class="section-title">Building Access</h2>
+                        
+                        <div class="credit-cards-section">
+                            <h3 class="credit-card-title">Building Access Requirements (Key Fob)</h3>
+                            
+                            <div class="credit-card-question">
+                                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 15px;">
+                                    <div style="display: flex; align-items: center;">
+                                        <input type="checkbox" id="americanAsphaltMosinee" name="buildingAccess[]" value="American Asphalt Office (Mosinee)" style="margin-right: 8px;">
+                                        <label for="americanAsphaltMosinee" style="font-weight: 500; cursor: pointer; margin-bottom: 0;">American Asphalt Office (Mosinee)</label>
+                                    </div>
+                                    <div style="display: flex; align-items: center;">
+                                        <input type="checkbox" id="cecWinona" name="buildingAccess[]" value="CEC Office (Winona)" style="margin-right: 8px;">
+                                        <label for="cecWinona" style="font-weight: 500; cursor: pointer; margin-bottom: 0;">CEC Office (Winona)</label>
+                                    </div>
+                                    <div style="display: flex; align-items: center;">
+                                        <input type="checkbox" id="hardlandWausau" name="buildingAccess[]" value="Hardland Lubes Office/Warehouse (Wausau)" style="margin-right: 8px;">
+                                        <label for="hardlandWausau" style="font-weight: 500; cursor: pointer; margin-bottom: 0;">Hardland Lubes Office/Warehouse (Wausau)</label>
+                                    </div>
+                                    <div style="display: flex; align-items: center;">
+                                        <input type="checkbox" id="mteLab" name="buildingAccess[]" value="MTE Lab (Onalaska)" style="margin-right: 8px;">
+                                        <label for="mteLab" style="font-weight: 500; cursor: pointer; margin-bottom: 0;">MTE Lab (Onalaska)</label>
+                                    </div>
+                                    <div style="display: flex; align-items: center;">
+                                        <input type="checkbox" id="petroHQ" name="buildingAccess[]" value="Petro HQ (Onalaska)" style="margin-right: 8px;">
+                                        <label for="petroHQ" style="font-weight: 500; cursor: pointer; margin-bottom: 0;">Petro HQ (Onalaska)</label>
+                                    </div>
+                                    <div style="display: flex; align-items: center;">
+                                        <input type="checkbox" id="spartaShopGate" name="buildingAccess[]" value="Sparta Shop Gate" style="margin-right: 8px;">
+                                        <label for="spartaShopGate" style="font-weight: 500; cursor: pointer; margin-bottom: 0;">Sparta Shop Gate</label>
+                                    </div>
+                                    <div style="display: flex; align-items: center;">
+                                        <input type="checkbox" id="americanAsphaltWR" name="buildingAccess[]" value="American Asphalt Office (Wisconsin Rapids)" style="margin-right: 8px;">
+                                        <label for="americanAsphaltWR" style="font-weight: 500; cursor: pointer; margin-bottom: 0;">American Asphalt Office (Wisconsin Rapids)</label>
+                                    </div>
+                                    <div style="display: flex; align-items: center;">
+                                        <input type="checkbox" id="fleetTransportation" name="buildingAccess[]" value="Fleet Transportation Building (Onalaska)" style="margin-right: 8px;">
+                                        <label for="fleetTransportation" style="font-weight: 500; cursor: pointer; margin-bottom: 0;">Fleet Transportation Building (Onalaska)</label>
+                                    </div>
+                                    <div style="display: flex; align-items: center;">
+                                        <input type="checkbox" id="mathyHQ247" name="buildingAccess[]" value="Mathy HQ (Onalaska) 24 X 7" style="margin-right: 8px;">
+                                        <label for="mathyHQ247" style="font-weight: 500; cursor: pointer; margin-bottom: 0;">Mathy HQ (Onalaska) 24 X 7</label>
+                                    </div>
+                                    <div style="display: flex; align-items: center;">
+                                        <input type="checkbox" id="northlandConstructors" name="buildingAccess[]" value="Northland Constructors (Duluth)" style="margin-right: 8px;">
+                                        <label for="northlandConstructors" style="font-weight: 500; cursor: pointer; margin-bottom: 0;">Northland Constructors (Duluth)</label>
+                                    </div>
+                                    <div style="display: flex; align-items: center;">
+                                        <input type="checkbox" id="riverCityPaving" name="buildingAccess[]" value="River City Paving (Keller)" style="margin-right: 8px;">
+                                        <label for="riverCityPaving" style="font-weight: 500; cursor: pointer; margin-bottom: 0;">River City Paving (Keller)</label>
+                                    </div>
+                                    <div style="display: flex; align-items: center;">
+                                        <input type="checkbox" id="spartaWarehouse" name="buildingAccess[]" value="Sparta Warehouse" style="margin-right: 8px;">
+                                        <label for="spartaWarehouse" style="font-weight: 500; cursor: pointer; margin-bottom: 0;">Sparta Warehouse</label>
+                                    </div>
+                                    <div style="display: flex; align-items: center;">
+                                        <input type="checkbox" id="americanMaterials" name="buildingAccess[]" value="American Materials/Monarch Paving (Eau Claire)" style="margin-right: 8px;">
+                                        <label for="americanMaterials" style="font-weight: 500; cursor: pointer; margin-bottom: 0;">American Materials/Monarch Paving (Eau Claire)</label>
+                                    </div>
+                                    <div style="display: flex; align-items: center;">
+                                        <input type="checkbox" id="gasserOffice" name="buildingAccess[]" value="Gasser Office (Baraboo)" style="margin-right: 8px;">
+                                        <label for="gasserOffice" style="font-weight: 500; cursor: pointer; margin-bottom: 0;">Gasser Office (Baraboo)</label>
+                                    </div>
+                                    <div style="display: flex; align-items: center;">
+                                        <input type="checkbox" id="mathyHQWeekdays" name="buildingAccess[]" value="Mathy HQ (Onalaska) Weekdays Only" style="margin-right: 8px;">
+                                        <label for="mathyHQWeekdays" style="font-weight: 500; cursor: pointer; margin-bottom: 0;">Mathy HQ (Onalaska) Weekdays Only</label>
+                                    </div>
+                                    <div style="display: flex; align-items: center;">
+                                        <input type="checkbox" id="pepsiBuilding" name="buildingAccess[]" value="Pepsi Building (Onalaska)" style="margin-right: 8px;">
+                                        <label for="pepsiBuilding" style="font-weight: 500; cursor: pointer; margin-bottom: 0;">Pepsi Building (Onalaska)</label>
+                                    </div>
+                                    <div style="display: flex; align-items: center;">
+                                        <input type="checkbox" id="rsgOffice" name="buildingAccess[]" value="RSG Office (Rochester)" style="margin-right: 8px;">
+                                        <label for="rsgOffice" style="font-weight: 500; cursor: pointer; margin-bottom: 0;">RSG Office (Rochester)</label>
+                                    </div>
+                                    <div style="display: flex; align-items: center;">
+                                        <input type="checkbox" id="texParGate" name="buildingAccess[]" value="TexPar Gate (Marshfield)" style="margin-right: 8px;">
+                                        <label for="texParGate" style="font-weight: 500; cursor: pointer; margin-bottom: 0;">TexPar Gate (Marshfield)</label>
+                                    </div>
+                                    <div style="display: flex; align-items: center;">
+                                        <input type="checkbox" id="cecLaCrosse" name="buildingAccess[]" value="CEC Office (La Crosse)" style="margin-right: 8px;">
+                                        <label for="cecLaCrosse" style="font-weight: 500; cursor: pointer; margin-bottom: 0;">CEC Office (La Crosse)</label>
+                                    </div>
+                                    <div style="display: flex; align-items: center;">
+                                        <input type="checkbox" id="hardlandSparta" name="buildingAccess[]" value="Hardland Lubes Office/Warehouse (Sparta)" style="margin-right: 8px;">
+                                        <label for="hardlandSparta" style="font-weight: 500; cursor: pointer; margin-bottom: 0;">Hardland Lubes Office/Warehouse (Sparta)</label>
+                                    </div>
+                                    <div style="display: flex; align-items: center;">
+                                        <input type="checkbox" id="monarchAmery" name="buildingAccess[]" value="Monarch Paving (Amery)" style="margin-right: 8px;">
+                                        <label for="monarchAmery" style="font-weight: 500; cursor: pointer; margin-bottom: 0;">Monarch Paving (Amery)</label>
+                                    </div>
+                                    <div style="display: flex; align-items: center;">
+                                        <input type="checkbox" id="petroHQ247" name="buildingAccess[]" value="Petro HQ (Onalaska) 24 X 7" style="margin-right: 8px;">
+                                        <label for="petroHQ247" style="font-weight: 500; cursor: pointer; margin-bottom: 0;">Petro HQ (Onalaska) 24 X 7</label>
+                                    </div>
+                                    <div style="display: flex; align-items: center;">
+                                        <input type="checkbox" id="spartaShop" name="buildingAccess[]" value="Sparta Shop" style="margin-right: 8px;">
+                                        <label for="spartaShop" style="font-weight: 500; cursor: pointer; margin-bottom: 0;">Sparta Shop</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- IT Related Information Tab -->
+                <div id="it" class="tab-content">
+                    <!-- Other Info Section -->
+                    <div class="section">
+                        <h2 class="section-title">Other Info</h2>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Does New Hire Require an Email Address *</label>
+                                <div class="radio-group">
+                                    <div class="radio-option">
+                                        <input type="radio" id="emailRequiredYes" name="emailRequired" value="yes" required>
+                                        <label for="emailRequiredYes" class="radio-label">Yes</label>
+                                    </div>
+                                    <div class="radio-option">
+                                        <input type="radio" id="emailRequiredNo" name="emailRequired" value="no" required>
+                                        <label for="emailRequiredNo" class="radio-label">No</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Microsoft Office License</label>
+                                <div style="margin-top: 10px; margin-left: 20px;">
+                                    <div style="margin-bottom: 15px; display: flex; align-items: flex-start;">
+                                        <input type="radio" id="e5License" name="microsoftLicense" value="Microsoft Office Desktop (E5) License" style="margin-right: 8px; margin-top: 4px;">
+                                        <label for="e5License" style="font-weight: 500; cursor: pointer; margin-bottom: 0; line-height: 1.4;">Microsoft Office Desktop (E5) License (Word, Excel, Powerpoint, etc, are INSTALLED on the user's computer) Cost is $428 per year.</label>
+                                    </div>
+                                    <div style="display: flex; align-items: flex-start;">
+                                        <input type="radio" id="f3License" name="microsoftLicense" value="Microsoft Office Web (F3) License" style="margin-right: 8px; margin-top: 4px;">
+                                        <label for="f3License" style="font-weight: 500; cursor: pointer; margin-bottom: 0; line-height: 1.4;">Microsoft Office Web (F3) License (Word, Excel, Powerpoint, etc, will ONLY be available via Web Browser) Cost is $96 per year.</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- IT Hardware Section -->
+                    <div class="section">
+                        <h2 class="section-title">IT Hardware</h2>
+                        
+                        <div class="credit-cards-section">
+                            <h3 class="credit-card-title">Phone Requirements</h3>
+                            
+                            <div class="credit-card-question">
+                                <label style="margin-bottom: 15px; font-weight: 600;">Phone Types</label>
+                                <div style="margin-left: 20px;">
+                                    <div style="margin-bottom: 10px; display: flex; align-items: center;">
+                                        <input type="checkbox" id="deskPhone" name="phoneTypes[]" value="Desk Phone" style="margin-right: 8px;">
+                                        <label for="deskPhone" style="font-weight: 500; cursor: pointer; margin-bottom: 0;">Desk Phone</label>
+                                    </div>
+                                    <div style="margin-bottom: 10px; display: flex; align-items: center;">
+                                        <input type="checkbox" id="companyCellPhone" name="phoneTypes[]" value="Company Cell Phone" style="margin-right: 8px;">
+                                        <label for="companyCellPhone" style="font-weight: 500; cursor: pointer; margin-bottom: 0;">Company Cell Phone</label>
+                                    </div>
+                                    <div style="margin-bottom: 10px; display: flex; align-items: center;">
+                                        <input type="checkbox" id="byodCellPhone" name="phoneTypes[]" value="BYOD Cell Phone" style="margin-right: 8px;">
+                                        <label for="byodCellPhone" style="font-weight: 500; cursor: pointer; margin-bottom: 0;">BYOD Cell Phone</label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="credit-card-question">
+                                <div class="form-row">
+                                    <div class="form-group half">
+                                        <label for="workPhoneNumber">Work Phone Number (to be completed by IT)</label>
+                                        <input type="text" id="workPhoneNumber" name="workPhoneNumber" placeholder="Phone number will be assigned by IT">
+                                    </div>
+                                    <div class="form-group half">
+                                        <label for="workExtension">Work Extension (to be completed by IT)</label>
+                                        <input type="text" id="workExtension" name="workExtension" placeholder="Extension will be assigned by IT">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="credit-card-question">
+                                <label>Reusing Existing Phone? *</label>
+                                <div class="radio-group">
+                                    <div class="radio-option">
+                                        <input type="radio" id="reusingPhoneYes" name="reusingPhone" value="yes" required>
+                                        <label for="reusingPhoneYes" class="radio-label">Yes</label>
+                                    </div>
+                                    <div class="radio-option">
+                                        <input type="radio" id="reusingPhoneNo" name="reusingPhone" value="no" required>
+                                        <label for="reusingPhoneNo" class="radio-label">No</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="credit-cards-section">
+                            <h3 class="credit-card-title">Computer Requirements</h3>
+                            
+                            <div class="credit-card-question">
+                                <label style="margin-bottom: 15px; font-weight: 600;">Computer Equipment</label>
+                                <div style="margin-left: 20px;">
+                                    <div style="margin-bottom: 10px; display: flex; align-items: flex-start;">
+                                        <input type="checkbox" id="desktopPC" name="computerEquipment[]" value="Desktop PC includes Monitor, Keyboard, Mouse, Webcam" style="margin-right: 8px; margin-top: 2px;">
+                                        <label for="desktopPC" style="font-weight: 500; cursor: pointer; margin-bottom: 0; line-height: 1.4;">Desktop PC includes Monitor, Keyboard, Mouse, Webcam</label>
+                                    </div>
+                                    <div style="margin-bottom: 10px; display: flex; align-items: center;">
+                                        <input type="checkbox" id="laptop" name="computerEquipment[]" value="Laptop" style="margin-right: 8px;">
+                                        <label for="laptop" style="font-weight: 500; cursor: pointer; margin-bottom: 0;">Laptop</label>
+                                    </div>
+                                    <div style="margin-bottom: 10px; display: flex; align-items: flex-start;">
+                                        <input type="checkbox" id="dockingStation" name="computerEquipment[]" value="Docking Station, Monitor, Keyboard & Mouse ($600)" style="margin-right: 8px; margin-top: 2px;">
+                                        <label for="dockingStation" style="font-weight: 500; cursor: pointer; margin-bottom: 0; line-height: 1.4;">Docking Station, Monitor, Keyboard & Mouse ($600)</label>
+                                    </div>
+                                    <div style="margin-bottom: 10px; display: flex; align-items: center;">
+                                        <input type="checkbox" id="additionalMonitor" name="computerEquipment[]" value="Additional Monitor ($200)" style="margin-right: 8px;">
+                                        <label for="additionalMonitor" style="font-weight: 500; cursor: pointer; margin-bottom: 0;">Additional Monitor ($200)</label>
+                                    </div>
+                                    <div style="margin-bottom: 10px; display: flex; align-items: center;">
+                                        <input type="checkbox" id="webCamera" name="computerEquipment[]" value="Web Camera ($100)" style="margin-right: 8px;">
+                                        <label for="webCamera" style="font-weight: 500; cursor: pointer; margin-bottom: 0;">Web Camera ($100)</label>
+                                    </div>
+                                    <div style="margin-bottom: 10px; display: flex; align-items: center;">
+                                        <input type="checkbox" id="laptopBag" name="computerEquipment[]" value="Laptop Bag ($30)" style="margin-right: 8px;">
+                                        <label for="laptopBag" style="font-weight: 500; cursor: pointer; margin-bottom: 0;">Laptop Bag ($30)</label>
+                                    </div>
+                                    <div style="margin-bottom: 10px; display: flex; align-items: center;">
+                                        <input type="checkbox" id="mouse" name="computerEquipment[]" value="Mouse ($10)" style="margin-right: 8px;">
+                                        <label for="mouse" style="font-weight: 500; cursor: pointer; margin-bottom: 0;">Mouse ($10)</label>
+                                    </div>
+                                    <div style="margin-bottom: 10px; display: flex; align-items: flex-start;">
+                                        <input type="checkbox" id="repurposeEquipment" name="computerEquipment[]" value="Will Repurpose Existing Computer Equipment" style="margin-right: 8px; margin-top: 2px;">
+                                        <label for="repurposeEquipment" style="font-weight: 500; cursor: pointer; margin-bottom: 0; line-height: 1.4;">Will Repurpose Existing Computer Equipment</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="credit-cards-section">
+                            <h3 class="credit-card-title">Tablet Profile</h3>
+                            
+                            <div class="credit-card-question">
+                                <label style="margin-bottom: 15px; font-weight: 600;">Roles Required For New Hires *</label>
+                                <div style="margin-left: 20px;">
+                                    <div style="margin-bottom: 15px;">
+                                        <div style="display: flex; align-items: center; margin-bottom: 8px;">
+                                            <input type="radio" id="rolesNone" name="rolesRequiredNewHires" value="None" required style="margin-right: 8px;">
+                                            <label for="rolesNone" style="font-weight: 500; cursor: pointer; margin-bottom: 0;">None</label>
+                                        </div>
+                                    </div>
+                                    
+                                    <div style="margin-bottom: 15px;">
+                                        <div style="display: flex; align-items: center; margin-bottom: 8px;">
+                                            <input type="radio" id="rolesCargasApp" name="rolesRequiredNewHires" value="Cargas App" required style="margin-right: 8px;">
+                                            <label for="rolesCargasApp" style="font-weight: 500; cursor: pointer; margin-bottom: 0;">Cargas App</label>
+                                        </div>
+                                        <div id="cargasAppTextbox" style="margin-left: 26px; display: none;">
+                                            <input type="text" name="cargasAppRole" placeholder="Example: Foreman role, PM role, Driver, etc." style="width: 100%; padding: 8px; border: 1px solid #dee2e6; border-radius: 4px;">
+                                        </div>
+                                    </div>
+                                    
+                                    <div style="margin-bottom: 15px;">
+                                        <div style="display: flex; align-items: center; margin-bottom: 8px;">
+                                            <input type="radio" id="rolesDataCollection" name="rolesRequiredNewHires" value="Data Collection App" required style="margin-right: 8px;">
+                                            <label for="rolesDataCollection" style="font-weight: 500; cursor: pointer; margin-bottom: 0;">Data Collection App</label>
+                                        </div>
+                                        <div id="dataCollectionTextbox" style="margin-left: 26px; display: none;">
+                                            <input type="text" name="dataCollectionRole" placeholder="Example: Foreman role, PM role, Driver, etc." style="width: 100%; padding: 8px; border: 1px solid #dee2e6; border-radius: 4px;">
+                                        </div>
+                                    </div>
+                                    
+                                    <div style="margin-bottom: 15px;">
+                                        <div style="display: flex; align-items: center; margin-bottom: 8px;">
+                                            <input type="radio" id="rolesMilestone" name="rolesRequiredNewHires" value="Milestone Agg. Production App" required style="margin-right: 8px;">
+                                            <label for="rolesMilestone" style="font-weight: 500; cursor: pointer; margin-bottom: 0;">Milestone Agg. Production App</label>
+                                        </div>
+                                        <div id="milestoneTextbox" style="margin-left: 26px; display: none;">
+                                            <input type="text" name="milestoneRole" placeholder="Example: Foreman role, PM role, Driver, etc." style="width: 100%; padding: 8px; border: 1px solid #dee2e6; border-radius: 4px;">
+                                        </div>
+                                    </div>
+                                    
+                                    <div style="margin-bottom: 15px;">
+                                        <div style="display: flex; align-items: center; margin-bottom: 8px;">
+                                            <input type="radio" id="rolesXRS" name="rolesRequiredNewHires" value="XRS App" required style="margin-right: 8px;">
+                                            <label for="rolesXRS" style="font-weight: 500; cursor: pointer; margin-bottom: 0;">XRS App</label>
+                                        </div>
+                                        <div id="xrsTextbox" style="margin-left: 26px; display: none;">
+                                            <input type="text" name="xrsRole" placeholder="Example: Foreman role, PM role, Driver, etc." style="width: 100%; padding: 8px; border: 1px solid #dee2e6; border-radius: 4px;">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <br/>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                                        <span>All items will be delivered to</span>
+                                        <span id="selectedPhysicalLocation" style="font-weight: bold; color: #667eea;">[Physical Location selected]</span>
+                                        <span>unless noted here:</span>
+                                        <input type="text" name="deliveryNote" style="flex: 1; min-width: 200px; margin-bottom: 0;" placeholder="Enter alternative delivery location">
+                                    </label>
+                                </div>
+                            </div>                        
+                        </div>
+                    </div>
+
+                    <!-- Application/Software Section -->
+                    <div class="section">
+                        <h2 class="section-title">Application/Software</h2>
+                        
+                        <div id="applicationSoftwareContainer">
+                            <div class="form-row application-software-row">
+                                <div class="form-group">
+     
+                                    <label for="applicationSoftware_1">Application/Software</label>
+                                    <select id="applicationSoftware_1" name="applicationSoftware[]">
+                                        <option value="">Please select...</option>
+                                        <option value="Application1">Application1</option>
+                                        <option value="Application2">Application2</option>
+                                    </select>
+
+                                </div>
+                                <div class="form-group">
+                                    <label for="applicationAccessNote_1">Application/Software Access Note</label>
+                                    <div style="display: flex; gap: 8px; align-items: center;">
+                                        <input type="text" id="applicationAccessNote_1" name="applicationAccessNote[]" style="flex: 1;">
+                                        <button type="button" class="icon-btn add-btn" onclick="addApplicationRow()" title="Add row">
+                                            <svg viewBox="0 0 24 24">
+                                                <path d="M12 5V19M5 12H19"/>
+                                            </svg>
+                                        </button>
+                                        <button type="button" class="icon-btn remove-btn" onclick="removeApplicationRow(this)" style="display: none;" title="Remove row">
+                                            <svg viewBox="0 0 24 24">
+                                                <path d="M18 6L6 18M6 6L18 18"/>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Folder/Sharepoint/Mailbox Section -->
+                    <div class="section">
+                        <h2 class="section-title">Folder/Sharepoint/Mailbox</h2>
+                        
+                        <div id="folderSharepointContainer">
+                            <div class="form-row folder-sharepoint-row">
+                                <div class="form-group">
+                                    <label for="type_1">Type</label>
+                                    <select id="type_1" name="type[]">
+                                        <option value="">Please select...</option>
+                                        <option value="Folder">Folder</option>
+                                        <option value="Sharepoint">Sharepoint</option>
+                                        <option value="Mailbox">Mailbox</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="folderSharepointMailbox_1">Folder/Sharepoint/Mailbox</label>
+                                    <div style="display: flex; gap: 8px; align-items: center;">
+                                        <input type="text" id="folderSharepointMailbox_1" name="folderSharepointMailbox[]" style="flex: 1;">
+                                        <button type="button" class="icon-btn add-btn" onclick="addFolderSharepointRow()" title="Add row">
+                                            <svg viewBox="0 0 24 24">
+                                                <path d="M12 5V19M5 12H19"/>
+                                            </svg>
+                                        </button>
+                                        <button type="button" class="icon-btn remove-btn" onclick="removeFolderSharepointRow(this)" style="display: none;" title="Remove row">
+                                            <svg viewBox="0 0 24 24">
+                                                <path d="M18 6L6 18M6 6L18 18"/>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="form-actions">
+            <button class="btn btn-secondary" onclick="goBack()">Cancel</button>
+            <button class="btn btn-primary" id="submitBtn" onclick="submitPromotion()" disabled>Submit Promotion / Transfer Request</button>
+        </div>
+    </div>
+
+    <script>
+
+        let selectedEmployee = null;
+        let allEmployees = [
+            { 
+                id: 1, 
+                name: 'John Smith', 
+                title: 'Site Supervisor', 
+                division: 'Field Operations', 
+                department: 'Commercial Construction',
+                currentData: {
+                    payrollCompany: '64',
+                    payrollGroup: '2',
+                    payrollDept: '6401',
+                    position: 'SITESUPR',
+                    supervisor: 'Mike Johnson',
+                    hrrepresentative: 'Kyle Adamski',
+                    physicalLocation: '100',
+                    status: 'FULL TIME',
+                    payrate: 'Hourly'
+                }
+            },
+            { 
+                id: 2, 
+                name: 'Sarah Johnson', 
+                title: 'Project Manager', 
+                division: 'Project Management', 
+                department: 'Residential Projects',
+                currentData: {
+                    payrollCompany: '19',
+                    payrollGroup: '6',
+                    payrollDept: '6404',
+                    position: 'PROJMGR BA',
+                    supervisor: 'David Wilson',
+                    hrrepresentative: 'Megan Myllyla',
+                    physicalLocation: '101',
+                    status: 'FULL TIME',
+                    payrate: 'Weekly'
+                }
+            },
+            { 
+                id: 3, 
+                name: 'Mike Chen', 
+                title: 'Heavy Equipment Operator', 
+                division: 'Field Operations', 
+                department: 'Infrastructure',
+                currentData: {
+                    payrollCompany: '64',
+                    payrollGroup: '4',
+                    payrollDept: '6401',
+                    position: 'EQPOPER',
+                    supervisor: 'Robert Martinez',
+                    hrrepresentative: 'Kristine Elliott',
+                    physicalLocation: '102',
+                    status: 'FULL TIME',
+                    payrate: 'Monthly'
+                }
+            }
+        ];
+        function goBack() {
+            window.location.href = 'hr_request_dashboard.html';
+        }
+
+        function showTab(tabName) {
+            // Hide all tab contents
+            const tabContents = document.querySelectorAll('.tab-content');
+            tabContents.forEach(content => content.classList.remove('active'));
+            
+            // Remove active class from all tabs
+            const tabs = document.querySelectorAll('.tab');
+            tabs.forEach(tab => tab.classList.remove('active'));
+            
+            // Show selected tab content
+            document.getElementById(tabName).classList.add('active');
+            
+            // Add active class to clicked tab
+            event.target.classList.add('active');
+        }
+
+        function searchEmployees() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            const resultsContainer = document.getElementById('searchResults');
+            
+            if (query.length < 2) {
+                resultsContainer.style.display = 'none';
+                return;
+            }
+
+            const results = allEmployees.filter(emp => 
+                emp.name.toLowerCase().includes(query) ||
+                emp.title.toLowerCase().includes(query) ||
+                emp.division.toLowerCase().includes(query)
+            );
+            resultsContainer.style.display = 'block';
+            
+            if (results.length === 0) {
+                resultsContainer.innerHTML = '<div class="no-results">No employees found</div>';
+                return;
+            }
+            resultsContainer.innerHTML = results.map(emp => `
+                <div class="search-item ${selectedEmployee && selectedEmployee.id === emp.id ? 'selected' : ''}" onclick="selectEmployee(${emp.id})">
+                    <div class="employee-info">
+                        <div class="employee-name">${emp.name}</div>
+                        <div class="employee-details">${emp.title} • ${emp.division}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function selectEmployee(employeeId) {
+            selectedEmployee = allEmployees.find(emp => emp.id === employeeId);
+            updateSelectedEmployee();
+            populateCurrentPosition();
+            //updateSubmitButton();
+            
+            // Hide search results and clear search input
+            document.getElementById('searchResults').style.display = 'none';
+            document.getElementById('searchInput').value = '';
+            
+            // Show position comparison
+            document.getElementById('positionComparison').classList.remove('hidden');
+        }
+       
+        function updateSelectedEmployee() {
+            const container = document.getElementById('selectedEmployee');
+            
+            if (!selectedEmployee) {
+                container.style.display = 'none';
+                return;
+            }
+            
+            container.style.display = 'block';
+            container.innerHTML = `
+                <div class="selected-employee">
+                    <div class="selected-employee-info">
+                        <strong>${selectedEmployee.name}</strong>
+                        <span style="color: #64748b; margin-left: 8px;">${selectedEmployee.title} • ${selectedEmployee.division}</span>
+                    </div>
+                    <button class="clear-btn" onclick="clearEmployee()" title="Clear selection">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                    </button>
+                </div>
+            `;
+        }
+
+        function clearEmployee() {
+            selectedEmployee = null;
+            updateSelectedEmployee();
+            //updateSubmitButton();
+            document.getElementById('positionComparison').classList.add('hidden');
+        }
+
+        function populateCurrentPosition() {
+            if (!selectedEmployee) return;
+            
+            const data = selectedEmployee.currentData;
+            
+            // Populate current position fields (readonly/disabled)
+            document.getElementById('currentPayrollCompany').value = data.payrollCompany;
+            document.getElementById('currentPayrollGroup').value = data.payrollGroup;
+            document.getElementById('currentPayrollDept').value = data.payrollDept;
+            document.getElementById('currentPosition').value = data.position;
+            document.getElementById('currentSupervisor').value = data.supervisor;
+            document.getElementById('currentPhysicalLocation').value = data.physicalLocation;
+            document.getElementById('currentStatus').value = data.status;
+            document.getElementById('currentpayRate').value = data.payrate;
+            document.getElementById('currentHRrep').value = data.hrrepresentative;
+            
+            // Pre-populate new position fields with current data (editable)
+            document.getElementById('newPayrollCompany').value = data.payrollCompany;
+            document.getElementById('newPayrollGroup').value = data.payrollGroup;
+            document.getElementById('newPayrollDept').value = data.payrollDept;
+            document.getElementById('newPosition').value = data.position;
+            document.getElementById('newSupervisor').value = data.supervisor;
+            document.getElementById('newPhysicalLocation').value = data.physicalLocation;
+            document.getElementById('newStatus').value = data.status;
+            document.getElementById('newpayRate').value = data.payrate;            
+            document.getElementById('newHRrep').value = data.hrrepresentative;
+
+            // conditional sections should be shown
+            showConditionalSections();
+            
+            // Update cardlock address with current physical location
+            //updateCardlockAddress();
+        }       
+
+
+       function updateSubmitButton() {
+            const submitBtn = document.getElementById('submitBtn');
+            const effectiveDate = document.getElementById('effectiveDate').value;
+            const payrollType = document.getElementById('payrollType').value;
+                
+            // Check required fields
+            const requiredFields = [
+                'newPayrollCompany',
+                'newPayrollGroup', 
+                'newPayrollDept',
+                'newPosition',
+                'newSupervisor',
+                'newPhysicalLocation',
+                'newStatus',
+                'newpayRate',
+                'newHRrep'
+            ];
+            
+            const allFieldsFilled = requiredFields.every(fieldId => 
+                document.getElementById(fieldId).value.trim() !== ''
+            );
+            
+            submitBtn.disabled = !selectedEmployee || !effectiveDate || !allFieldsFilled;
+        }
+
+         function submitPromotion() {
+            if (!selectedEmployee) {
+                alert('Please select an employee');
+                return;
+            }
+            
+            const effectiveDate = document.getElementById('effectiveDate').value;
+            const notes = document.getElementById('notes').value;
+            
+            // Collect new position data
+            const newPosition = {
+                payrollCompany: document.getElementById('newPayrollCompany').value,
+                payrollGroup: document.getElementById('newPayrollGroup').value,
+                payrollDept: document.getElementById('newPayrollDept').value,
+                position: document.getElementById('newPosition').value,
+                supervisor: document.getElementById('newSupervisor').value,
+                physicalLocation: document.getElementById('newPhysicalLocation').value,
+                status: document.getElementById('newStatus').value,
+                payrate: document.getElementById('newpayRate').value,
+                hrrepresentative: document.getElementById('newHRrep').value
+            };
+            
+            if (!effectiveDate) {
+                alert('Please fill in all required fields');
+                return;
+            }
+            
+            // In real app, this would submit to backend
+            const submissionData = {
+                employee: selectedEmployee,
+                currentPosition: selectedEmployee.currentData,
+                newPosition,
+                effectiveDate,
+                notes,
+                submittedBy: 'Current User',
+                submittedDate: new Date().toISOString()
+            };
+            
+            console.log('Promotion Request:', submissionData);
+            
+            alert(`Promotion request submitted for ${selectedEmployee.name}`);
+            goBack();
+        }
+
+        function showConditionalSections() {
+            if (!selectedEmployee) {
+                document.getElementById('conditionalSections').classList.add('hidden');
+                return;
+            }        
+            document.getElementById('conditionalSections').classList.remove('hidden');
+        }        
+
+        // Set minimum date for First Day of Employment to today
+        //document.getElementById('firstDay').min = new Date().toISOString().split('T')[0];
+
+        // Handle Company Expense Card conditional logic
+        const companyExpenseRadios = document.querySelectorAll('input[name="companyExpenseCard"]');
+        const fuelOnlySection = document.getElementById('fuelOnlySection');
+        const eeExpenseSection = document.getElementById('eeExpenseSection');
+        const weeklyLimitSection = document.getElementById('weeklyLimitSection');
+
+        function toggleExpenseCardSections() {
+            const companyExpenseSelected = document.querySelector('input[name="companyExpenseCard"]:checked');
+            
+            if (!companyExpenseSelected || companyExpenseSelected.value === 'no') {
+                // Hide sections when Company Expense Card is No or not selected
+                fuelOnlySection.style.display = 'none';
+                eeExpenseSection.style.display = 'none';
+                weeklyLimitSection.style.display = 'none';
+                
+                // Clear the values and required attributes when hidden
+                document.querySelectorAll('#fuelOnlySection input[type="radio"]').forEach(radio => {
+                    radio.checked = false;
+                    radio.removeAttribute('required');
+                });
+                document.querySelectorAll('#eeExpenseSection input[type="radio"]').forEach(radio => {
+                    radio.checked = false;
+                    radio.removeAttribute('required');
+                });
+                document.getElementById('weeklyLimit').value = '';
+            } else {
+                // Show sections when Company Expense Card is Yes
+                fuelOnlySection.style.display = 'block';
+                eeExpenseSection.style.display = 'block';
+                weeklyLimitSection.style.display = 'block';
+                
+                // Restore required attributes when shown
+                document.querySelectorAll('#fuelOnlySection input[type="radio"]').forEach(radio => {
+                    radio.setAttribute('required', 'required');
+                });
+                document.querySelectorAll('#eeExpenseSection input[type="radio"]').forEach(radio => {
+                    radio.setAttribute('required', 'required');
+                });
+            }
+        }
+
+        // Add event listeners to Company Expense Card radio buttons
+        companyExpenseRadios.forEach(radio => {
+            radio.addEventListener('change', toggleExpenseCardSections);
+        });
+
+        // Initialize the visibility on page load
+        toggleExpenseCardSections();
+
+        // Handle Fuel Cardlock Access conditional logic
+        const fuelCardlockRadios = document.querySelectorAll('input[name="fuelCardlockAccess"]');
+        const cardlockShipSection = document.getElementById('cardlockShipSection');
+
+        function toggleCardlockShipSection() {
+            const fuelCardlockSelected = document.querySelector('input[name="fuelCardlockAccess"]:checked');
+            
+            if (fuelCardlockSelected && fuelCardlockSelected.value === 'yes') {
+                // Show shipping address when Fuel Cardlock Access is Yes
+                cardlockShipSection.style.display = 'block';
+            } else {
+                // Hide shipping address when Fuel Cardlock Access is No or not selected
+                cardlockShipSection.style.display = 'none';
+                // Clear the value when hidden
+                document.getElementById('cardlockShipAddress').value = '';
+            }
+        }
+
+        // Add event listeners to Fuel Cardlock Access radio buttons
+        fuelCardlockRadios.forEach(radio => {
+            radio.addEventListener('change', toggleCardlockShipSection);
+        });
+
+        // Initialize the cardlock ship section visibility on page load
+        toggleCardlockShipSection();
+
+        // Handle Company Vehicle conditional logic
+        const approvedVehicleRadios = document.querySelectorAll('input[name="approvedVehicle"]');
+        const driverClassificationSection = document.getElementById('driverClassificationSection');
+        const drugAlcoholSection = document.getElementById('drugAlcoholSection');
+        const companyCarSection = document.getElementById('companyCarSection');
+        const applicationPart2Section = document.getElementById('applicationPart2Section');
+
+        function toggleVehicleSections() {
+            const approvedVehicleSelected = document.querySelector('input[name="approvedVehicle"]:checked');
+            
+            if (approvedVehicleSelected && approvedVehicleSelected.value === 'yes') {
+                // Show vehicle-related sections when Approved to Operate Company Vehicle is Yes
+                driverClassificationSection.style.display = 'block';
+                drugAlcoholSection.style.display = 'block';
+                companyCarSection.style.display = 'block';
+                applicationPart2Section.style.display = 'block';
+                
+                // Restore required attributes when shown
+                document.getElementById('driverClassification').setAttribute('required', 'required');
+                document.querySelectorAll('#drugAlcoholSection input[type="radio"]').forEach(radio => {
+                    radio.setAttribute('required', 'required');
+                });
+                document.querySelectorAll('#companyCarSection input[type="radio"]').forEach(radio => {
+                    radio.setAttribute('required', 'required');
+                });
+                document.querySelectorAll('#applicationPart2Section input[type="radio"]').forEach(radio => {
+                    radio.setAttribute('required', 'required');
+                });
+            } else {
+                // Hide vehicle-related sections when Approved to Operate Company Vehicle is No or not selected
+                driverClassificationSection.style.display = 'none';
+                drugAlcoholSection.style.display = 'none';
+                companyCarSection.style.display = 'none';
+                applicationPart2Section.style.display = 'none';
+                
+                // Clear the values and required attributes when hidden
+                document.getElementById('driverClassification').value = '';
+                document.getElementById('driverClassification').removeAttribute('required');
+                
+                document.querySelectorAll('#drugAlcoholSection input[type="radio"]').forEach(radio => {
+                    radio.checked = false;
+                    radio.removeAttribute('required');
+                });
+                document.querySelectorAll('#companyCarSection input[type="radio"]').forEach(radio => {
+                    radio.checked = false;
+                    radio.removeAttribute('required');
+                });
+                document.querySelectorAll('#applicationPart2Section input[type="radio"]').forEach(radio => {
+                    radio.checked = false;
+                    radio.removeAttribute('required');
+                });
+            }
+        }
+
+        // Add event listeners to Approved to Operate Company Vehicle radio buttons
+        approvedVehicleRadios.forEach(radio => {
+            radio.addEventListener('change', toggleVehicleSections);
+        });
+
+        // Initialize the vehicle sections visibility on page load
+        toggleVehicleSections();
+
+     
+        // Application/Software dynamic rows functionality
+        let applicationRowCount = 1;
+
+        function addApplicationRow() {
+            applicationRowCount++;
+            const container = document.getElementById('applicationSoftwareContainer');
+            
+            const newRow = document.createElement('div');
+            newRow.className = 'form-row application-software-row';
+            newRow.innerHTML = `
+                <div class="form-group">
+                    <label for="applicationSoftware_${applicationRowCount}">Application/Software</label>
+                    <input type="text" id="applicationSoftware_${applicationRowCount}" name="applicationSoftware[]">
+                </div>
+                <div class="form-group">
+                    <label for="applicationAccessNote_${applicationRowCount}">Application/Software Access Note</label>
+                    <div style="display: flex; gap: 8px; align-items: center;">
+                        <input type="text" id="applicationAccessNote_${applicationRowCount}" name="applicationAccessNote[]" style="flex: 1;">
+                        <button type="button" class="icon-btn add-btn" onclick="addApplicationRow()" title="Add row">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M12 5V19M5 12H19"/>
+                            </svg>
+                        </button>
+                        <button type="button" class="icon-btn remove-btn" onclick="removeApplicationRow(this)" title="Remove row">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M18 6L6 18M6 6L18 18"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            container.appendChild(newRow);
+            updateRemoveButtons();
+        }
+
+        function removeApplicationRow(button) {
+            const row = button.closest('.application-software-row');
+            row.remove();
+            updateRemoveButtons();
+        }
+
+        function updateRemoveButtons() {
+            const rows = document.querySelectorAll('.application-software-row');
+            rows.forEach((row, index) => {
+                const removeBtn = row.querySelector('.remove-btn');
+                if (rows.length > 1) {
+                    removeBtn.style.display = 'flex';
+                } else {
+                    removeBtn.style.display = 'none';
+                }
+            });
+        }
+
+        // Folder/Sharepoint/Mailbox dynamic rows functionality
+        let folderSharepointRowCount = 1;
+
+        function addFolderSharepointRow() {
+            folderSharepointRowCount++;
+            const container = document.getElementById('folderSharepointContainer');
+            
+            const newRow = document.createElement('div');
+            newRow.className = 'form-row folder-sharepoint-row';
+            newRow.innerHTML = `
+                <div class="form-group">
+                    <label for="type_${folderSharepointRowCount}">Type</label>
+                    <select id="type_${folderSharepointRowCount}" name="type[]">
+                        <option value="">Please select...</option>
+                        <option value="Folder">Folder</option>
+                        <option value="Sharepoint">Sharepoint</option>
+                        <option value="Mailbox">Mailbox</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="folderSharepointMailbox_${folderSharepointRowCount}">Folder/Sharepoint/Mailbox</label>
+                    <div style="display: flex; gap: 8px; align-items: center;">
+                        <input type="text" id="folderSharepointMailbox_${folderSharepointRowCount}" name="folderSharepointMailbox[]" style="flex: 1;">
+                        <button type="button" class="icon-btn add-btn" onclick="addFolderSharepointRow()" title="Add row">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M12 5V19M5 12H19"/>
+                            </svg>
+                        </button>
+                        <button type="button" class="icon-btn remove-btn" onclick="removeFolderSharepointRow(this)" title="Remove row">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M18 6L6 18M6 6L18 18"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            container.appendChild(newRow);
+            updateFolderSharepointRemoveButtons();
+        }
+
+        function removeFolderSharepointRow(button) {
+            const row = button.closest('.folder-sharepoint-row');
+            row.remove();
+            updateFolderSharepointRemoveButtons();
+        }
+
+        function updateFolderSharepointRemoveButtons() {
+            const rows = document.querySelectorAll('.folder-sharepoint-row');
+            rows.forEach((row, index) => {
+                const removeBtn = row.querySelector('.remove-btn');
+                if (rows.length > 1) {
+                    removeBtn.style.display = 'flex';
+                } else {
+                    removeBtn.style.display = 'none';
+                }
+            });
+        }
+
+        // Initialize the folder/sharepoint remove buttons on page load
+        updateFolderSharepointRemoveButtons();
+
+        // Handle Physical Location display in Other Info section
+        const physicalLocationSelect = document.getElementById('physicalLocation');
+        const selectedPhysicalLocationSpan = document.getElementById('selectedPhysicalLocation');
+
+        function updatePhysicalLocationDisplay() {
+            const selectedValue = physicalLocationSelect.value;
+            const selectedText = physicalLocationSelect.options[physicalLocationSelect.selectedIndex].text;
+            
+            if (selectedValue && selectedValue !== '') {
+                selectedPhysicalLocationSpan.textContent = selectedText;
+            } else {
+                selectedPhysicalLocationSpan.textContent = '[Physical Location selected]';
+            }
+        }
+
+        // Add event listener to Physical Location dropdown
+        if (physicalLocationSelect && selectedPhysicalLocationSpan) {
+            physicalLocationSelect.addEventListener('change', updatePhysicalLocationDisplay);
+            // Initialize the display on page load
+            updatePhysicalLocationDisplay();
+        }
+
+        // Handle Tablet Profile roles conditional logic
+        const rolesRadios = document.querySelectorAll('input[name="rolesRequiredNewHires"]');
+        const cargasAppTextbox = document.getElementById('cargasAppTextbox');
+        const dataCollectionTextbox = document.getElementById('dataCollectionTextbox');
+        const milestoneTextbox = document.getElementById('milestoneTextbox');
+        const xrsTextbox = document.getElementById('xrsTextbox');
+
+        function toggleRoleTextboxes() {
+            const selectedRole = document.querySelector('input[name="rolesRequiredNewHires"]:checked');
+            
+            // Hide all textboxes first
+            cargasAppTextbox.style.display = 'none';
+            dataCollectionTextbox.style.display = 'none';
+            milestoneTextbox.style.display = 'none';
+            xrsTextbox.style.display = 'none';
+            
+            // Clear all textbox values when hidden
+            document.querySelector('input[name="cargasAppRole"]').value = '';
+            document.querySelector('input[name="dataCollectionRole"]').value = '';
+            document.querySelector('input[name="milestoneRole"]').value = '';
+            document.querySelector('input[name="xrsRole"]').value = '';
+            
+            // Show the relevant textbox based on selection
+            if (selectedRole) {
+                switch(selectedRole.value) {
+                    case 'Cargas App':
+                        cargasAppTextbox.style.display = 'block';
+                        break;
+                    case 'Data Collection App':
+                        dataCollectionTextbox.style.display = 'block';
+                        break;
+                    case 'Milestone Agg. Production App':
+                        milestoneTextbox.style.display = 'block';
+                        break;
+                    case 'XRS App':
+                        xrsTextbox.style.display = 'block';
+                        break;
+                }
+            }
+        }
+
+        // Add event listeners to all role radio buttons
+        rolesRadios.forEach(radio => {
+            radio.addEventListener('change', toggleRoleTextboxes);
+        });
+
+        // Initialize the role textboxes visibility on page load
+        toggleRoleTextboxes();
+    </script>
+</body>
+</html>

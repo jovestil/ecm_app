@@ -1,0 +1,73 @@
+<header class="app-header" (click)="closeRoleDropdown()">
+  <div class="header-content">
+    <div class="header-left">
+      <div class="logo">
+        <img src="assets/Mathy-Seal_2017_320-1.png" alt="Mathy Seal">
+      </div>
+      <h1 class="app-title">Employee Change Management</h1>
+    </div>
+    <div class="header-right">
+      <div class="user-info" *ngIf="isAuthenticated">
+        <div class="user-details">
+          <a class="user-name-link" (click)="navigateToMe()">{{ userName }}</a>
+          
+          <!-- Multi-role dropdown for ECM_ADMIN users -->
+          <div class="role-dropdown-container" *ngIf="isEcmAdmin && availableRoles.length > 0">
+            <button type="button" class="role-dropdown-button multi-role" (click)="toggleRoleDropdown(); $event.stopPropagation()">
+              <span *ngIf="selectedRoles.length === 0">ECM_ADMIN</span>
+              <span *ngIf="selectedRoles.length > 0" class="selected-roles-text">{{ selectedRoles.join(', ') }}</span>
+              <span class="dropdown-arrow" [class.rotated]="isRoleDropdownOpen">▼</span>
+            </button>
+            
+            <div class="role-dropdown-menu multi-role-menu" *ngIf="isRoleDropdownOpen" (click)="$event.stopPropagation()">
+              <div class="multi-role-header">
+                <span>Select Roles</span>
+                <button type="button" class="clear-selection" (click)="clearAllRoles()" *ngIf="selectedRoles.length > 0">
+                  Clear All
+                </button>
+              </div>
+              <div class="role-dropdown-separator"></div>
+              <div 
+                class="role-dropdown-item multi-role-item" 
+                [class.selected]="isRoleSelected('ECM_ADMIN')"
+                (click)="toggleRoleSelection({deptShortName: 'ECM_ADMIN', fullName: 'ECM Administrator'})">
+                <input 
+                  type="checkbox" 
+                  [checked]="isRoleSelected('ECM_ADMIN')"
+                  (click)="$event.stopPropagation()"
+                  (change)="toggleRoleSelection({deptShortName: 'ECM_ADMIN', fullName: 'ECM Administrator'})">
+                <span class="role-label">
+                  ECM_ADMIN
+                  <span class="role-description">ECM Administrator</span>
+                </span>
+              </div>
+              <div class="role-dropdown-separator"></div>
+              <div 
+                class="role-dropdown-item multi-role-item" 
+                *ngFor="let role of availableRoles"
+                [class.selected]="isRoleSelected(role.deptShortName)"
+                (click)="toggleRoleSelection(role)">
+                <input 
+                  type="checkbox" 
+                  [checked]="isRoleSelected(role.deptShortName)"
+                  (click)="$event.stopPropagation()"
+                  (change)="toggleRoleSelection(role)">
+                <span class="role-label">
+                  {{ role.deptShortName }}
+                  <span class="role-description">{{ role.fullName }}</span>
+                </span>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Regular role display for non-ECM_ADMIN users -->
+          <span class="role-values" *ngIf="!isEcmAdmin && userRoles.length > 0">{{ userRoles.join(', ') }}</span>
+        </div>
+        <button type="button" class="logout-link" (click)="handleLogout()">Logout</button>
+      </div>
+      <div class="user-info" *ngIf="!isAuthenticated">
+        <a href="#" class="login-link" (click)="handleLogin();">Login</a>
+      </div>
+    </div>
+  </div>
+</header>

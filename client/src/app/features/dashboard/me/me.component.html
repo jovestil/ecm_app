@@ -1,0 +1,150 @@
+<div class="me-container">
+  <div class="me-header">
+    <button class="back-button" (click)="goBack()">
+      ← Back to Dashboard
+    </button>
+    <h1>My Profile</h1>
+  </div>
+
+  <div class="content" *ngIf="isAuthenticated; else notAuthenticated">
+    <!-- User Information Card -->
+    <div class="info-card">
+      <h2>User Information</h2>
+      <div class="info-grid">
+        <div class="info-item">
+          <label>Name:</label>
+          <span>{{ userName || 'Not available' }}</span>
+        </div>
+        <div class="info-item">
+          <label>Email:</label>
+          <span>{{ userEmail || 'Not available' }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Employee Details Card -->
+    <div class="info-card">
+      <h2>Employee Details from Viewpoint</h2>
+      <div class="employee-section">
+        <div *ngIf="isLoadingEmployee" class="loading">
+          <p>Loading employee data...</p>
+        </div>
+        <div *ngIf="employeeError" class="error">
+          <p>{{ employeeError }}</p>
+        </div>
+        <div *ngIf="employeeData && !isLoadingEmployee" class="employee-grid">
+          <div class="info-item">
+            <label>Employee Number:</label>
+            <span>{{ employeeData.employee_number || 'Not available' }}</span>
+          </div>
+          <div class="info-item">
+            <label>Full Name:</label>
+            <span>{{ employeeData.employee_name || 'Not available' }}</span>
+          </div>
+          <div class="info-item">
+            <label>First Name:</label>
+            <span>{{ employeeData.first_name || 'Not available' }}</span>
+          </div>
+          <div class="info-item">
+            <label>Last Name:</label>
+            <span>{{ employeeData.last_name || 'Not available' }}</span>
+          </div>
+          <div class="info-item">
+            <label>Email:</label>
+            <span>{{ employeeData.email || 'Not available' }}</span>
+          </div>
+          <div class="info-item">
+            <label>Phone:</label>
+            <span>{{ employeeData.phone || 'Not available' }}</span>
+          </div>
+          <div class="info-item">
+            <label>Company Code:</label>
+            <span>{{ employeeData.company_code || 'Not available' }}</span>
+          </div>
+          <div class="info-item">
+            <label>Company Name:</label>
+            <span>{{ employeeData.company_name || 'Not available' }}</span>
+          </div>
+          <div class="info-item">
+            <label>Division Code:</label>
+            <span>{{ employeeData.division_code || 'Not available' }}</span>
+          </div>
+          <div class="info-item">
+            <label>Division Name:</label>
+            <span>{{ employeeData.division_name || 'Not available' }}</span>
+          </div>
+          <div class="info-item">
+            <label>Position Code:</label>
+            <span>{{ employeeData.position_code || 'Not available' }}</span>
+          </div>
+          <div class="info-item">
+            <label>Position Title:</label>
+            <span>{{ employeeData.position_title || 'Not available' }}</span>
+          </div>
+          <div class="info-item">
+            <label>Hire Date:</label>
+            <span>{{ employeeData.hire_date ? (employeeData.hire_date | date:'mediumDate') : 'Not available' }}</span>
+          </div>
+          <div class="info-item">
+            <label>Status:</label>
+            <span>{{ employeeData.status || 'Not available' }}</span>
+          </div>
+          <div class="info-item">
+            <label>Location:</label>
+            <span>{{ employeeData.location || 'Not available' }}</span>
+          </div>
+          <div class="info-item">
+            <label>Supervisor Employee Number:</label>
+            <span>{{ employeeData.supervisor_employee_number || 'Not available' }}</span>
+          </div>
+          <div class="info-item">
+            <label>Supervisor Name:</label>
+            <span>{{ employeeData.supervisor_name || 'Not available' }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Access Token Card -->
+    <div class="info-card">
+      <h2>Access Token</h2>
+      <div class="token-section">
+        <div class="token-item">
+          <div class="token-header">
+            <label>Access Token:</label>
+            <button class="copy-button" 
+                    (click)="copyToClipboard(accessToken, 'Access Token')"
+                    [disabled]="!accessToken || accessToken.includes('Unable') || accessToken.includes('Error')">
+              📋 Copy
+            </button>
+          </div>
+          <div class="token-display">
+            <div class="token-full" *ngIf="accessToken">
+              <pre>{{ accessToken }}</pre>
+            </div>
+            <div class="no-token" *ngIf="!accessToken">
+              <p>No access token available</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="actions">
+      <button class="logout-button" (click)="logout()">
+        Logout
+      </button>
+    </div>
+  </div>
+
+  <ng-template #notAuthenticated>
+    <div class="not-authenticated">
+      <h2>Not Authenticated</h2>
+      <p>You must be logged in to view this page.</p>
+      <button class="login-button" (click)="goBack()">
+        Go to Dashboard
+      </button>
+    </div>
+  </ng-template>
+</div>

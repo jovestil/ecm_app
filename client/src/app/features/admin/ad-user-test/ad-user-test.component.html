@@ -1,0 +1,193 @@
+<app-header></app-header>
+
+<div class="container">
+  <div class="header">
+    <button class="back-btn" (click)="goBack()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M19 12H5M12 19l-7-7 7-7"/>
+      </svg>
+      Back
+    </button>
+    <h1>Active Directory User Test</h1>
+  </div>
+
+  <div class="info-banner">
+    <svg class="info-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+    </svg>
+    <div>
+      <strong>AD User Creation:</strong> Test the creation of Active Directory user accounts with automatic domain resolution and OU path configuration.
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-container">
+    <div class="loading-spinner"></div>
+    <p>Loading companies...</p>
+  </div>
+
+  <!-- Form -->
+  <div *ngIf="!isLoading" class="form-card">
+    <div class="section">
+      <div class="section-title">User Account Information</div>
+
+      <form [formGroup]="adUserForm" (ngSubmit)="onSubmit()">
+        <div class="form-row">
+          <!-- Company -->
+          <div class="form-group half">
+            <label for="companyCode">
+              Company <span class="required">*</span>
+            </label>
+            <select
+              id="companyCode"
+              formControlName="companyCode"
+              [class.error]="isFieldInvalid('companyCode')"
+              (change)="onCompanyChange()"
+            >
+              <option value="">Select a company</option>
+              <option *ngFor="let company of companies" [value]="company.companyCode">
+                {{ company.companyCode }} - {{ company.companyName }}
+              </option>
+            </select>
+            <div *ngIf="isFieldInvalid('companyCode')" class="error-message">
+              {{ getFieldError('companyCode') }}
+            </div>
+          </div>
+
+          <!-- Payroll Department -->
+          <div class="form-group half">
+            <label for="payrollDeptCode">
+              Payroll Department <span class="required">*</span>
+            </label>
+            <select
+              id="payrollDeptCode"
+              formControlName="payrollDeptCode"
+              [class.error]="isFieldInvalid('payrollDeptCode')"
+            >
+              <option value="">Select a payroll department</option>
+              <option *ngFor="let dept of payrollDepartments" [value]="dept.deptCode">
+                {{ dept.deptCode }} - {{ dept.deptName }}
+              </option>
+            </select>
+            <div *ngIf="isFieldInvalid('payrollDeptCode')" class="error-message">
+              {{ getFieldError('payrollDeptCode') }}
+            </div>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <!-- Preferred First Name -->
+          <div class="form-group half">
+            <label for="preferredFirstName">
+              Preferred First Name
+            </label>
+            <input
+              type="text"
+              id="preferredFirstName"
+              formControlName="preferredFirstName"
+              [class.error]="isFieldInvalid('preferredFirstName')"
+              placeholder="Enter preferred first name (optional)"
+            />
+            <div *ngIf="isFieldInvalid('preferredFirstName')" class="error-message">
+              {{ getFieldError('preferredFirstName') }}
+            </div>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <!-- First Name -->
+          <div class="form-group half">
+            <label for="firstName">
+              First Name <span class="required">*</span>
+            </label>
+            <input
+              type="text"
+              id="firstName"
+              formControlName="firstName"
+              [class.error]="isFieldInvalid('firstName')"
+              placeholder="Enter first name"
+            />
+            <div *ngIf="isFieldInvalid('firstName')" class="error-message">
+              {{ getFieldError('firstName') }}
+            </div>
+          </div>
+
+          <!-- Last Name -->
+          <div class="form-group half">
+            <label for="lastName">
+              Last Name <span class="required">*</span>
+            </label>
+            <input
+              type="text"
+              id="lastName"
+              formControlName="lastName"
+              [class.error]="isFieldInvalid('lastName')"
+              placeholder="Enter last name"
+            />
+            <div *ngIf="isFieldInvalid('lastName')" class="error-message">
+              {{ getFieldError('lastName') }}
+            </div>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <!-- Title (Optional) -->
+          <div class="form-group half">
+            <label for="title">Title</label>
+            <input
+              type="text"
+              id="title"
+              formControlName="title"
+              [class.error]="isFieldInvalid('title')"
+              placeholder="Enter job title (optional)"
+            />
+            <div *ngIf="isFieldInvalid('title')" class="error-message">
+              {{ getFieldError('title') }}
+            </div>
+          </div>
+
+          <!-- Department (Optional) -->
+          <div class="form-group half">
+            <label for="department">Department</label>
+            <input
+              type="text"
+              id="department"
+              formControlName="department"
+              [class.error]="isFieldInvalid('department')"
+              placeholder="Enter department (optional)"
+            />
+            <div *ngIf="isFieldInvalid('department')" class="error-message">
+              {{ getFieldError('department') }}
+            </div>
+          </div>
+        </div>
+
+        <!-- Form Actions -->
+        <div class="form-actions">
+          <button
+            type="submit"
+            [disabled]="isSubmitting"
+            class="submit-btn"
+          >
+            <span *ngIf="!isSubmitting">Create AD User</span>
+            <span *ngIf="isSubmitting" class="loading-text">
+              <div class="button-spinner"></div>
+              Creating...
+            </span>
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Info Section -->
+    <div class="section info-section">
+      <div class="section-title">Configuration Information</div>
+      <ul class="info-list">
+        <li>Domain is automatically retrieved from the CompanyTypeLocation table based on selected company</li>
+        <li>OU path is configured in appsettings.json with dynamic domain replacement</li>
+        <li>A secure randomly generated password will be assigned to the created user</li>
+        <li>User will be created in the appropriate Active Directory organizational unit</li>
+      </ul>
+    </div>
+  </div>
+</div>

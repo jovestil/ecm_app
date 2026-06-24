@@ -1,0 +1,57 @@
+<!-- Search Container -->
+<div class="search-container" *ngIf="!disabled">
+  <input 
+    type="text" 
+    class="search-input" 
+    [(ngModel)]="searchQuery"
+    (input)="onSearchInputChange($event)"
+    [placeholder]="config.placeholder || 'Search for employee...'"
+    [disabled]="disabled">
+</div>
+
+<!-- Search Results -->
+<div class="search-results" *ngIf="showSearchResults">
+  <div class="no-results" *ngIf="isLoading">
+    <div style="margin-bottom: 8px;">🔍 Searching...</div>
+    Loading employees...
+  </div>
+  <div class="no-results" *ngIf="!isLoading && searchResults.length === 0">
+    No employees found
+  </div>
+  <div *ngIf="!isLoading">
+    <div 
+      class="search-item"
+      [class.disabled]="isEmployeeDisabled(employee)"
+      *ngFor="let employee of searchResults"
+      (click)="selectEmployee(employee)">
+      <div class="employee-info">
+        <div class="employee-name">
+          {{ employee.name }}
+          <span *ngIf="isEmployeeDisabled(employee)" 
+                class="pending-request-icon tooltip">
+            ⚠️
+            <span class="tooltiptext">Has pending HR request</span>
+          </span>
+        </div>
+        <div class="employee-details">{{ employee.title }} • {{ employee.division }}</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Selected Employee Header -->
+<h4 *ngIf="selectedEmployee && selectionHeader" class="selection-header">{{ selectionHeader }}</h4>
+
+<!-- Selected Employee Display -->
+<div [class]="getSelectedEmployeeClass()" *ngIf="selectedEmployee">
+  <div class="selected-employee-info">
+    <strong>{{ selectedEmployee.name }}</strong>
+    <span class="employee-details-selected">{{ selectedEmployee.title }} • {{ selectedEmployee.division }}</span>
+  </div>
+  <button [class]="getClearButtonClass()" (click)="clearEmployee()" title="Clear selection" [disabled]="disabled">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <line x1="18" y1="6" x2="6" y2="18"></line>
+      <line x1="6" y1="6" x2="18" y2="18"></line>
+    </svg>
+  </button>
+</div>

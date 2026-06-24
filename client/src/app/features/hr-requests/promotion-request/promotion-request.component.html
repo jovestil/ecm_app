@@ -1,0 +1,993 @@
+<app-header></app-header>
+
+<div class="container">
+  <div class="header">
+    <button class="back-btn" (click)="goBack()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M19 12H5M12 19l-7-7 7-7"/>
+      </svg>
+      Back
+    </button>
+    <h1>Promotion / Transfer</h1>
+  </div>
+
+  <div class="info-banner" *ngIf="!isEditMode || !canUpdateDate">
+    <svg class="info-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+    </svg>
+    <div>
+      <strong>Employee Promotion / Transfer:</strong> Viewing employees from existing request.
+    </div>
+  </div>
+
+  <div class="info-banner edit-banner" *ngIf="isEditMode && canUpdateDate">
+    <svg class="info-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/>
+    </svg>
+    <div>
+      <strong>Edit:</strong> You may update the First Day at New Position date.
+    </div>
+  </div>
+
+  <div class="form-card">
+    <div class="section">
+      <div class="section-title">{{ isEditMode ? 'Employee' : 'Select Employee' }}</div>
+      <!-- Hide search container in view/edit mode -->
+      <div class="search-container" *ngIf="!isEditMode">
+        <input
+          type="text"
+          class="search-input"
+          [(ngModel)]="searchInput"
+          (input)="onSearchInputChange(searchInput)"
+          placeholder="Search for employee to promote / transfer..."
+        >
+      </div>
+
+      <div class="search-results" *ngIf="showSearchResults && searchResults.length > 0 && !isEditMode">
+        <div
+          class="search-item"
+          *ngFor="let employee of searchResults"
+          (click)="selectEmployee(employee)"
+        >
+          <div class="employee-info">
+            <div class="employee-name">{{ employee.employeeName }}</div>
+            <div class="employee-details">{{ employee.position }} | {{ employee.companyName }}</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="no-results" *ngIf="showSearchResults && searchResults.length === 0 && !isLoading && !isEditMode">
+        No employees found
+      </div>
+
+      <div class="no-results" *ngIf="isLoading && !isEditMode">
+        Searching...
+      </div>
+
+      <div class="selected-employee" *ngIf="selectedEmployee">
+        <div class="selected-employee-info">
+          <div>
+            <div class="employee-name">{{ selectedEmployee.employeeName }}</div>
+            <div class="employee-details">{{ selectedEmployee.position }}</div>
+          </div>
+        </div>
+        <!-- Hide clear button in view/edit mode -->
+        <button class="clear-btn" (click)="clearSelectedEmployee()" *ngIf="!isEditMode">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+
+      <div *ngIf="showPositionComparison" [@fadeIn] [formGroup]="promotionForm">
+        <div class="position-comparison">
+          <!-- Current Position Card -->
+          <div class="position-card current">
+            <div class="position-card-header">Current Position</div>
+            <div class="position-card-body">
+              <div class="form-group">
+                <label>Payroll Company</label>
+                <input
+                  type="text"
+                  class="readonly-input"
+                  [value]="getCurrentPayrollCompanyDisplay()"
+                  readonly
+                  disabled>
+              </div>
+
+              <div class="form-group">
+                <label>Payroll Group</label>
+                <input
+                  type="text"
+                  class="readonly-input"
+                  [value]="getCurrentPayrollGroupDisplay()"
+                  readonly
+                  disabled>
+              </div>
+
+              <div class="form-group">
+                <label>Payroll Dept. Code</label>
+                <input
+                  type="text"
+                  class="readonly-input"
+                  [value]="getCurrentPayrollDeptDisplay()"
+                  readonly
+                  disabled>
+              </div>
+
+              <div class="form-group">
+                <label>Position</label>
+                <input
+                  type="text"
+                  class="readonly-input"
+                  [value]="getCurrentPositionDisplay()"
+                  readonly
+                  disabled>
+              </div>
+
+              <div class="form-group">
+                <label>Supervisor</label>
+                <input
+                  type="text"
+                  class="readonly-input"
+                  [class.placeholder-text]="getCurrentSupervisorDisplay() === 'Please contact HR'"
+                  [value]="getCurrentSupervisorDisplay()"
+                  readonly
+                  disabled>
+              </div>
+
+              <div class="form-group">
+                <label>Physical Location</label>
+                <input
+                  type="text"
+                  class="readonly-input"
+                  [value]="getCurrentPhysicalLocationDisplay()"
+                  readonly
+                  disabled>
+              </div>
+
+              <div class="form-group">
+                <label>Status</label>
+                <input
+                  type="text"
+                  class="readonly-input"
+                  [value]="getCurrentEmploymentStatusDisplay()"
+                  readonly
+                  disabled>
+              </div>
+
+              <div class="form-group">
+                <label>Pay Rate</label>
+                <input
+                  type="text"
+                  class="readonly-input"
+                  [value]="getCurrentPayRateDisplay()"
+                  readonly
+                  disabled>
+              </div>
+            </div>
+          </div>
+
+          <!-- New Position Card -->
+          <div class="position-card new" [formGroupName]="'positionInfo'">
+            <div class="position-card-header">New Position</div>
+            <div class="position-card-body">
+              <div class="form-group">
+                <label class="required">Payroll Company</label>
+                <!-- Show dropdown in create mode, read-only input in view mode -->
+                <app-searchable-dropdown
+                  *ngIf="!isEditMode"
+                  [items]="newPayrollCompaniesForDropdown"
+                  [config]="newPayrollCompanyConfig"
+                  [required]="true"
+                  formControlName="newPayrollCompany"
+                  (ngModelChange)="onNewPayrollCompanyChange()">
+                </app-searchable-dropdown>
+                <input
+                  *ngIf="isEditMode"
+                  type="text"
+                  class="readonly-input"
+                  [value]="getNewPayrollCompanyDisplay()"
+                  readonly
+                  disabled>
+              </div>
+
+              <div class="form-group">
+                <label class="required">Payroll Group</label>
+                <!-- Show dropdown in create mode, read-only input in view mode -->
+                <app-searchable-dropdown
+                  *ngIf="!isEditMode"
+                  [items]="newPayrollGroupsForDropdown"
+                  [config]="newPayrollGroupConfig"
+                  [required]="true"
+                  formControlName="newPayrollGroup"
+                  (ngModelChange)="onNewPayrollGroupChange()">
+                </app-searchable-dropdown>
+                <input
+                  *ngIf="isEditMode"
+                  type="text"
+                  class="readonly-input"
+                  [value]="getNewPayrollGroupDisplay()"
+                  readonly
+                  disabled>
+              </div>
+
+              <div class="form-group">
+                <label class="required">Payroll Dept. Code</label>
+                <!-- Show dropdown in create mode, read-only input in view mode -->
+                <app-searchable-dropdown
+                  *ngIf="!isEditMode"
+                  [items]="newPayrollDeptsForDropdown"
+                  [config]="newPayrollDeptConfig"
+                  [required]="true"
+                  formControlName="newPayrollDept">
+                </app-searchable-dropdown>
+                <input
+                  *ngIf="isEditMode"
+                  type="text"
+                  class="readonly-input"
+                  [value]="getNewPayrollDeptDisplay()"
+                  readonly
+                  disabled>
+              </div>
+
+              <div class="form-group">
+                <label class="required">Position</label>
+                <!-- Show dropdown in create mode, read-only input in view mode -->
+                <app-searchable-dropdown
+                  *ngIf="!isEditMode"
+                  [items]="newPositionsForDropdown"
+                  [config]="newPositionConfig"
+                  [required]="true"
+                  formControlName="newPosition">
+                </app-searchable-dropdown>
+                <input
+                  *ngIf="isEditMode"
+                  type="text"
+                  class="readonly-input"
+                  [value]="getNewPositionDisplay()"
+                  readonly
+                  disabled>
+              </div>
+
+              <div class="form-group">
+                <label>Supervisor</label>
+                <!-- Show dropdown in create mode, read-only input in view mode -->
+                <app-searchable-dropdown
+                  *ngIf="!isEditMode"
+                  [items]="newSupervisorsForDropdown"
+                  [config]="newSupervisorConfig"
+                  [required]="false"
+                  formControlName="newSupervisor">
+                </app-searchable-dropdown>
+                <input
+                  *ngIf="isEditMode"
+                  type="text"
+                  class="readonly-input"
+                  [class.placeholder-text]="getNewSupervisorDisplay() === 'Please contact HR'"
+                  [value]="getNewSupervisorDisplay()"
+                  readonly
+                  disabled>
+              </div>
+
+              <div class="form-group">
+                <label class="required">Physical Location</label>
+                <!-- Show dropdown in create mode, read-only input in view mode -->
+                <app-searchable-dropdown
+                  *ngIf="!isEditMode"
+                  [items]="newPhysicalLocationsForDropdown"
+                  [config]="newPhysicalLocationConfig"
+                  [required]="true"
+                  formControlName="newPhysicalLocation">
+                </app-searchable-dropdown>
+                <input
+                  *ngIf="isEditMode"
+                  type="text"
+                  class="readonly-input"
+                  [value]="getNewPhysicalLocationDisplay()"
+                  readonly
+                  disabled>
+              </div>
+
+              <div class="form-group">
+                <label class="required">Status</label>
+                <!-- Show dropdown in create mode, read-only input in view mode -->
+                <app-searchable-dropdown
+                  *ngIf="!isEditMode"
+                  [items]="newEmploymentStatusesForDropdown"
+                  [config]="newEmploymentStatusConfig"
+                  [required]="true"
+                  formControlName="newStatus">
+                </app-searchable-dropdown>
+                <input
+                  *ngIf="isEditMode"
+                  type="text"
+                  class="readonly-input"
+                  [value]="getNewStatusDisplay()"
+                  readonly
+                  disabled>
+              </div>
+
+              <div class="form-group">
+                <label class="required">Pay Rate</label>
+                <!-- Show dropdown in create mode, read-only input in view mode -->
+                <app-searchable-dropdown
+                  *ngIf="!isEditMode"
+                  [items]="newEmployeeSalaryTypesForDropdown"
+                  [config]="newPayRateConfig"
+                  [required]="true"
+                  formControlName="newpayRate"
+                  (selectionChanged)="onNewPayRateSelected($event)">
+                </app-searchable-dropdown>
+                <input
+                  *ngIf="isEditMode"
+                  type="text"
+                  class="readonly-input"
+                  [value]="getNewPayRateDisplay()"
+                  readonly
+                  disabled>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Effective Date and Notes below position comparison -->
+        <div class="additional-fields">
+          <div class="form-row">
+            <div class="form-group" style="max-width: 250px;">
+              <label for="effectiveDate" class="required">First Day at New Position</label>
+              <input
+                *ngIf="!isEditMode || canUpdateDate"
+                type="date"
+                id="effectiveDate"
+                [(ngModel)]="formData.effectiveDate"
+                [ngModelOptions]="{standalone: true}"
+                required>
+              <input
+                *ngIf="isEditMode && !canUpdateDate"
+                type="text"
+                class="readonly-input"
+                [value]="getEffectiveDateDisplay()"
+                readonly
+                disabled>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group2 full-width">
+              <label for="notes">Additional Notes</label>
+              <textarea
+                id="notes"
+                [(ngModel)]="formData.notes"
+                [ngModelOptions]="{standalone: true}"
+                [disabled]="isEditMode"
+                placeholder="Additional details about the promotion / transfer..."></textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Conditional Sections with Tabs -->
+  <div *ngIf="showConditionalSections" [@fadeIn]>
+    <div id="tabs-anchor"></div>
+    <p style="margin-bottom: 12px; font-size: 18px; color: #1e293b; font-weight: 600; text-align: center;">Please select only changes that are required for the Promotion / Transfer</p>
+    <div class="sticky-tabs-section">
+      <div class="tabs">
+        <button class="tab" [ngClass]="{'active': activeTab === 'personal'}" (click)="showTab('personal')">
+          Additional Information
+        </button>
+        <button class="tab" [ngClass]="{'active': activeTab === 'it'}" (click)="showTab('it')">
+          IT Related Information
+        </button>
+      </div>
+    </div>
+
+    <div class="form-card" [formGroup]="promotionForm">
+      <!-- Additional Information Tab -->
+      <div *ngIf="activeTab === 'personal'" class="tab-content active">
+        <div class="section">
+          <h2 class="section-title">General Information</h2>
+
+          <div class="credit-cards-section">
+            <h3 class="credit-card-title">Credit Cards</h3>
+
+            <div class="credit-card-question">
+              <label>Does this employee need a Kwik Trip Credit Card? *</label>
+              <div class="radio-group">
+                <div class="radio-option">
+                  <input type="radio" id="kwikTripYes" formControlName="kwikTripCard" value="yes">
+                  <label for="kwikTripYes" class="radio-label">Yes</label>
+                </div>
+                <div class="radio-option">
+                  <input type="radio" id="kwikTripNo" formControlName="kwikTripCard" value="no">
+                  <label for="kwikTripNo" class="radio-label">No</label>
+                </div>
+              </div>
+              <div *ngIf="isFieldInvalid('kwikTripCard')" class="error-message">
+                {{ getFieldError('kwikTripCard') }}
+              </div>
+            </div>
+
+            <div class="credit-card-question">
+              <label>Does this employee need a Company Expense Card? *</label>
+              <div class="radio-group">
+                <div class="radio-option">
+                  <input type="radio" id="companyExpenseYes" formControlName="companyExpenseCard" value="yes" (change)="onCompanyExpenseCardChange()">
+                  <label for="companyExpenseYes" class="radio-label">Yes</label>
+                </div>
+                <div class="radio-option">
+                  <input type="radio" id="companyExpenseNo" formControlName="companyExpenseCard" value="no" (change)="onCompanyExpenseCardChange()">
+                  <label for="companyExpenseNo" class="radio-label">No</label>
+                </div>
+              </div>
+              <div *ngIf="isFieldInvalid('companyExpenseCard')" class="error-message">
+                {{ getFieldError('companyExpenseCard') }}
+              </div>
+            </div>
+
+            <!-- Conditional Company Credit Card Fields -->
+            <div *ngIf="promotionForm.get('companyExpenseCard')?.value === 'yes'">
+              <div class="credit-card-question" style="margin-left: 30px;">
+                <div class="radio-group">
+                  <div class="radio-option">
+                    <input type="radio" id="creditExpenseFuelOnly" formControlName="creditExpenseType" value="Fuel Only">
+                    <label for="creditExpenseFuelOnly" class="radio-label">Fuel Only</label>
+                  </div>
+                  <div class="radio-option">
+                    <input type="radio" id="creditExpenseOpenAll" formControlName="creditExpenseType" value="Open for all business purchases">
+                    <label for="creditExpenseOpenAll" class="radio-label">Open for all business purchases</label>
+                  </div>
+                </div>
+              </div>
+
+              <div class="credit-card-question" style="margin-left: 30px;">
+                <label for="weeklyLimit">Company Credit Card Weekly Limit</label>
+                <input type="number" id="weeklyLimit" formControlName="weeklyLimit" class="monetary-input" step="0.01" min="0" placeholder="0.00">
+              </div>
+            </div>
+
+            <div class="credit-card-question">
+              <label>Fuel Cardlock Access *</label>
+              <div class="radio-group">
+                <div class="radio-option">
+                  <input type="radio" id="fuelCardlockYes" formControlName="fuelCardlockAccess" value="yes" (change)="onFuelCardlockAccessChange()">
+                  <label for="fuelCardlockYes" class="radio-label">Yes</label>
+                </div>
+                <div class="radio-option">
+                  <input type="radio" id="fuelCardlockNo" formControlName="fuelCardlockAccess" value="no" (change)="onFuelCardlockAccessChange()">
+                  <label for="fuelCardlockNo" class="radio-label">No</label>
+                </div>
+              </div>
+              <div *ngIf="isFieldInvalid('fuelCardlockAccess')" class="error-message">
+                {{ getFieldError('fuelCardlockAccess') }}
+              </div>
+            </div>
+
+            <div class="credit-card-question" *ngIf="promotionForm.get('fuelCardlockAccess')?.value === 'yes'" style="margin-left: 30px;">
+              <label for="cardlockShipAddress">Cardlock - ship address</label>
+              <input type="text" id="cardlockShipAddress" formControlName="cardlockShipAddress" placeholder="Enter shipping address">
+            </div>
+
+            <h3 class="credit-card-title">Company Vehicles Details</h3>
+
+            <div [formGroupName]="'vehicleInfo'">
+              <div class="credit-card-question">
+                <label>Approved to Operate Company Vehicle *</label>
+                <div class="radio-group">
+                  <div class="radio-option">
+                    <input type="radio" id="vehicleYes" formControlName="approvedVehicle" value="yes" (change)="onCompanyVehicleApprovedChange()">
+                    <label for="vehicleYes" class="radio-label">Yes</label>
+                  </div>
+                  <div class="radio-option">
+                    <input type="radio" id="vehicleNo" formControlName="approvedVehicle" value="no" (change)="onCompanyVehicleApprovedChange()">
+                    <label for="vehicleNo" class="radio-label">No</label>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Conditional Vehicle Fields -->
+              <div *ngIf="showVehicleFields">
+                <div class="credit-card-question" style="margin-left: 30px;">
+                  <label>Driver Classification</label>
+                  <app-searchable-dropdown
+                    *ngIf="!isEditMode"
+                    [items]="employeeLicenseClassesForDropdown"
+                    [config]="employeeLicenseClassDropdownConfig"
+                    formControlName="driverClassification">
+                  </app-searchable-dropdown>
+                  <input
+                    *ngIf="isEditMode"
+                    type="text"
+                    class="readonly-input"
+                    [value]="getDriverClassificationDisplay()"
+                    readonly
+                    disabled>
+                </div>
+
+                <div class="credit-card-question" style="margin-left: 30px;">
+                  <label>Drug & Alcohol Profile</label>
+                  <div class="radio-group">
+                    <div class="radio-option">
+                      <input type="radio" id="dotDrugPool" formControlName="drugAlcoholProfile" value="DOT Drug Pool">
+                      <label for="dotDrugPool" class="radio-label">DOT Drug Pool</label>
+                    </div>
+                    <div class="radio-option">
+                      <input type="radio" id="wiPrevailingWage" formControlName="drugAlcoholProfile" value="WI Prevailing Wage Pool">
+                      <label for="wiPrevailingWage" class="radio-label">WI Prevailing Wage Pool</label>
+                    </div>
+                    <div class="radio-option">
+                      <input type="radio" id="noTesting" formControlName="drugAlcoholProfile" value="No Testing">
+                      <label for="noTesting" class="radio-label">No Testing</label>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="credit-card-question" style="margin-left: 30px;">
+                  <label>Do You Need a Company Car</label>
+                  <div class="radio-group">
+                    <div class="radio-option">
+                      <input type="radio" id="companyCarYes" formControlName="companyCarNeeded" value="yes">
+                      <label for="companyCarYes" class="radio-label">Yes</label>
+                    </div>
+                    <div class="radio-option">
+                      <input type="radio" id="companyCarNo" formControlName="companyCarNeeded" value="no">
+                      <label for="companyCarNo" class="radio-label">No</label>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="credit-card-question" style="margin-left: 30px;">
+                  <label>Is Application Part 2 Complete</label>
+                  <div class="radio-group">
+                    <div class="radio-option">
+                      <input type="radio" id="appPart2Yes" formControlName="applicationPart2" value="yes">
+                      <label for="appPart2Yes" class="radio-label">Yes</label>
+                    </div>
+                    <div class="radio-option">
+                      <input type="radio" id="appPart2No" formControlName="applicationPart2" value="no">
+                      <label for="appPart2No" class="radio-label">No</label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Building Access Section -->
+        <div *ngIf="showConditionalSections && selectedEmployee" class="section">
+          <h2 class="section-title">Building Access</h2>
+
+          <div class="credit-cards-section">
+            <h3 class="credit-card-title">Building Access Requirements (Key Fob)</h3>
+
+            <div class="credit-card-question" formArrayName="buildingAccess">
+              <div class="building-access-grid" *ngIf="availableBuildingAccess.length > 0">
+                <div *ngFor="let column of buildingAccessColumns; let colIndex = index" class="building-access-column">
+                  <div *ngFor="let item of column; let itemIndex = index" class="building-access-item">
+                    <input
+                      type="checkbox"
+                      [id]="'buildingAccess' + getItemFormIndex(colIndex, itemIndex)"
+                      [formControlName]="getItemFormIndex(colIndex, itemIndex)"
+                      (change)="onBuildingAccessChange(colIndex, itemIndex, $event)"
+                      class="building-access-checkbox">
+                    <label
+                      [for]="'buildingAccess' + getItemFormIndex(colIndex, itemIndex)"
+                      class="building-access-label">
+                      {{item}}
+                    </label>
+                  </div>
+                </div>
+              </div>
+              <div *ngIf="availableBuildingAccess.length === 0" class="no-building-access">
+                <p>No building access options available for the selected company.</p>
+              </div>
+            </div>
+
+            <!-- Use Existing Key Fob -->
+            <div class="building-access-item use-existing-keyfob-row">
+              <input
+                type="checkbox"
+                id="useExistingKeyFob"
+                formControlName="useExistingKeyFob"
+                (change)="onUseExistingKeyFobChange($event)"
+                class="building-access-checkbox">
+              <label for="useExistingKeyFob" class="building-access-label">
+                Will use existing key fob; needs to be reprogrammed
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- IT Related Information Tab -->
+      <div *ngIf="activeTab === 'it'" class="tab-content active">
+
+        <!-- Other Info Section - Always visible -->
+        <div class="section" formGroupName="itInfo" id="other-info-section">
+          <h2 class="section-title">Other Info</h2>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Does Employee Require an Email Address</label>
+              <div class="radio-group">
+                <div class="radio-option">
+                  <input type="radio" id="emailRequiredYes" formControlName="emailRequired" value="yes">
+                  <label for="emailRequiredYes" class="radio-label">Yes</label>
+                </div>
+                <div class="radio-option">
+                  <input type="radio" id="emailRequiredNo" formControlName="emailRequired" value="no">
+                  <label for="emailRequiredNo" class="radio-label">No</label>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Microsoft Office License Section - Only visible when email is required -->
+          <div class="form-row" *ngIf="isEmailRequired">
+            <div class="form-group">
+              <label>Microsoft Office License</label>
+              <div class="microsoft-license-options">
+                <div class="license-option">
+                  <input type="radio" id="e5License" formControlName="microsoftLicense" value="e5">
+                  <label for="e5License" class="license-label">
+                    Microsoft Office Desktop (E5) License (Word, Excel, Powerpoint, etc, are INSTALLED on the user's computer) Cost is $428 per year.
+                  </label>
+                </div>
+                <div class="license-option">
+                  <input type="radio" id="f3License" formControlName="microsoftLicense" value="f3">
+                  <label for="f3License" class="license-label">
+                    Microsoft Office Web (F3) License (Word, Excel, Powerpoint, etc, will ONLY be available via Web Browser) Cost is $96 per year.
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-row" *ngIf="isEmailRequired">
+            <div class="form-group half">
+              <label for="emailAddress">Email Address</label>
+              <input type="text" id="emailAddress" formControlName="emailAddress" readonly>
+            </div>
+          </div>
+        </div>
+
+        <!-- IT Hardware Section -->
+        <div class="section" formGroupName="itInfo">
+          <h2 class="section-title">IT Hardware</h2>
+
+          <div class="credit-cards-section">
+            <h3 class="credit-card-title">Phone Requirements</h3>
+
+            <div class="credit-card-question">
+              <label class="phone-types-label">Phone Types</label>
+              <div class="phone-types-list" formArrayName="phoneTypes">
+                <div class="phone-type-item">
+                  <input type="checkbox" id="deskPhone" [formControlName]="0">
+                  <label for="deskPhone" class="phone-type-label">Desk Phone</label>
+                </div>
+                <div class="phone-type-item">
+                  <input type="checkbox" id="companyCellPhone" [formControlName]="1">
+                  <label for="companyCellPhone" class="phone-type-label">Company Cell Phone</label>
+                </div>
+                <div class="phone-type-item">
+                  <input type="checkbox" id="byodCellPhone" [formControlName]="2">
+                  <label for="byodCellPhone" class="phone-type-label">BYOD Cell Phone</label>
+                </div>
+              </div>
+            </div>
+
+            <div class="credit-card-question" *ngIf="isDeskPhoneSelected && isEcmAdmin">
+              <div class="form-row">
+                <div class="form-group half">
+                  <label for="workPhoneNumber">Work Phone Number (to be completed by IT)</label>
+                  <input type="text" id="workPhoneNumber" formControlName="workPhoneNumber" placeholder="Phone number will be assigned by IT">
+                </div>
+                <div class="form-group half">
+                  <label for="workExtension">Work Extension (to be completed by IT)</label>
+                  <input type="text" id="workExtension" formControlName="workExtension" placeholder="Extension will be assigned by IT">
+                </div>
+              </div>
+            </div>
+
+            <div class="credit-card-question" *ngIf="isDeskPhoneSelected">
+              <label>Reusing Existing Desk Phone?</label>
+              <div class="radio-group">
+                <div class="radio-option">
+                  <input type="radio" id="reusingPhoneYes" formControlName="reusingPhone" value="yes">
+                  <label for="reusingPhoneYes" class="radio-label">Yes</label>
+                </div>
+                <div class="radio-option">
+                  <input type="radio" id="reusingPhoneNo" formControlName="reusingPhone" value="no">
+                  <label for="reusingPhoneNo" class="radio-label">No</label>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="credit-cards-section" id="computer-requirements-section">
+            <h3 class="credit-card-title">Computer Requirements</h3>
+
+            <div class="credit-card-question">
+              <label class="computer-equipment-label">Computer Equipment</label>
+
+              <!-- Loading State -->
+              <div *ngIf="isLoading" style="padding: 20px; text-align: center; color: #666;">
+                Loading computer requirements...
+              </div>
+
+              <!-- No Data State -->
+              <div *ngIf="!isLoading && parentComputerRequirements.length === 0" style="padding: 20px; color: #666;">
+                No computer requirements available.
+              </div>
+
+              <!-- Computer Requirements List -->
+              <div *ngIf="!isLoading && parentComputerRequirements.length > 0" class="computer-equipment-list">
+                <!-- None Option (Always First) -->
+                <div class="computer-equipment-section">
+                  <div class="computer-equipment-item">
+                    <input
+                      type="radio"
+                      name="computerEquipment"
+                      id="requirement-none"
+                      formControlName="computerEquipment"
+                      value="none"
+                      [checked]="isComputerEquipmentNoneSelected()">
+                    <label
+                      for="requirement-none"
+                      class="computer-equipment-label-item">
+                      None
+                    </label>
+                  </div>
+                </div>
+
+                <!-- Parent Computer Requirements (Radio Buttons) -->
+                <div *ngFor="let requirement of parentComputerRequirements; let i = index" class="computer-equipment-section">
+                  <div class="computer-equipment-item">
+                    <input
+                      type="radio"
+                      name="computerEquipment"
+                      [id]="'requirement-' + requirement.id"
+                      formControlName="computerEquipment"
+                      [value]="requirement.id"
+                      [checked]="isParentSelected(requirement.id)"
+                      (change)="onParentComputerRequirementChange(requirement)">
+                    <label
+                      [for]="'requirement-' + requirement.id"
+                      class="computer-equipment-label-item">
+                      {{requirement.description}}
+                    </label>
+                  </div>
+
+                  <!-- Child Computer Requirements (shown conditionally) -->
+                  <div
+                    *ngIf="isParentSelected(requirement.id)"
+                    class="child-requirements"
+                    style="margin-left: 30px; margin-top: 10px;">
+                    <div *ngFor="let childReq of getChildRequirements(requirement.id); let j = index"
+                         class="computer-equipment-item">
+                      <input
+                        type="checkbox"
+                        [id]="'child-' + childReq.id"
+                        [checked]="getChildControlValue(requirement.id, childReq.id)"
+                        [disabled]="isEditMode"
+                        (change)="onChildComputerRequirementChange($event, requirement.id, childReq.id)">
+                      <label
+                        [for]="'child-' + childReq.id"
+                        class="computer-equipment-label-item">
+                        {{childReq.description}}
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+        <!-- Tablet Profile Section -->
+        <div class="credit-cards-section" [formGroup]="itInfoFormGroup">
+          <h3 class="credit-card-title">Tablet Profile</h3>
+
+          <div class="credit-card-question">
+            <label style="margin-bottom: 15px; font-weight: 600;">Roles Required For New Hires *</label>
+            <div style="margin-left: 20px;">
+              <!-- Main Radio Button Group -->
+              <div style="margin-bottom: 15px;" *ngFor="let role of availableRoles">
+                <div style="display: flex; align-items: center; margin-bottom: 8px;">
+                  <input
+                    type="radio"
+                    [id]="getRoleId(role.value)"
+                    formControlName="rolesRequiredNewHires"
+                    [value]="role.value"
+                    required
+                    style="margin-right: 8px;">
+                  <label
+                    [for]="getRoleId(role.value)"
+                    style="font-weight: 500; cursor: pointer; margin-bottom: 0;">
+                    {{role.label}}
+                  </label>
+                </div>
+
+                <!-- Role textbox hidden per requirements -->
+              </div>
+
+              <!-- Empty State Message -->
+              <div *ngIf="availableRoles.length === 0" class="no-building-access">
+                <p>No Tablet Profile available for the selected company.</p>
+              </div>
+            </div>
+
+            <!-- Validation Error Display -->
+            <div *ngIf="isFieldInvalid('itInfo.rolesRequiredNewHires')" class="error-message">
+              {{getFieldError('itInfo.rolesRequiredNewHires')}}
+            </div>
+          </div>
+
+          <!-- Delivery Location Section -->
+          <div class="form-row">
+            <div class="form-group">
+              <label class="delivery-label">
+                <span>All items will be delivered to</span>
+                <span class="selected-location">{{selectedPhysicalLocation}}</span>
+                <span>unless noted here:</span>
+                <input type="text" formControlName="deliveryNote" placeholder="Enter alternative delivery location" class="delivery-note-input">
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Application/Software Section -->
+        <div class="section">
+          <h2 class="section-title">Application/Software</h2>
+
+          <div formArrayName="applicationSoftware">
+            <div *ngFor="let item of applicationSoftwareArray.controls; let i = index; let last = last"
+                 class="form-row application-software-row"
+                 [formGroupName]="i">
+              <div class="form-group">
+                <label [for]="'applicationSoftware_' + i">Application/Software</label>
+                <app-searchable-dropdown
+                  [items]="applicationsForDropdown"
+                  [config]="applicationDropdownConfig"
+                  formControlName="applicationSoftware"
+                  [class.error]="isFieldInvalid('applicationSoftware.' + i + '.applicationSoftware')">
+                </app-searchable-dropdown>
+              </div>
+              <div class="form-group">
+                <label [for]="'applicationAccessNote_' + i">Application/Software Access Note</label>
+                <div class="input-with-buttons">
+                  <input
+                    type="text"
+                    [id]="'applicationAccessNote_' + i"
+                    formControlName="applicationAccessNote"
+                    class="flex-input">
+                  <button type="button" class="icon-btn add-btn" (click)="addApplicationRow()" [disabled]="isEditMode" [style.display]="!isEditMode && last ? 'flex' : 'none'" title="Add row">
+                    <svg viewBox="0 0 24 24">
+                      <path d="M12 5V19M5 12H19"/>
+                    </svg>
+                  </button>
+                  <button
+                    type="button"
+                    class="icon-btn remove-btn"
+                    (click)="removeApplicationRow(i)"
+                    [disabled]="isEditMode"
+                    [style.display]="!isEditMode && applicationSoftwareArray.length > 1 ? 'flex' : 'none'"
+                    title="Remove row">
+                    <svg viewBox="0 0 24 24">
+                      <path d="M18 6L6 18M6 6L18 18"/>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Folder/Sharepoint/Mailbox Section -->
+        <div class="section">
+          <h2 class="section-title">Folder/Sharepoint/Mailbox</h2>
+
+          <div formArrayName="folderSharepoint">
+            <div *ngFor="let item of folderSharepointArray.controls; let i = index; let last = last"
+                 class="form-row folder-sharepoint-row"
+                 [formGroupName]="i">
+              <div class="form-group">
+                <label [for]="'type_' + i">Type</label>
+                <select [id]="'type_' + i" formControlName="type">
+                  <option value="">Please select...</option>
+                  <option value="Folder">Folder</option>
+                  <option value="Sharepoint">Sharepoint</option>
+                  <option value="Mailbox">Mailbox</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label [for]="'folderSharepointMailbox_' + i">Folder/Sharepoint/Mailbox</label>
+                <div class="input-with-buttons">
+                  <input
+                    type="text"
+                    [id]="'folderSharepointMailbox_' + i"
+                    formControlName="folderSharepointMailbox"
+                    class="flex-input">
+                  <button type="button" class="icon-btn add-btn" (click)="addFolderSharepointRow()" [disabled]="isEditMode" [style.display]="!isEditMode && last ? 'flex' : 'none'" title="Add row">
+                    <svg viewBox="0 0 24 24">
+                      <path d="M12 5V19M5 12H19"/>
+                    </svg>
+                  </button>
+                  <button
+                    type="button"
+                    class="icon-btn remove-btn"
+                    (click)="removeFolderSharepointRow(i)"
+                    [disabled]="isEditMode"
+                    [style.display]="!isEditMode && folderSharepointArray.length > 1 ? 'flex' : 'none'"
+                    title="Remove row">
+                    <svg viewBox="0 0 24 24">
+                      <path d="M18 6L6 18M6 6L18 18"/>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Form Actions -->
+  <!-- Show cancel request and back to homepage buttons when in edit mode -->
+  <div class="form-actions" *ngIf="isEditMode && showPositionComparison" style="justify-content: flex-end; gap: 12px;">
+    <button
+      *ngIf="canUpdateDate"
+      type="button"
+      class="btn btn-primary"
+      (click)="updateEffectiveDate()"
+      [disabled]="isUpdatingDate || formData.effectiveDate === originalEffectiveDate">
+      <span *ngIf="isUpdatingDate">Updating...</span>
+      <span *ngIf="!isUpdatingDate">Update Date</span>
+    </button>
+    <app-cancel-request-button
+      [parentId]="parentId"
+      [isEditMode]="isEditMode"
+      [isCancelledRequest]="isCancelledRequest"
+      [requestStatusId]="requestStatusId"
+      [requestType]="'promotion request'"
+      (cancelled)="onRequestCancelled()">
+    </app-cancel-request-button>
+    <app-back-to-homepage-button
+      *ngIf="!canUpdateDate"
+      [showButton]="isEditMode"
+      [parentId]="parentId">
+    </app-back-to-homepage-button>
+  </div>
+
+  <!-- Normal action buttons when not in edit mode -->
+  <div class="form-actions" *ngIf="!isEditMode && showPositionComparison">
+    <button class="btn btn-secondary" (click)="cancelForm()">Cancel</button>
+    <button class="btn btn-primary" (click)="submitForm()" [disabled]="!isFormValid || isSaving">
+      {{ isSaving ? 'Submitting...' : 'Submit' }}
+    </button>
+  </div>
+
+  <!-- IT Tab Review Confirmation Dialog -->
+  <app-confirmation-dialog
+    [show]="showITTabReviewDialog"
+    [config]="itTabReviewDialogConfig"
+    (confirmed)="onITTabReviewConfirmed()"
+    (cancelled)="onITTabReviewCancelled()"
+    (closed)="onITTabReviewDialogClosed()">
+  </app-confirmation-dialog>
+
+  <!-- Computer Requirements Confirmation Dialog -->
+  <app-confirmation-dialog
+    [show]="showComputerRequirementsDialog"
+    [config]="computerRequirementsDialogConfig"
+    (confirmed)="onComputerRequirementsConfirmed()"
+    (cancelled)="onComputerRequirementsCancelled()"
+    (closed)="onComputerRequirementsDialogClosed()">
+  </app-confirmation-dialog>
+</div>

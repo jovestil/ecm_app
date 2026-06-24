@@ -1,0 +1,207 @@
+<app-header></app-header>
+
+<div class="container">
+  <div class="header">
+    <button class="back-btn" (click)="goBack()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M19 12H5M12 19l-7-7 7-7"/>
+      </svg>
+      Back
+    </button>
+    <h1>Termination Request</h1>
+  </div>
+
+  <div class="warning-banner" [class.cancelled-banner]="isCancelledRequest" *ngIf="!canUpdateDate">
+    <svg class="warning-icon" [class.cancelled-icon]="isCancelledRequest" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" *ngIf="!isCancelledRequest"/>
+      <line x1="12" y1="9" x2="12" y2="13" *ngIf="!isCancelledRequest"/>
+      <line x1="12" y1="17" x2="12.01" y2="17" *ngIf="!isCancelledRequest"/>
+      <circle cx="12" cy="12" r="10" *ngIf="isCancelledRequest"/>
+      <line x1="12" y1="8" x2="12" y2="12" *ngIf="isCancelledRequest"/>
+      <line x1="12" y1="16" x2="12.01" y2="16" *ngIf="isCancelledRequest"/>
+    </svg>
+    <div>
+      <strong *ngIf="!isCancelledRequest">Important:</strong>
+      <strong *ngIf="isCancelledRequest">Cancelled:</strong>
+      <span *ngIf="!isCancelledRequest">This action will initiate termination procedures for the selected employee. Please ensure all information is accurate before submitting.</span>
+      <span *ngIf="isCancelledRequest">This Termination Request has been cancelled.</span>
+    </div>
+  </div>
+
+  <div class="info-banner edit-banner" *ngIf="canUpdateDate">
+    <svg class="info-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/>
+    </svg>
+    <div>
+      <strong>Edit:</strong> You may update the Last Day of Employment date.
+    </div>
+  </div>
+
+  <div class="form-card">
+    <div class="form-section">
+      <div class="section-title">
+        <span *ngIf="!isEditMode">Select Employee</span>
+        <span *ngIf="isEditMode">Employee from Request</span>
+      </div>
+      
+      <app-single-employee-search
+        *ngIf="!isEditMode"
+        [config]="searchConfig"
+        [searchService]="searchService"
+        [selectedEmployee]="selectedEmployee"
+        selectionHeader="Selected for Termination:"
+        (employeeSelected)="onEmployeeSelected($event)"
+        (employeeCleared)="onEmployeeCleared()">
+      </app-single-employee-search>
+
+      <!-- Show selected employee in edit mode -->
+      <div *ngIf="isEditMode && selectedEmployee" class="selected-employee-display">
+        <div class="employee-card">
+          <div class="employee-info">
+            <strong>{{ selectedEmployee.name }}</strong>
+            <span style="color: #64748b; margin-left: 8px;">{{ selectedEmployee.title }} • {{ selectedEmployee.division }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-section">
+      <div class="section-title">Termination Details</div>
+      
+      <div class="form-row">
+        <div class="form-group">
+          <label for="reason" class="required">Reason for Termination</label>
+          <app-searchable-dropdown
+            [items]="terminationReasons"
+            [config]="terminationReasonConfig"
+            [required]="true"
+            [disabled]="isEditMode"
+            [(ngModel)]="reason">
+          </app-searchable-dropdown>
+        </div>
+        <div class="form-group">
+          <label for="effectiveDate" class="required">Last Day of Employment</label>
+          <input type="date" id="effectiveDate" [(ngModel)]="effectiveDate" [disabled]="isEditMode && !canUpdateDate" required>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="form-section">
+      <div class="form-row">
+        <div class="form-group">
+          <label for="forwardEmail">Forward Email for 60 Days to</label>
+          <input type="text" id="forwardEmail" [(ngModel)]="forwardEmail" [disabled]="isEditMode" placeholder="email@company.com">
+          <div class="field-description">Email address to forward terminated employee's emails</div>
+        </div>
+        <div class="form-group">
+          <label for="forwardDeskPhone">Forward Desk Phone to</label>
+          <input type="text" id="forwardDeskPhone" [(ngModel)]="forwardDeskPhone" [disabled]="isEditMode" placeholder="(555) 123-4567">
+          <div class="field-description">Phone number to forward desk phone calls</div>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="forwardCellPhone">Forward Cell Phone for 30 Days to</label>
+          <input type="text" id="forwardCellPhone" [(ngModel)]="forwardCellPhone" [disabled]="isEditMode" placeholder="(555) 123-4567">
+          <div class="field-description">Phone number to forward cell phone calls</div>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="oneDriveAccess">Give OneDrive Access to</label>
+          <input type="text" id="oneDriveAccess" [(ngModel)]="oneDriveAccess" [disabled]="isEditMode" placeholder="Employee who should be given OneDrive access">
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group full-width">
+          <label for="autoReply">Automatic Email Reply</label>
+          <div class="field-description">Auto-reply message for the terminated employee's email</div>
+          <textarea id="autoReply" [(ngModel)]="autoReply" [disabled]="isEditMode"
+                    placeholder="Thank you for your email. [Employee Name] is no longer with the company. For immediate assistance, please contact..."></textarea>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group full-width">
+          <div class="section-title">The IT Service Center will be contacting the employee's manager for any equipment that needs to be returned to IT.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-section">
+      <div class="form-group full-width">
+        <label>Does the employee hold a company Kwik Trip card? The Kwik Trip credit card program allows our organization a limited number of cards. It is important to collect card for redistribution.</label>
+        <div class="radio-group">
+          <div class="radio-option">
+            <input type="radio" id="kwikTripYes" name="withKwikTripCard" [value]="true" [(ngModel)]="withKwikTripCard" [disabled]="isEditMode">
+            <label for="kwikTripYes">Yes</label>
+          </div>
+          <div class="radio-option">
+            <input type="radio" id="kwikTripNo" name="withKwikTripCard" [value]="false" [(ngModel)]="withKwikTripCard" [disabled]="isEditMode">
+            <label for="kwikTripNo">No</label>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-row" *ngIf="withKwikTripCard">
+        <div class="form-group">
+          <label for="kwikCard4DigitNo">What are the last four digits of the card:</label>
+          <input type="text" id="kwikCard4DigitNo" [(ngModel)]="kwikCard4DigitNo" [disabled]="isEditMode" placeholder="e.g. 1234" maxlength="4">
+        </div>
+        <div class="form-group"></div>
+      </div>
+    </div>
+
+    <div class="form-section">
+      <div class="section-title">Additional Information</div>
+      
+      <div class="form-row">
+        <div class="form-group full-width">
+          <label for="notes">Notes</label>
+          <textarea id="notes" [(ngModel)]="notes" [disabled]="isEditMode" placeholder="Additional details about the termination..."></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- Create Mode Actions -->
+    <div class="form-actions" *ngIf="!isEditMode">
+      <button class="btn btn-secondary" (click)="goBack()">Cancel</button>
+      <button class="btn btn-primary"
+              [disabled]="!isFormValid() || isSubmitting"
+              (click)="submitTermination()">
+        {{ isSubmitting ? 'Submitting...' : 'Submit Termination Request' }}
+      </button>
+    </div>
+
+    <!-- Edit Mode Actions -->
+    <div class="form-actions" *ngIf="isEditMode" style="justify-content: flex-end; gap: 12px;">
+      <button
+        *ngIf="canUpdateDate"
+        type="button"
+        class="btn btn-primary"
+        (click)="updateEffectiveDate()"
+        [disabled]="isUpdatingDate || effectiveDate === originalEffectiveDate">
+        <span *ngIf="isUpdatingDate">Updating...</span>
+        <span *ngIf="!isUpdatingDate">Update Date</span>
+      </button>
+      <app-cancel-request-button
+        [parentId]="parentId"
+        [isEditMode]="isEditMode"
+        [isCancelledRequest]="isCancelledRequest"
+        [requestStatusId]="requestStatusId"
+        [requestType]="'termination request'"
+        (cancelled)="onRequestCancelled()">
+      </app-cancel-request-button>
+      <app-back-to-homepage-button
+        *ngIf="!canUpdateDate"
+        [showButton]="isEditMode"
+        [parentId]="parentId">
+      </app-back-to-homepage-button>
+    </div>
+  </div>
+</div>
+

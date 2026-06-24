@@ -1,0 +1,252 @@
+<div class="template-builder">
+  <div class="builder-header">
+    <h3>New Hire Email Template Builder</h3>
+    <p class="builder-subtitle">Fill in the information below to generate a professional HTML email template</p>
+  </div>
+
+  <form [formGroup]="templateForm">
+    <div class="form-grid">
+      <!-- Start Date -->
+      <div class="form-field">
+        <label for="startDate">
+          Start Date (First Day of Employment) <span class="required">*</span>
+        </label>
+        <input
+          type="date"
+          id="startDate"
+          formControlName="startDate"
+          [class.error]="isFieldInvalid('startDate')"
+        />
+        <div *ngIf="isFieldInvalid('startDate')" class="error-message">
+          {{ getFieldError('startDate') }}
+        </div>
+      </div>
+
+      <!-- New Employee Name -->
+      <div class="form-field">
+        <label for="newEmployeeName">
+          New Employee Name <span class="required">*</span>
+        </label>
+        <input
+          type="text"
+          id="newEmployeeName"
+          formControlName="newEmployeeName"
+          [class.error]="isFieldInvalid('newEmployeeName')"
+          placeholder="e.g., John Doe"
+        />
+        <div *ngIf="isFieldInvalid('newEmployeeName')" class="error-message">
+          {{ getFieldError('newEmployeeName') }}
+        </div>
+      </div>
+
+      <!-- Company -->
+      <div class="form-field">
+        <label for="company">
+          Company <span class="required">*</span>
+        </label>
+        <input
+          type="text"
+          id="company"
+          formControlName="company"
+          [class.error]="isFieldInvalid('company')"
+          placeholder="e.g., Mathy Construction Company"
+        />
+        <div *ngIf="isFieldInvalid('company')" class="error-message">
+          {{ getFieldError('company') }}
+        </div>
+      </div>
+
+      <!-- Division -->
+      <div class="form-field">
+        <label for="division">
+          Division <span class="required">*</span>
+        </label>
+        <input
+          type="text"
+          id="division"
+          formControlName="division"
+          [class.error]="isFieldInvalid('division')"
+          placeholder="e.g., Main Office - Minneapolis"
+        />
+        <div *ngIf="isFieldInvalid('division')" class="error-message">
+          {{ getFieldError('division') }}
+        </div>
+      </div>
+
+      <!-- Position -->
+      <div class="form-field">
+        <label for="position">
+          Position <span class="required">*</span>
+        </label>
+        <input
+          type="text"
+          id="position"
+          formControlName="position"
+          [class.error]="isFieldInvalid('position')"
+          placeholder="e.g., Project Manager"
+        />
+        <div *ngIf="isFieldInvalid('position')" class="error-message">
+          {{ getFieldError('position') }}
+        </div>
+      </div>
+
+      <!-- Hourly/Salaried -->
+      <div class="form-field">
+        <label for="salaryCode">
+          Hourly/Salaried <span class="required">*</span>
+        </label>
+        <select
+          id="salaryCode"
+          formControlName="salaryCode"
+          [class.error]="isFieldInvalid('salaryCode')"
+        >
+          <option value="Hourly">Hourly</option>
+          <option value="Salaried">Salaried</option>
+        </select>
+        <div *ngIf="isFieldInvalid('salaryCode')" class="error-message">
+          {{ getFieldError('salaryCode') }}
+        </div>
+      </div>
+
+      <!-- Request Created By -->
+      <div class="form-field">
+        <label for="requestCreatedBy">
+          Request Created By <span class="required">*</span>
+        </label>
+        <input
+          type="text"
+          id="requestCreatedBy"
+          formControlName="requestCreatedBy"
+          [class.error]="isFieldInvalid('requestCreatedBy')"
+          placeholder="e.g., Jane Smith (HR Manager)"
+        />
+        <div *ngIf="isFieldInvalid('requestCreatedBy')" class="error-message">
+          {{ getFieldError('requestCreatedBy') }}
+        </div>
+      </div>
+
+      <!-- Employment Status -->
+      <div class="form-field">
+        <label for="employmentStatus">
+          Employment Status <span class="required">*</span>
+        </label>
+        <select
+          id="employmentStatus"
+          formControlName="employmentStatus"
+          [class.error]="isFieldInvalid('employmentStatus')"
+        >
+          <option value="Full-Time">Full-Time</option>
+          <option value="Part-Time">Part-Time</option>
+          <option value="Contract">Contract</option>
+          <option value="Temporary">Temporary</option>
+          <option value="Seasonal">Seasonal</option>
+        </select>
+        <div *ngIf="isFieldInvalid('employmentStatus')" class="error-message">
+          {{ getFieldError('employmentStatus') }}
+        </div>
+      </div>
+
+      <!-- BYOD -->
+      <div class="form-field">
+        <label for="byod">
+          BYOD (Bring Your Own Device) <span class="required">*</span>
+        </label>
+        <select
+          id="byod"
+          formControlName="byod"
+          [class.error]="isFieldInvalid('byod')"
+        >
+          <option value="Yes">Yes</option>
+          <option value="No">No</option>
+        </select>
+        <div *ngIf="isFieldInvalid('byod')" class="error-message">
+          {{ getFieldError('byod') }}
+        </div>
+      </div>
+
+      <!-- Rehire -->
+      <div class="form-field">
+        <label for="rehire">
+          Rehire <span class="required">*</span>
+        </label>
+        <select
+          id="rehire"
+          formControlName="rehire"
+          [class.error]="isFieldInvalid('rehire')"
+        >
+          <option value="Y">Y (Yes)</option>
+          <option value="N">N (No)</option>
+        </select>
+        <div *ngIf="isFieldInvalid('rehire')" class="error-message">
+          {{ getFieldError('rehire') }}
+        </div>
+      </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="builder-actions">
+      <button
+        type="button"
+        (click)="onClearForm()"
+        class="btn-secondary"
+      >
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="3 6 5 6 21 6"/>
+          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+        </svg>
+        Clear Form
+      </button>
+
+      <button
+        type="button"
+        (click)="onGenerateTemplate()"
+        class="btn-primary"
+      >
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+          <polyline points="7 10 12 15 17 10"/>
+          <line x1="12" y1="15" x2="12" y2="3"/>
+        </svg>
+        Generate HTML Template
+      </button>
+    </div>
+  </form>
+
+  <!-- Preview Section -->
+  <div *ngIf="showPreview && generatedHtml" class="preview-section">
+    <div class="preview-header">
+      <h4>Email Preview</h4>
+      <div class="preview-actions">
+        <button
+          type="button"
+          (click)="onCopyToClipboard()"
+          class="btn-copy"
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+          </svg>
+          Copy HTML
+        </button>
+        <button
+          type="button"
+          (click)="onUseTemplate()"
+          class="btn-use"
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="20 6 9 17 4 12"/>
+          </svg>
+          Use This Template
+        </button>
+      </div>
+    </div>
+
+    <div class="preview-container">
+      <iframe
+        [srcdoc]="generatedHtml"
+        class="email-preview"
+        sandbox="allow-same-origin"
+      ></iframe>
+    </div>
+  </div>
+</div>

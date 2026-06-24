@@ -1,0 +1,190 @@
+<app-header></app-header>
+
+<div class="container">
+  <div class="header">
+    <button class="back-btn" (click)="goBack()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M19 12H5M12 19l-7-7 7-7"/>
+      </svg>
+      Back
+    </button>
+    <h1>Return to Work Request</h1>
+  </div>
+
+  <div class="info-banner" [class.warning-banner]="isCancelledRequest" *ngIf="!canUpdateDate">
+    <svg class="info-icon" [class.warning-icon]="isCancelledRequest" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <circle cx="12" cy="12" r="10" *ngIf="!isCancelledRequest"/>
+      <path d="M8 14s1.5 2 4 2 4-2 4-2" *ngIf="!isCancelledRequest"/>
+      <line x1="9" y1="9" x2="9.01" y2="9" *ngIf="!isCancelledRequest"/>
+      <line x1="15" y1="9" x2="15.01" y2="9" *ngIf="!isCancelledRequest"/>
+      <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" *ngIf="isCancelledRequest"/>
+      <line x1="12" y1="9" x2="12" y2="13" *ngIf="isCancelledRequest"/>
+      <line x1="12" y1="17" x2="12.01" y2="17" *ngIf="isCancelledRequest"/>
+    </svg>
+    <div>
+      <strong *ngIf="!isCancelledRequest">Reinstate Employees:</strong>
+      <strong *ngIf="isCancelledRequest">Important:</strong>
+      <span *ngIf="!isCancelledRequest">This request will bring previously laid-off employees back to active status.</span>
+      <span *ngIf="isCancelledRequest">This Return to Work Request has been canceled.</span>
+    </div>
+  </div>
+
+  <div class="info-banner edit-banner" *ngIf="canUpdateDate">
+    <svg class="info-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/>
+    </svg>
+    <div>
+      <strong>Edit:</strong> You may update the First Day to Return to Work date.
+    </div>
+  </div>
+
+  <div class="form-card">
+    <div class="form-section">
+      <div class="section-title">
+        <span *ngIf="!isEditMode">Select Employees</span>
+        <span *ngIf="isEditMode">Employees from Request</span>
+      </div>
+      
+      <div class="batch-indicator">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+          <circle cx="9" cy="7" r="4"/>
+          <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
+          <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+        </svg>
+        <span *ngIf="!isEditMode">Multiple previously laid-off employees can be selected for reinstatement</span>
+        <span *ngIf="isEditMode">Viewing employees from existing return-to-work request</span>
+      </div>
+
+      <!-- Employee Search Component -->
+      <app-employee-search
+        *ngIf="!isEditMode"
+        [config]="searchConfig"
+        [disabled]="isLoading"
+        [selectedEmployees]="selectedEmployees"
+        [searchService]="returnToWorkSearchService"
+        (searchResultsChanged)="onSearchResultsChanged($event)"
+        (searchModeChanged)="onSearchModeChanged($event)"
+        (showGridChanged)="onShowGridChanged($event)"
+        (divisionSearchChanged)="onDivisionSearchChanged($event)"
+        (employeeToggled)="onEmployeeToggle($event)">
+      </app-employee-search>
+
+      <div class="selected-employees" *ngIf="selectedEmployees.length > 0">
+        <h4 style="margin-bottom: 12px;">Selected for Return to Work ({{ selectedEmployees.length }}):</h4>
+        <div
+          class="selected-employee"
+          *ngFor="let employee of selectedEmployees">
+          <div class="selected-employee-info">
+            <strong>{{ employee.name }}</strong>
+            <span style="color: #64748b; margin-left: 8px;">{{ employee.positionCode }} • {{ employee.division }}</span>
+          </div>
+          <button class="remove-btn" *ngIf="!isEditMode" (click)="removeEmployee(employee.employeeNumber)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Employee Grid Component -->
+      <app-employee-grid
+        *ngIf="!isEditMode && showEmployeeGrid"
+        [employees]="laidOffEmployees"
+        [selectedEmployees]="selectedEmployees"
+        [isLoading]="isLoading"
+        [totalCount]="totalCount"
+        [currentPage]="currentPage"
+        [pageSize]="pageSize"
+        [totalPages]="totalPages"
+        [sortConfig]="currentSort"
+        [searchQuery]="searchQuery"
+        [searchType]="searchType"
+        [searchResults]="searchResults"
+        [showSearchResults]="showSearchResults"
+        [config]="{
+          showSearch: false,
+          showPagination: true,
+          showPageSize: true,
+          allowMultiSelect: true,
+          searchModes: ['employee', 'division'],
+          defaultPageSize: 25,
+          pageSizeOptions: [10, 25, 50, 100],
+          emptyMessage: 'No laid-off employees found',
+          employeeType: 'laid-off employees'
+        }"
+        (employeeToggled)="onEmployeeToggle($event)"
+        (pageChanged)="onPageChange($event)"
+        (pageSizeChanged)="onPageSizeChange($event)"
+        (sortChanged)="onSortChange($event)"
+        (searchChanged)="onSearchChange($event)"
+        (searchModeChanged)="onSearchModeChange($event)">
+      </app-employee-grid>
+    </div>
+
+    <div class="form-section">
+      <div class="section-title" *ngIf="!isEditMode">Return to Work Details</div>
+      
+      <div class="form-row">
+        <div class="form-group" style="max-width: 250px;">
+          <label for="effectiveDate" class="required">First Day to Return to Work</label>
+          <input type="date"
+                 id="effectiveDate"
+                 [(ngModel)]="effectiveDate"
+                 [disabled]="isEditMode && !canUpdateDate"
+                 required>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group full-width">
+          <label for="notes">Notes</label>
+          <textarea id="notes" 
+                    [(ngModel)]="notes" 
+                    [disabled]="isEditMode"
+                    placeholder="Additional details about the return to work..."></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- Show back to homepage button when in edit mode (parentId present) -->
+    <div class="form-actions" *ngIf="state.isEditMode" style="justify-content: flex-end; gap: 12px;">
+      <button
+        *ngIf="canUpdateDate"
+        type="button"
+        class="btn btn-primary"
+        (click)="updateEffectiveDate()"
+        [disabled]="isUpdatingDate || effectiveDate === originalEffectiveDate">
+        <span *ngIf="isUpdatingDate">Updating...</span>
+        <span *ngIf="!isUpdatingDate">Update Date</span>
+      </button>
+      <app-cancel-request-button
+        [parentId]="state.parentId"
+        [isEditMode]="state.isEditMode"
+        [isCancelledRequest]="isCancelledRequest"
+        [requestStatusId]="requestStatusId"
+        [requestType]="'return to work request'"
+        (cancelled)="onRequestCancelled()">
+      </app-cancel-request-button>
+      <app-back-to-homepage-button
+        *ngIf="!canUpdateDate"
+        [showButton]="state.isEditMode"
+        [parentId]="state.parentId">
+      </app-back-to-homepage-button>
+    </div>
+      
+    <!-- Normal action buttons when not in edit mode -->
+    <div class="form-actions" *ngIf="!isEditMode">
+      <button class="btn btn-secondary" (click)="goBack()">Cancel</button>
+      <button class="btn btn-primary" 
+              [disabled]="!isFormValid() || isLoading" 
+              (click)="submitReturnToWork()">
+        <span *ngIf="isLoading">Submitting...</span>
+        <span *ngIf="!isLoading">Submit Return to Work Request</span>
+        <span *ngIf="selectedEmployees.length > 0 && !isLoading" style="opacity: 0.8;">({{ selectedEmployees.length }})</span>
+      </button>
+    </div>
+  </div>
+</div>
+

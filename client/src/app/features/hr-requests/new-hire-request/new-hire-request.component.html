@@ -1,0 +1,1103 @@
+<app-header></app-header>
+
+<div class="container">
+  <!-- Sticky Header Section -->
+  <div class="sticky-header-section">
+    <div class="header">
+      <button class="back-btn" (click)="goBack()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M19 12H5M12 19l-7-7 7-7"/>
+        </svg>
+        Back
+      </button>
+      <h1 *ngIf="!isEditMode">New Hire Information</h1>
+      <h1 *ngIf="isEditMode && viewData && !isDraftRequest">{{viewData.requestTitle}}</h1>
+      <h1 *ngIf="isEditMode && viewData && isDraftRequest">Edit Draft: {{viewData.requestTitle}}</h1>
+      <h1 *ngIf="isEditMode && !viewData && !isLoading">New Hire Request Details</h1>
+    </div>
+
+    <!-- Status Banner for Edit Mode -->
+    <div *ngIf="isEditMode && viewData" class="info-banner">
+      <svg class="info-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+      </svg>
+      <div>
+        <strong>Status:</strong> {{viewData.requestStatusName}} |
+        <strong>Submitted by:</strong> {{viewData.submittedByName}} |
+        <strong>Created:</strong> {{viewData.createdDate | date}}
+      </div>
+    </div>
+
+    <!-- Info Banner for Create Mode -->
+    <div *ngIf="isFormEditable && !isEditMode" class="info-banner">
+      <svg class="info-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+      </svg>
+      <div>
+        <strong>New Hire:</strong> Employee Onboarding Information.
+      </div>
+    </div>
+
+    <!-- Info Banner for Draft Edit Mode -->
+    <div *ngIf="isFormEditable && isDraftRequest" class="info-banner draft-banner">
+      <svg class="info-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+        <polyline points="14,2 14,8 20,8"/>
+        <line x1="16" y1="13" x2="8" y2="13"/>
+        <line x1="16" y1="17" x2="8" y2="17"/>
+        <polyline points="10,9 9,9 8,9"/>
+      </svg>
+      <div>
+        <strong>Draft:</strong> You are editing a draft request. You can save your changes as a draft or submit the request for processing.
+      </div>
+    </div>
+
+    <!-- Info Banner for View Mode (fully read-only) -->
+    <div *ngIf="!isFormEditable && isEditMode && !canUpdatePhoneInfo && !canUpdateDate" class="info-banner view-banner">
+      <svg class="info-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+        <circle cx="12" cy="12" r="3"/>
+      </svg>
+      <div>
+        <strong>View:</strong> Request details are in read-only mode.
+      </div>
+    </div>
+
+    <!-- Edit Banner for date editing (in-process requests) -->
+    <div *ngIf="!isFormEditable && isEditMode && canUpdateDate && !canUpdatePhoneInfo" class="info-banner edit-banner">
+      <svg class="info-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/>
+      </svg>
+      <div>
+        <strong>Edit:</strong> You may update the First Day of Employment date.
+      </div>
+    </div>
+
+    <!-- Edit Banner for ECM_ADMIN with Desk Phone -->
+    <div *ngIf="!isFormEditable && isEditMode && canUpdatePhoneInfo" class="info-banner edit-banner">
+      <svg class="info-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/>
+      </svg>
+      <div>
+        <strong>Edit:</strong> You may update the First Day of Employment date<span *ngIf="canUpdatePhoneInfo">, Work Phone Number and Extension fields under the IT Related Information tab</span>.
+      </div>
+    </div>
+
+    <!-- Warning Banner for Cancelled Requests -->
+    <div *ngIf="isEditMode && isCancelledRequest" class="warning-banner cancelled-banner">
+      <svg class="cancelled-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="10"/>
+        <line x1="12" y1="8" x2="12" y2="12"/>
+        <line x1="12" y1="16" x2="12.01" y2="16"/>
+      </svg>
+      <div>
+        <strong>Cancelled:</strong>
+        <span>This New Hire Request has been cancelled.</span>
+      </div>
+    </div>
+
+    <!-- FirstDayOfEmployment Cancellation Banner -->
+    <div *ngIf="shouldDisplayCancellationBanner()" class="action-required-banner">
+      <svg class="banner-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3.05h16.94a2 2 0 0 0 1.71-3.05L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+        <line x1="12" y1="9" x2="12" y2="13"/>
+        <line x1="12" y1="17" x2="12.01" y2="17"/>
+      </svg>
+      <div class="banner-content">
+        <span>{{ getCancellationBannerMessage() }} - Consider cancelling this request if employment has not commenced.</span>
+      </div>
+      <button class="banner-btn cancel-banner-btn" (click)="initiateCancelRequest()">
+        Cancel Request
+      </button>
+    </div>
+
+    <!-- Tabs -->
+    <div *ngIf="!isLoading && !errorMessage" class="tabs">
+      <button
+        class="tab"
+        [class.active]="activeTab === 'personal'"
+        (click)="showTab('personal')">
+        Employee Information
+      </button>
+      <button
+        class="tab"
+        [class.active]="activeTab === 'it'"
+        (click)="showTab('it')">
+        IT Related Information
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-container">
+    <div class="loading-spinner"></div>
+    <p>Loading new hire request details...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="errorMessage && !isLoading" class="error-container">
+    <div class="error-icon">⚠️</div>
+    <h3>Unable to Load Request</h3>
+    <p>{{errorMessage}}</p>
+    <button class="retry-btn" (click)="loadExistingRequest()">Try Again</button>
+  </div>
+
+  <!-- Content -->
+  <div *ngIf="!isLoading && !errorMessage">
+    <form [formGroup]="newHireForm" (ngSubmit)="onSubmit()" class="form-card">
+    
+    <!-- Personal Information Tab -->
+    <div *ngIf="activeTab === 'personal'" class="tab-content active">
+      
+      <!-- Personal Information Section -->
+      <div class="section" formGroupName="personalInfo">
+        <h2 class="section-title">Personal Information</h2>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label for="firstName">First Name (Legal) *</label>
+            <input
+              type="text"
+              id="firstName"
+              formControlName="firstName"
+              [class.error]="isFieldInvalid('personalInfo.firstName')">
+            <div *ngIf="isFieldInvalid('personalInfo.firstName')" class="error-message">
+              {{getFieldError('personalInfo.firstName')}}
+            </div>
+          </div>
+          <div class="form-group name-suffix-group">
+            <div class="last-name-field">
+              <label for="lastName">Last Name *</label>
+              <input
+                type="text"
+                id="lastName"
+                formControlName="lastName"
+                  [class.error]="isFieldInvalid('personalInfo.lastName')">
+              <div *ngIf="isFieldInvalid('personalInfo.lastName')" class="error-message">
+                {{getFieldError('personalInfo.lastName')}}
+              </div>
+            </div>
+            <div class="middle-initial-field">
+              <label for="middleInitial">M.I.</label>
+              <input
+                type="text"
+                id="middleInitial"
+                formControlName="middleInitial"
+                  placeholder="M.I."
+                  maxlength="3">
+            </div>
+            <div class="suffix-field">
+              <label for="suffix">Suffix</label>
+              <input
+                type="text"
+                id="suffix"
+                formControlName="suffix"
+                  placeholder="Jr., Sr., III">
+            </div>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group preferred-userid-group">
+            <div class="preferred-name-field">
+              <label for="preferredName">Preferred First Name</label>
+              <input type="text" id="preferredName" formControlName="preferredName">
+            </div>
+            <div class="user-id-field">
+              <label for="userId">User ID</label>
+              <input type="text" id="userId" formControlName="userId" readonly>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="firstDay">First Day of Employment *</label>
+            <input
+              type="date"
+              id="firstDay"
+              formControlName="firstDay"
+              [max]="maxEmploymentDate"
+              (blur)="onFirstDayBlur()"
+              [class.error]="isFieldInvalid('personalInfo.firstDay')">
+            <div *ngIf="isFieldInvalid('personalInfo.firstDay')" class="error-message">
+              {{getFieldError('personalInfo.firstDay')}}
+            </div>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group half">
+            <label for="referredBy">Referred By</label>
+            <input type="text" id="referredBy" formControlName="referredBy">
+          </div>
+          <div class="form-group half">
+            <label>Rehire *</label>
+            <div class="radio-group">
+              <div class="radio-option">
+                <input type="radio" id="rehireYes" formControlName="rehire" value="yes">
+                <label for="rehireYes" class="radio-label">Yes</label>
+              </div>
+              <div class="radio-option">
+                <input type="radio" id="rehireNo" formControlName="rehire" value="no">
+                <label for="rehireNo" class="radio-label">No</label>
+              </div>
+            </div>
+            <div *ngIf="isFieldInvalid('personalInfo.rehire')" class="error-message">
+              {{getFieldError('personalInfo.rehire')}}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Position Information Section -->
+      <div class="section" formGroupName="positionInfo">
+        <h2 class="section-title">Position Information</h2>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label for="company">Company *</label>
+            <app-searchable-dropdown
+              [items]="companiesForDropdown"
+              [config]="companyDropdownConfig"
+              [required]="true"
+              formControlName="company"
+              (selectionChanged)="onCompanySelected($event)">
+            </app-searchable-dropdown>
+            <div *ngIf="isFieldInvalid('positionInfo.company')" class="error-message">
+              {{getFieldError('positionInfo.company')}}
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="physicalLocation">Physical Location *</label>
+            <app-searchable-dropdown
+              [items]="physicalLocationsForDropdown"
+              [config]="physicalLocationDropdownConfig"
+              formControlName="physicalLocation"
+              (selectionChanged)="onPhysicalLocationSelected($event)"
+              [class.error]="isFieldInvalid('positionInfo.physicalLocation')">
+            </app-searchable-dropdown>
+            <div *ngIf="isFieldInvalid('positionInfo.physicalLocation')" class="error-message">
+              {{getFieldError('positionInfo.physicalLocation')}}
+            </div>
+          </div>
+        </div>
+
+        <!-- Union Section (conditional) -->
+        <div *ngIf="showUnionFields" class="form-row">
+          <div class="form-group half">
+            <label>Union *</label>
+            <div class="radio-group">
+              <div class="radio-option">
+                <input type="radio" id="unionYes" formControlName="union" value="yes">                <label for="unionYes" class="radio-label">Yes</label>
+              </div>
+              <div class="radio-option">
+                <input type="radio" id="unionNo" formControlName="union" value="no">                <label for="unionNo" class="radio-label">No</label>
+              </div>
+            </div>
+          </div>
+          <div *ngIf="isUnionYes" class="form-group half">
+            <label for="unionCraft">Union Craft</label>
+            <app-searchable-dropdown
+              [items]="unionCraftsForDropdown"
+              [config]="unionCraftDropdownConfig"
+              formControlName="unionCraft"
+              (selectionChanged)="onUnionCraftSelected($event)"
+              [class.error]="isFieldInvalid('positionInfo.unionCraft')">
+            </app-searchable-dropdown>
+            <div *ngIf="isFieldInvalid('positionInfo.unionCraft')" class="error-message">
+              {{getFieldError('positionInfo.unionCraft')}}
+            </div>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group employment-status-field">
+            <label for="employmentStatus">Employment Status *</label>
+            <app-searchable-dropdown
+              [items]="employmentStatusesForDropdown"
+              [config]="employmentStatusDropdownConfig"
+              formControlName="employmentStatus"
+              (selectionChanged)="onEmploymentStatusSelected($event)"
+              [class.error]="isFieldInvalid('positionInfo.employmentStatus')">
+            </app-searchable-dropdown>
+            <div *ngIf="isFieldInvalid('positionInfo.employmentStatus')" class="error-message">
+              {{getFieldError('positionInfo.employmentStatus')}}
+            </div>
+          </div>
+          <div *ngIf="showUnionFields && isUnionYes" class="form-group" id="apprenticeField">
+            <label>Apprentice</label>
+            <div class="radio-group">
+              <div class="radio-option">
+                <input type="radio" id="apprenticeYes" formControlName="apprentice" value="yes">                <label for="apprenticeYes" class="radio-label">Yes</label>
+              </div>
+              <div class="radio-option">
+                <input type="radio" id="apprenticeNo" formControlName="apprentice" value="no">                <label for="apprenticeNo" class="radio-label">No</label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div *ngIf="showUnionFields && isUnionYes" class="form-row">
+          <div class="form-group half">
+            <label>Union Wage</label>
+            <div class="radio-group">
+              <div class="radio-option">
+                <input type="radio" id="unionWageYes" formControlName="unionWage" value="yes">                <label for="unionWageYes" class="radio-label">Yes</label>
+              </div>
+              <div class="radio-option">
+                <input type="radio" id="unionWageNo" formControlName="unionWage" value="no">                <label for="unionWageNo" class="radio-label">No</label>
+              </div>
+            </div>
+          </div>
+          <div *ngIf="showApprenticeDropdown" class="form-group half">
+            <label for="apprenticeDropdown">Apprentice</label>
+            <app-searchable-dropdown
+              [items]="apprenticePercentagesForDropdown"
+              [config]="apprenticePercentageDropdownConfig"
+              formControlName="apprenticeDropdown"
+              (selectionChanged)="onApprenticePercentageSelected($event)"
+              [class.error]="isFieldInvalid('positionInfo.apprenticeDropdown')">
+            </app-searchable-dropdown>
+            <div *ngIf="isFieldInvalid('positionInfo.apprenticeDropdown')" class="error-message">
+              {{getFieldError('positionInfo.apprenticeDropdown')}}
+            </div>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group hourly-salaried-field">
+            <label for="salaryCode">Hourly/Salaried *</label>
+            <app-searchable-dropdown
+              [items]="employeeSalaryTypesForDropdown"
+              [config]="employeeSalaryTypeDropdownConfig"
+              formControlName="salaryCode"
+              (selectionChanged)="onEmployeeSalaryTypeSelected($event)"
+              [class.error]="isFieldInvalid('positionInfo.salaryCode')">
+            </app-searchable-dropdown>
+            <div *ngIf="isFieldInvalid('positionInfo.salaryCode')" class="error-message">
+              {{getFieldError('positionInfo.salaryCode')}}
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="position">Position *</label>
+            <app-searchable-dropdown
+              [items]="positionsForDropdown"
+              [config]="positionDropdownConfig"
+              formControlName="position"
+              (selectionChanged)="onPositionSelected($event)"
+              [class.error]="isFieldInvalid('positionInfo.position')">
+            </app-searchable-dropdown>
+            <div *ngIf="isFieldInvalid('positionInfo.position')" class="error-message">
+              {{getFieldError('positionInfo.position')}}
+            </div>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="payrollCode">Payroll Department *</label>
+
+            <!-- Editable Mode: Searchable Dropdown -->
+            <app-searchable-dropdown
+              *ngIf="isFormEditable"
+              [items]="payrollDepartmentsForDropdown"
+              [config]="payrollDepartmentDropdownConfig"
+              formControlName="payrollCode"
+              (selectionChanged)="onPayrollDepartmentSelected($event)"
+              [class.error]="isFieldInvalid('positionInfo.payrollCode')">
+            </app-searchable-dropdown>
+
+            <!-- View Mode: Text Input (readonly) -->
+            <input
+              *ngIf="!isFormEditable"
+              type="text"
+              id="payrollCode"
+              formControlName="payrollDisplayName"
+              readonly
+              [class.error]="isFieldInvalid('positionInfo.payrollDisplayName')">
+
+            <div *ngIf="isFieldInvalid('positionInfo.payrollCode') || isFieldInvalid('positionInfo.payrollDisplayName')" class="error-message">
+              {{getFieldError('positionInfo.payrollCode') || getFieldError('positionInfo.payrollDisplayName')}}
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="supervisor">Supervisor *</label>
+
+            <!-- Editable Mode: Searchable Dropdown -->
+            <app-searchable-dropdown
+              *ngIf="isFormEditable"
+              [items]="supervisorsForDropdown"
+              [config]="supervisorDropdownConfig"
+              formControlName="supervisor"
+              (selectionChanged)="onSupervisorSelected($event)"
+              [class.error]="isFieldInvalid('positionInfo.supervisor')">
+            </app-searchable-dropdown>
+
+            <!-- View Mode: Text Input (readonly) -->
+            <input
+              *ngIf="!isFormEditable"
+              type="text"
+              id="supervisor"
+              formControlName="supervisorDisplayName"
+              readonly
+              [class.error]="isFieldInvalid('positionInfo.supervisorDisplayName')">
+
+            <div *ngIf="isFieldInvalid('positionInfo.supervisor') || isFieldInvalid('positionInfo.supervisorDisplayName')" class="error-message">
+              {{getFieldError('positionInfo.supervisor') || getFieldError('positionInfo.supervisorDisplayName')}}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- General Information Section -->
+      <div class="section" formGroupName="creditCardInfo">
+        <h2 class="section-title">General Information</h2>
+        
+        <div class="credit-cards-section">
+          <h3 class="credit-card-title">Credit Cards</h3>
+          
+          <div class="credit-card-question">
+            <label>Does this employee need a Kwik Trip Credit Card?</label>
+            <div class="radio-group">
+              <div class="radio-option">
+                <input type="radio" id="kwikTripYes" formControlName="kwikTripCard" value="yes">                <label for="kwikTripYes" class="radio-label">Yes</label>
+              </div>
+              <div class="radio-option">
+                <input type="radio" id="kwikTripNo" formControlName="kwikTripCard" value="no">                <label for="kwikTripNo" class="radio-label">No</label>
+              </div>
+            </div>
+            <div *ngIf="isFieldInvalid('creditCardInfo.kwikTripCard')" class="error-message">
+              {{getFieldError('creditCardInfo.kwikTripCard')}}
+            </div>
+          </div>
+
+          <div class="credit-card-question">
+            <label>Does the employee need a company credit card?</label>
+            <div class="radio-group">
+              <div class="radio-option">
+                <input type="radio" id="companyExpenseYes" formControlName="companyExpenseCard" value="yes">                <label for="companyExpenseYes" class="radio-label">Yes</label>
+              </div>
+              <div class="radio-option">
+                <input type="radio" id="companyExpenseNo" formControlName="companyExpenseCard" value="no">                <label for="companyExpenseNo" class="radio-label">No</label>
+              </div>
+            </div>
+            <div *ngIf="isFieldInvalid('creditCardInfo.companyExpenseCard')" class="error-message">
+              {{getFieldError('creditCardInfo.companyExpenseCard')}}
+            </div>
+          </div>
+
+          <!-- Conditional Company Credit Card Fields -->
+          <div *ngIf="showExpenseCardFields">
+            <div class="credit-card-question" style="margin-left: 30px;">
+              <div class="radio-group">
+                <div class="radio-option">
+                  <input type="radio" id="creditExpenseFuelOnly" formControlName="creditExpenseType" value="Fuel Only">
+                  <label for="creditExpenseFuelOnly" class="radio-label">Fuel Only</label>
+                </div>
+                <div class="radio-option">
+                  <input type="radio" id="creditExpenseOpenAll" formControlName="creditExpenseType" value="Open for all business purchases">
+                  <label for="creditExpenseOpenAll" class="radio-label">Open for all business purchases</label>
+                </div>
+              </div>
+            </div>
+
+            <div class="credit-card-question" style="margin-left: 30px;">
+              <label for="weeklyLimit">Company Credit Card Weekly Limit</label>
+              <input type="number" id="weeklyLimit" formControlName="weeklyLimit"
+                     class="monetary-input" step="0.01" min="0" placeholder="0.00">
+            </div>
+          </div>
+
+          <div class="credit-card-question">
+            <label>Fuel Cardlock Access</label>
+            <div class="radio-group">
+              <div class="radio-option">
+                <input type="radio" id="fuelCardlockYes" formControlName="fuelCardlockAccess" value="yes">
+                <label for="fuelCardlockYes" class="radio-label">Yes</label>
+              </div>
+              <div class="radio-option">
+                <input type="radio" id="fuelCardlockNo" formControlName="fuelCardlockAccess" value="no">
+                <label for="fuelCardlockNo" class="radio-label">No</label>
+              </div>
+            </div>
+            <div *ngIf="isFieldInvalid('creditCardInfo.fuelCardlockAccess')" class="error-message">
+              {{getFieldError('creditCardInfo.fuelCardlockAccess')}}
+            </div>
+          </div>
+
+          <div *ngIf="showCardlockShipAddress" class="credit-card-question" style="margin-left: 30px;">
+            <label for="cardlockShipAddress">Cardlock - ship address</label>
+            <input type="text" id="cardlockShipAddress" formControlName="cardlockShipAddress" placeholder="Enter shipping address">
+          </div>
+        </div>
+      </div>
+
+      <!-- Vehicle Section -->
+      <div class="section" formGroupName="vehicleInfo">
+        <h3 class="credit-card-title">Company Vehicles Details</h3>
+        
+        <div class="credit-card-question">
+          <label>Approved to Operate Company Vehicle</label>
+          <div class="radio-group">
+            <div class="radio-option">
+              <input type="radio" id="approvedVehicleYes" formControlName="approvedVehicle" value="yes">
+              <label for="approvedVehicleYes" class="radio-label">Yes</label>
+            </div>
+            <div class="radio-option">
+              <input type="radio" id="approvedVehicleNo" formControlName="approvedVehicle" value="no">
+              <label for="approvedVehicleNo" class="radio-label">No</label>
+            </div>
+          </div>
+          <div *ngIf="isFieldInvalid('vehicleInfo.approvedVehicle')" class="error-message">
+            {{getFieldError('vehicleInfo.approvedVehicle')}}
+          </div>
+        </div>
+
+        <!-- Conditional Vehicle Fields -->
+        <div *ngIf="showVehicleFields">
+          <div class="credit-card-question" style="margin-left: 30px;">
+            <label for="driverClassification">Driver Classification</label>
+            <app-searchable-dropdown
+              [items]="employeeLicenseClassesForDropdown"
+              [config]="employeeLicenseClassDropdownConfig"
+              formControlName="driverClassification">
+            </app-searchable-dropdown>
+          </div>
+
+          <div class="credit-card-question" style="margin-left: 30px;">
+            <label>Drug & Alcohol Profile</label>
+            <div class="radio-group">
+              <div class="radio-option">
+                <input type="radio" id="dotDrugPool" formControlName="drugAlcoholProfile" value="DOT Drug Pool">
+                <label for="dotDrugPool" class="radio-label">DOT Drug Pool</label>
+              </div>
+              <div class="radio-option">
+                <input type="radio" id="wiPrevailingWage" formControlName="drugAlcoholProfile" value="WI Prevailing Wage Pool">
+                <label for="wiPrevailingWage" class="radio-label">WI Prevailing Wage Pool</label>
+              </div>
+              <div class="radio-option">
+                <input type="radio" id="noTesting" formControlName="drugAlcoholProfile" value="No Testing">
+                <label for="noTesting" class="radio-label">No Testing</label>
+              </div>
+            </div>
+          </div>
+
+          <div class="credit-card-question" style="margin-left: 30px;">
+            <label>Do You Need a Company Car</label>
+            <div class="radio-group">
+              <div class="radio-option">
+                <input type="radio" id="companyCarYes" formControlName="companyCarNeeded" value="yes">
+                <label for="companyCarYes" class="radio-label">Yes</label>
+              </div>
+              <div class="radio-option">
+                <input type="radio" id="companyCarNo" formControlName="companyCarNeeded" value="no">
+                <label for="companyCarNo" class="radio-label">No</label>
+              </div>
+            </div>
+          </div>
+
+          <div class="credit-card-question" style="margin-left: 30px;">
+            <label>Is Application Part 2 Complete</label>
+            <div class="radio-group">
+              <div class="radio-option">
+                <input type="radio" id="applicationPart2Yes" formControlName="applicationPart2" value="yes">
+                <label for="applicationPart2Yes" class="radio-label">Yes</label>
+              </div>
+              <div class="radio-option">
+                <input type="radio" id="applicationPart2No" formControlName="applicationPart2" value="no">
+                <label for="applicationPart2No" class="radio-label">No</label>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Building Access Section -->
+      <div class="section">
+        <div class="credit-cards-section">
+          <h3 class="credit-card-title">Building Access Requirements (Key Fob)</h3>
+
+          <div class="credit-card-question" formArrayName="buildingAccess">
+            <div class="building-access-grid" *ngIf="availableBuildingAccess.length > 0">
+              <div *ngFor="let column of buildingAccessColumns; let colIndex = index; trackBy: trackByIndex" class="building-access-column">
+                <div *ngFor="let item of column; let itemIndex = index; trackBy: trackByBuildingAccessItem" class="building-access-item">
+                  <input
+                    type="checkbox"
+                    [id]="'buildingAccess' + getItemFormIndex(colIndex, itemIndex)"
+                    [formControlName]="getItemFormIndex(colIndex, itemIndex)"
+                    class="building-access-checkbox">
+                  <label
+                    [for]="'buildingAccess' + getItemFormIndex(colIndex, itemIndex)"
+                    class="building-access-label">
+                    {{item}}
+                  </label>
+                </div>
+              </div>
+            </div>
+            <div *ngIf="availableBuildingAccess.length === 0" class="no-building-access">
+              <p>No building access options available for the selected company.</p>
+            </div>
+          </div>
+
+          <!-- Use Existing Key Fob -->
+          <div class="building-access-item use-existing-keyfob-row">
+            <input
+              type="checkbox"
+              id="useExistingKeyFob"
+              formControlName="useExistingKeyFob"
+              (change)="onUseExistingKeyFobChange($event)"
+              class="building-access-checkbox">
+            <label for="useExistingKeyFob" class="building-access-label">
+              Will use existing key fob; needs to be reprogrammed
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Notes Section -->
+      <div class="section">
+        <div class="form-row">
+          <div class="form-group full-width">
+            <label for="notes-personal">Additional Notes</label>
+            <textarea
+              id="notes-personal"
+              formControlName="notes"
+              rows="4"
+              placeholder="Enter any additional notes or comments..."></textarea>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- IT Related Information Tab -->
+    <div *ngIf="activeTab === 'it'" class="tab-content active">
+      
+      <!-- Other Info Section - Always visible -->
+      <div class="section ng-invalid ng-dirty ng-touched"
+           formGroupName="itInfo">
+        <h2 class="section-title">Other Info</h2>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label>Does New Hire Require an Email Address</label>
+            <div class="radio-group">
+              <div class="radio-option">
+                <input type="radio" id="emailRequiredYes" formControlName="emailRequired" value="yes">
+                <label for="emailRequiredYes" class="radio-label">Yes</label>
+              </div>
+              <div class="radio-option">
+                <input type="radio" id="emailRequiredNo" formControlName="emailRequired" value="no">
+                <label for="emailRequiredNo" class="radio-label">No</label>
+              </div>
+            </div>
+            <div *ngIf="isFieldInvalid('itInfo.emailRequired')" class="error-message">
+              {{getFieldError('itInfo.emailRequired')}}
+            </div>
+          </div>
+        </div>
+
+        <div class="form-row" *ngIf="showMicrosoftLicenseSection">
+          <div class="form-group">
+            <label>Microsoft Office License</label>
+            <div class="microsoft-license-options">
+              <div class="license-option">
+                <input type="radio" id="e5License" formControlName="microsoftLicense" value="e5">
+                <label for="e5License" class="license-label">
+                  Microsoft Office Desktop (E5) License (Word, Excel, Powerpoint, etc, are INSTALLED on the user's computer) Cost is $428 per year.
+                </label>
+              </div>
+              <div class="license-option">
+                <input type="radio" id="f3License" formControlName="microsoftLicense" value="f3">
+                <label for="f3License" class="license-label">
+                  Microsoft Office Web (F3) License (Word, Excel, Powerpoint, etc, will ONLY be available via Web Browser) Cost is $96 per year.
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-row" *ngIf="isEmailRequired">
+          <div class="form-group half">
+            <label for="emailAddress">Email Address</label>
+            <input type="text" id="emailAddress" formControlName="emailAddress" readonly>
+          </div>
+        </div>
+      </div>
+
+      <!-- IT Hardware Section -->
+      <div class="section" formGroupName="itInfo">
+        <h2 class="section-title">IT Hardware</h2>
+        
+        <div class="credit-cards-section">
+          <h3 class="credit-card-title">Phone Requirements</h3>
+          
+          <div class="credit-card-question">
+            <label class="phone-types-label">Phone Types</label>
+            <div class="phone-types-list" formArrayName="phoneTypes">
+              <div class="phone-type-item">
+                <input type="checkbox" id="deskPhone" [formControlName]="0">
+                <label for="deskPhone" class="phone-type-label">Desk Phone</label>
+              </div>
+              <div class="phone-type-item">
+                <input type="checkbox" id="companyCellPhone" [formControlName]="1">
+                <label for="companyCellPhone" class="phone-type-label">Company Cell Phone</label>
+              </div>
+              <div class="phone-type-item">
+                <input type="checkbox" id="byodCellPhone" [formControlName]="2">
+                <label for="byodCellPhone" class="phone-type-label">BYOD Cell Phone</label>
+              </div>
+            </div>
+          </div>
+
+          <div class="credit-card-question" *ngIf="isDeskPhoneSelected && isEcmAdmin">
+            <div class="form-row">
+              <div class="form-group half">
+                <label for="workPhoneNumber">Work Phone Number (to be completed by IT)</label>
+                <input type="text" id="workPhoneNumber" formControlName="workPhoneNumber" placeholder="Phone number will be assigned by IT">
+              </div>
+              <div class="form-group half">
+                <label for="workExtension">Work Extension (to be completed by IT)</label>
+                <input type="text" id="workExtension" formControlName="workExtension" placeholder="Extension will be assigned by IT">
+              </div>
+            </div>
+          </div>
+
+          <div class="credit-card-question" *ngIf="isDeskPhoneSelected">
+            <label>Reusing Existing Desk Phone?</label>
+            <div class="radio-group">
+              <div class="radio-option">
+                <input type="radio" id="reusingPhoneYes" formControlName="reusingPhone" value="yes">
+                <label for="reusingPhoneYes" class="radio-label">Yes</label>
+              </div>
+              <div class="radio-option">
+                <input type="radio" id="reusingPhoneNo" formControlName="reusingPhone" value="no">
+                <label for="reusingPhoneNo" class="radio-label">No</label>
+              </div>
+            </div>
+            <div *ngIf="isFieldInvalid('itInfo.reusingPhone')" class="error-message">
+              {{getFieldError('itInfo.reusingPhone')}}
+            </div>
+          </div>
+        </div>
+
+        <div class="credit-cards-section">
+          <h3 class="credit-card-title">Computer Requirements</h3>
+          
+          <div class="credit-card-question">
+            <label class="computer-equipment-label">Computer Equipment</label>
+            
+            <!-- Loading State -->
+            <div *ngIf="isLoading" style="padding: 20px; text-align: center; color: #666;">
+              Loading computer requirements...
+            </div>
+            
+            <!-- No Data State -->
+            <div *ngIf="!isLoading && parentComputerRequirements.length === 0" style="padding: 20px; color: #666;">
+              No computer requirements available.
+            </div>
+            
+            <!-- Computer Requirements List -->
+            <div *ngIf="!isLoading && parentComputerRequirements.length > 0" class="computer-equipment-list">
+              <!-- None Option (Always First) -->
+              <div class="computer-equipment-section">
+                <div class="computer-equipment-item">
+                  <input
+                    type="radio"
+                    name="computerEquipment"
+                    id="requirement-none"
+                    formControlName="computerEquipment"
+                    value="none"
+                    [checked]="isComputerEquipmentNoneSelected()">
+                  <label
+                    for="requirement-none"
+                    class="computer-equipment-label-item">
+                    None
+                  </label>
+                </div>
+              </div>
+
+              <!-- Parent Computer Requirements (Radio Buttons) -->
+              <div *ngFor="let requirement of parentComputerRequirements; let i = index" class="computer-equipment-section">
+                <div class="computer-equipment-item">
+                  <input
+                    type="radio"
+                    name="computerEquipment"
+                    [id]="'requirement-' + requirement.id"
+                    formControlName="computerEquipment"
+                    [value]="requirement.id"
+                    [checked]="isParentSelected(requirement.id)"
+                    (change)="onParentComputerRequirementChange(requirement)">
+                  <label
+                    [for]="'requirement-' + requirement.id"
+                    class="computer-equipment-label-item">
+                    {{requirement.description}}
+                  </label>
+                </div>
+
+                <!-- Child Computer Requirements (shown conditionally) -->
+                <div
+                  *ngIf="isParentSelected(requirement.id)"
+                  class="child-requirements"
+                  style="margin-left: 30px; margin-top: 10px;">
+                  <div *ngFor="let childReq of getChildRequirements(requirement.id); let j = index"
+                       class="computer-equipment-item">
+                    <input
+                      type="checkbox"
+                      [id]="'child-' + childReq.id"
+                      [checked]="getChildControlValue(requirement.id, childReq.id)"
+                      [disabled]="!isFormEditable"
+                      (change)="onChildComputerRequirementChange($event, requirement.id, childReq.id)">
+                    <label
+                      [for]="'child-' + childReq.id"
+                      class="computer-equipment-label-item">
+                      {{childReq.description}}
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <div class="credit-cards-section">
+          <h3 class="credit-card-title">Tablet Profile</h3>
+          
+          <div class="credit-card-question">
+            <label style="margin-bottom: 15px; font-weight: 600;">Roles Required For New Hires *</label>
+            <div style="margin-left: 20px;">
+              <div style="margin-bottom: 15px;" *ngFor="let role of availableRoles">
+                <div style="display: flex; align-items: center; margin-bottom: 8px;">
+                  <input
+                    type="radio"
+                    [id]="getRoleId(role.value)"
+                    formControlName="rolesRequiredNewHires"
+                    [value]="role.value"
+                    required
+                    style="margin-right: 8px;">
+                  <label
+                    [for]="getRoleId(role.value)"
+                    style="font-weight: 500; cursor: pointer; margin-bottom: 0;">
+                    {{role.label}}
+                  </label>
+                </div>
+
+                <!-- Role textbox hidden per requirements -->
+              </div>
+
+              <div *ngIf="availableRoles.length === 0" class="no-building-access">
+                <p>No Tablet Profile available for the selected company.</p>
+              </div>
+            </div>
+            
+            <div *ngIf="isFieldInvalid('itInfo.rolesRequiredNewHires')" class="error-message">
+              {{getFieldError('itInfo.rolesRequiredNewHires')}}
+            </div>
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label class="delivery-label">
+                <span>All items will be delivered to</span>
+                <span class="selected-location">{{selectedPhysicalLocation}}</span>
+                <span>unless noted here:</span>
+                <input type="text" formControlName="deliveryNote" placeholder="Enter alternative delivery location" class="delivery-note-input">
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Application/Software Section -->
+      <div class="section">
+        <h2 class="section-title">Application/Software</h2>
+        
+        <div formArrayName="applicationSoftware">
+          <div *ngFor="let item of applicationSoftwareArray.controls; let i = index; let last = last"
+               class="form-row application-software-row"
+               [formGroupName]="i">
+            <div class="form-group">
+              <label [for]="'applicationSoftware_' + i">Application/Software</label>
+              <app-searchable-dropdown
+                [items]="applicationsForDropdown"
+                [config]="applicationDropdownConfig"
+                formControlName="applicationSoftware"
+                [class.error]="isFieldInvalid('applicationSoftware.' + i + '.applicationSoftware')">
+              </app-searchable-dropdown>
+            </div>
+            <div class="form-group">
+              <label [for]="'applicationAccessNote_' + i">Application/Software Access Note</label>
+              <div class="input-with-buttons">
+                <input 
+                  type="text" 
+                  [id]="'applicationAccessNote_' + i" 
+                  formControlName="applicationAccessNote" 
+                  class="flex-input">
+                <button type="button" class="icon-btn add-btn" (click)="addApplicationRow()" [disabled]="!isFormEditable" [style.display]="isFormEditable && last ? 'flex' : 'none'" title="Add row">
+                  <svg viewBox="0 0 24 24">
+                    <path d="M12 5V19M5 12H19"/>
+                  </svg>
+                </button>
+                <button
+                  type="button"
+                  class="icon-btn remove-btn"
+                  (click)="removeApplicationRow(i)"
+                  [disabled]="!isFormEditable"
+                  [style.display]="isFormEditable && applicationSoftwareArray.length > 1 ? 'flex' : 'none'"
+                  title="Remove row">
+                  <svg viewBox="0 0 24 24">
+                    <path d="M18 6L6 18M6 6L18 18"/>
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Folder/Sharepoint/Mailbox Section -->
+      <div class="section">
+        <h2 class="section-title">Folder/Sharepoint/Mailbox</h2>
+
+        <div formArrayName="folderSharepoint">
+          <div *ngFor="let item of folderSharepointArray.controls; let i = index; let last = last"
+               class="form-row folder-sharepoint-row"
+               [formGroupName]="i">
+            <div class="form-group">
+              <label [for]="'type_' + i">Type</label>
+              <select [id]="'type_' + i" formControlName="type">
+                <option value="">Please select...</option>
+                <option value="Folder">Folder</option>
+                <option value="Sharepoint">Sharepoint</option>
+                <option value="Mailbox">Mailbox</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label [for]="'folderSharepointMailbox_' + i">Folder/Sharepoint/Mailbox</label>
+              <div class="input-with-buttons">
+                <input
+                  type="text"
+                  [id]="'folderSharepointMailbox_' + i"
+                  formControlName="folderSharepointMailbox"
+                  class="flex-input">
+                <button type="button" class="icon-btn add-btn" (click)="addFolderSharepointRow()" [disabled]="!isFormEditable" [style.display]="isFormEditable && last ? 'flex' : 'none'" title="Add row">
+                  <svg viewBox="0 0 24 24">
+                    <path d="M12 5V19M5 12H19"/>
+                  </svg>
+                </button>
+                <button
+                  type="button"
+                  class="icon-btn remove-btn"
+                  (click)="removeFolderSharepointRow(i)"
+                  [disabled]="!isFormEditable"
+                  [style.display]="isFormEditable && folderSharepointArray.length > 1 ? 'flex' : 'none'"
+                  title="Remove row">
+                  <svg viewBox="0 0 24 24">
+                    <path d="M18 6L6 18M6 6L18 18"/>
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Notes Section -->
+      <div class="section">
+        <div class="form-row">
+          <div class="form-group full-width">
+            <label for="notes-it">Additional Notes</label>
+            <textarea
+              id="notes-it"
+              formControlName="notes"
+              rows="4"
+              placeholder="Enter any additional notes or comments..."></textarea>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Draft Mode Actions -->
+    <div class="form-actions" *ngIf="isDraftRequest">
+      <button type="button" class="btn btn-secondary" (click)="goBack()">Cancel</button>
+      <button
+        type="button"
+        class="btn btn-outline"
+        (click)="saveAsDraft()"
+        [disabled]="isDraftSaving">
+        <span *ngIf="isDraftSaving">Saving Draft...</span>
+        <span *ngIf="!isDraftSaving">Save as Draft</span>
+      </button>
+      <button
+        type="submit"
+        class="btn btn-primary"
+        [disabled]="newHireForm.invalid || isLoading">
+        <span *ngIf="isLoading">Submitting...</span>
+        <span *ngIf="!isLoading">Submit New Hire Request</span>
+      </button>
+    </div>
+
+    <!-- Create Mode Actions -->
+    <div class="form-actions" *ngIf="!isEditMode && !isDraftRequest">
+      <button type="button" class="btn btn-secondary" (click)="goBack()">Cancel</button>
+      <button
+        type="button"
+        class="btn btn-outline"
+        (click)="saveAsDraft()"
+        [disabled]="isDraftSaving">
+        <span *ngIf="isDraftSaving">Saving Draft...</span>
+        <span *ngIf="!isDraftSaving">Save as Draft</span>
+      </button>
+      <button
+        type="submit"
+        class="btn btn-primary"
+        [disabled]="newHireForm.invalid || isLoading">
+        <span *ngIf="isLoading">Submitting...</span>
+        <span *ngIf="!isLoading">Submit New Hire Request</span>
+      </button>
+    </div>
+
+    <!-- Regular Edit Mode Actions (non-draft) -->
+    <div class="form-actions" *ngIf="isEditMode && !isDraftRequest" style="justify-content: flex-end; gap: 12px;">
+      <button
+        *ngIf="canUpdatePhoneInfo"
+        type="button"
+        class="btn btn-primary"
+        (click)="updatePhoneInfo()"
+        [disabled]="isUpdatingPhoneInfo">
+        <span *ngIf="isUpdatingPhoneInfo">Updating...</span>
+        <span *ngIf="!isUpdatingPhoneInfo">Update New Hire Request</span>
+      </button>
+      <button
+        *ngIf="canUpdateDate && !canUpdatePhoneInfo"
+        type="button"
+        class="btn btn-primary"
+        (click)="updateEffectiveDate()"
+        [disabled]="isUpdatingDate || newHireForm.get('personalInfo.firstDay')?.value === originalEffectiveDate">
+        <span *ngIf="isUpdatingDate">Updating...</span>
+        <span *ngIf="!isUpdatingDate">Update Date</span>
+      </button>
+      <app-cancel-request-button
+        [parentId]="parentId"
+        [isEditMode]="isEditMode"
+        [isCancelledRequest]="isCancelledRequest"
+        [requestStatusId]="requestStatusId"
+        [requestType]="'new hire request'"
+        (cancelled)="onRequestCancelled()">
+      </app-cancel-request-button>
+      <app-back-to-homepage-button
+        *ngIf="!canUpdatePhoneInfo && !canUpdateDate"
+        [showButton]="isEditMode"
+        [parentId]="parentId">
+      </app-back-to-homepage-button>
+    </div>
+  </form>
+
+  <!-- Cancel Confirmation Dialog -->
+  <app-confirmation-dialog
+    [show]="showCancelConfirmDialog"
+    [config]="confirmCancelDialogConfig"
+    (confirmed)="onCancelConfirmed()"
+    (cancelled)="onCancelDialogClosed()"
+    (closed)="onCancelDialogClosed()">
+  </app-confirmation-dialog>
+  </div>
+</div>
