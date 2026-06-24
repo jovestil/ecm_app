@@ -312,7 +312,7 @@ Connect to your SQL Server and verify the `MathyELM` database exists with tables
 ### Start Backend API
 
 "ConnectionStrings": {
-        "DefaultConnection": "Server=MAT-IIS;Database=MathyELM;User Id=sa;Password=Test1234;TrustServerCertificate=True;"
+        "DefaultConnection": "Server=MAT-IIS;Database=MathyELM;User Id=sa;Password=YOURPASSWORD;TrustServerCertificate=True;"
     },
 
 Open a terminal and run:
